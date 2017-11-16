@@ -1,0 +1,17 @@
+{
+  "name": "raccoony-webextension",
+  "version": "1.0.0",
+  "description": "A WebExtension for adding shiny features to art websites",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Simon-Tesla <simon.tesla@thornvalley.com>",
+  "license": "MIT",
+  "dependencies": {
+    "webextension-polyfill": "^0.2.1"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "typescript": "^2.6.1"
+  }
+}
