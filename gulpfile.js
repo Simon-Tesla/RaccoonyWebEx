@@ -15,7 +15,8 @@ gulp.task("clean", () => {
 
 
 gulp.task("copy_ext", ["clean"], () => {
-    return gulp.src(["src/**", "static/**", `${outputDir}/lib/**`])
+    // TODO: figure out how to get the typings to work when including browser-polyfill as a module
+    return gulp.src(["src/**", "node_modules/webextension-polyfill/dist/browser-polyfill.js"])
         .pipe(gulp.dest(`${outputDir}/ext/`));
 });
 
@@ -31,7 +32,7 @@ gulp.task("typescript:compile", ["clean"], () => {
 })
 
 function autopack(filename) {
-    return gulp.src(`app/${filename}`)
+    return gulp.src([`app/${filename}`])
         .pipe(webpack({
             "output": { filename }
         }))

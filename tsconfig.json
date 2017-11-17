@@ -1,6 +1,7 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "lib": ["es2017", "dom"],
     "target": "es2017",
     "module": "es2015",
     "moduleResolution": "node",
@@ -9,13 +10,19 @@
     "experimentalDecorators": true,
     "removeComments": false,
     "noImplicitAny": false,
-    "rootDir": "app",
+    "rootDir": ".",
     "noEmitOnError": false,
     "noImplicitThis": true,
     "jsx": "react",
-    "jsxFactory": "h"
+    "jsxFactory": "h",
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/web-ext-types"
+    ]
   },
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    "manifest"
   ]
 }

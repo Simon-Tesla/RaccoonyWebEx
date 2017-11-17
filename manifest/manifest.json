@@ -1,0 +1,37 @@
+{
+  "name": "Raccoony WebExtension",
+  "version": "1.0.0",
+  "manifest_version": 2,
+  "description": "A WebExtension for adding shiny features to art websites.",
+  "icons": {
+    "16": "icon-16.png",
+    "32": "icon-32.png",
+    "64": "icon-64.png",
+    "128": "icon-128.png"
+  },
+  "background": {
+    "scripts": [
+      "browser-polyfill.js",
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [ "*://*.furaffinity.net/*" ],
+      "js": [
+        "browser-polyfill.js",
+        "page_inject.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    "delayload.html"
+  ],
+  "homepage_url": "http://raccoony.thornvalley.com/",
+  "permissions": [
+    "storage",
+    "downloads"
+  ]
+}
