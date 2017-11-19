@@ -2,7 +2,10 @@
 export enum MessageAction {
     Test = "messageaction_test",
     Download = "messageaction_download",
-    OpenTabs = "messageaction_opentabs"
+    OpenTabs = "messageaction_opentabs",
+    ShowFile = "messageaction_showfile",
+    OpenFile = "messageaction_openfile",
+    CheckDownlod = "messageaction_checkdownload",
 }
 
 export enum MediaType {

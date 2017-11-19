@@ -41,7 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
         button.onclick = () => {
             let message: I.MessageRequest<I.Media> = {
                 action: MessageAction.Download,
-                data: media,
+                data: {
+                    sourceUrl: window.location.href,
+                    ...media
+                },
             }
             logger.log("sending message", message);
             browser.runtime.sendMessage(message);

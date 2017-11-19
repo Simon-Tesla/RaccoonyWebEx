@@ -23,6 +23,7 @@ export interface Media {
     title?: string;
     description?: string;
     tags?: string[];
+    sourceUrl: string;
 }
 
 export interface PageLink {

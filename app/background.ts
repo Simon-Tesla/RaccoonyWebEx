@@ -1,7 +1,7 @@
 import { MessageAction } from './enums';
 import * as I from './definitions';
 import openInTabs from './openTabs';
-import { downloadFile } from './download';
+import * as download from './download';
 import * as logger from './logger';
 
 logger.log("[background] setting up listeners");
@@ -15,13 +15,18 @@ browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: c
             }).then((tab) => {
                 logger.log("[background.test] tab created", tab);
             });
-            break;
+            return null;
         case MessageAction.OpenTabs:
-            openInTabs(request.data);
-            break;
+            return openInTabs(request.data);
         case MessageAction.Download:
-            downloadFile(request.data);
-            break;
+            return download.downloadFile(request.data);
+        case MessageAction.OpenFile:
+            return download.openFile(request.data);
+        case MessageAction.ShowFile:
+            return download.showFile(request.data);
+        case MessageAction.CheckDownlod:
+            return download.isDownloaded(request.data);
     }
-    return Promise.resolve();
+    logger.error('Invalid message received')
+    return Promise.reject(new Error('Invalid message'));
 });
