@@ -32,13 +32,40 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
 }
 
 //TODO: should probably move these somewhere else
-export function querySelectorAll(selector: string, scope?: HTMLElement) {
-    let list = <NodeListOf<HTMLElement>>((scope || document).querySelectorAll(selector));
+export function querySelectorAll<T extends HTMLElement>(selector: string, scope?: HTMLElement): T[] {
+    let list = <NodeListOf<T>>((scope || document).querySelectorAll(selector));
     return Array.from(list);
 }
 
-export function querySelector(selector: string, scope?: HTMLElement) {
-    return <HTMLElement>((scope || document).querySelector(selector));
+export function querySelector<T extends HTMLElement>(selector: string, scope?: HTMLElement): T {
+    return <T>((scope || document).querySelector(selector));
+}
+
+export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string) => string): I.PageLink[] {
+    return links.map(linkElt => {
+        let href = linkElt.href;
+        let id = getIdFromSubmissionUrl(href);
+
+        let link: I.PageLink = {
+            url: href,
+            submissionId: id,
+        };
+        return link;
+    });
+}
+
+export function getFilenameParts(filename: string) {
+    const extIndex = filename.lastIndexOf(".");
+    let ext = '';
+    if (extIndex !== -1) {
+        ext = filename.substring(extIndex + 1);
+        filename = filename.substring(0, extIndex);
+
+    }
+    return {
+        ext,
+        filename,
+    }
 }
 
 let extMap: { [ext: string]: MediaType } = {};

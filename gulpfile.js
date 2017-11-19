@@ -21,9 +21,9 @@ gulp.task("copy_ext", ["clean"], () => {
 });
 
 gulp.task("typescript:compile", ["clean"], () => {
-    let failed = false;
-    let tsProject = ts.createProject('tsconfig.json');
-    let tsResult = gulp.src('app/**/*.ts')
+    var failed = false;
+    var tsProject = ts.createProject('tsconfig.json');
+    var tsResult = gulp.src('app/**/*.ts')
         .pipe(tsProject())
         .on("error", function () { failed = true; })
         .on("finish", function () { failed && process.exit(1); });
