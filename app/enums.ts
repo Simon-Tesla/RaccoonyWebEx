@@ -6,6 +6,7 @@ export enum MessageAction {
 }
 
 export enum MediaType {
+    Unknown = -1,
     Image,
     Text,
     Flash,

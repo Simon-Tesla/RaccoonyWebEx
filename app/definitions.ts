@@ -1,7 +1,8 @@
 import * as E from './enums';
 
-export interface MessageRequest {
+export interface MessageRequest<T> {
     action: E.MessageAction;
+    data?: T;
 }
 
 export interface Media {
@@ -11,6 +12,7 @@ export interface Media {
     previewUrl?: string;
     author?: string;
     filename?: string;
+    serviceFilename?: string;
     extension?: string;
     type?: E.MediaType;
     title?: string;
@@ -24,10 +26,10 @@ export interface MediaList {
 }
 
 export interface SitePlugin {
-    getMedia: () => Media | Promise<Media>;
-    getMediaList?: () => MediaList | Promise<MediaList>;
-    hasMedia?: () => boolean | Promise<boolean>;
-    hasMediaList?: () => boolean | Promise<boolean>;
+    getMedia(): Promise<Media>;
+    getMediaList(): Promise<MediaList>;
+    hasMedia(): Promise<boolean>;
+    hasMediaList(): Promise<boolean>;
     // defaultSettings
     // reinitOnMutation -- probably better to just re-query the DOM when saving/open in tabs
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
