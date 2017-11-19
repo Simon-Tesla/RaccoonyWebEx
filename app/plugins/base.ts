@@ -6,7 +6,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         return Promise.resolve(null);
     }
 
-    getMediaList(): Promise<I.MediaList> {
+    getPageLinkList(): Promise<I.PageLinkList> {
         return Promise.resolve(null);
     }
 
@@ -20,8 +20,8 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
             //});
     }
 
-    hasMediaList(): Promise<boolean> {
-        return this.getMediaList()
+    hasPageLinkList(): Promise<boolean> {
+        return this.getPageLinkList()
             .then(list => list && list.list.length > 0);
             //.catch(err => {
             //    // Swallow errors

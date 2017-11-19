@@ -2,18 +2,18 @@ import * as I from './definitions';
 
 const delaySecs = 1;
 
-export default function openInTabs(mediaList: I.MediaList) {
-    let list = mediaList.list;
-    if (mediaList.sortable) {
+export default function openInTabs(pageList: I.PageLinkList) {
+    let list = pageList.list;
+    if (pageList.sortable) {
         // TODO: add sorting functionality
     }
-    list.forEach((media, idx) => {
+    list.forEach((page, idx) => {
         // TODO: configurable delay
-        openMediaInTab(media, idx * delaySecs);
+        openMediaInTab(page, idx * delaySecs);
     });
 }
 
-function openMediaInTab(media: I.Media, delay: number) {
+function openMediaInTab(media: I.PageLink, delay: number) {
     let url = delay === 0
         ? media.url
         : `${browser.extension.getURL("delayload.html")}?url=${encodeURIComponent(media.url)}&delay=${delay}`;

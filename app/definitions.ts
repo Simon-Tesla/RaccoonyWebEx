@@ -5,6 +5,11 @@ export interface MessageRequest<T> {
     data?: T;
 }
 
+export interface DownloadResponse {
+    message: string;
+    isError?: boolean;
+}
+
 export interface Media {
     url: string;
     service: string;
@@ -20,16 +25,21 @@ export interface Media {
     tags?: string[];
 }
 
-export interface MediaList {
-    list: Media[];
+export interface PageLink {
+    url: string;
+    submissionId?: string;
+}
+
+export interface PageLinkList {
+    list: PageLink[];
     sortable: boolean;
 }
 
 export interface SitePlugin {
     getMedia(): Promise<Media>;
-    getMediaList(): Promise<MediaList>;
+    getPageLinkList(): Promise<PageLinkList>;
     hasMedia(): Promise<boolean>;
-    hasMediaList(): Promise<boolean>;
+    hasPageLinkList(): Promise<boolean>;
     // defaultSettings
     // reinitOnMutation -- probably better to just re-query the DOM when saving/open in tabs
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu

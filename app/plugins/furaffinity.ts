@@ -133,8 +133,8 @@ export default class FuraffinityPlugin extends BaseSitePlugin {
         return Promise.resolve(result);
     }
 
-    getMediaList(): Promise<I.MediaList> {
-        let list: I.Media[] = [];
+    getPageLinkList(): Promise<I.PageLinkList> {
+        let list: I.PageLink[] = [];
         // Don't try to sort the favorites lists.
         let pageUrl = window.location.href;
         let sortable = !(pageUrl.indexOf("/favorites/") !== -1 || pageUrl.indexOf("/search/") !== -1);
@@ -142,16 +142,15 @@ export default class FuraffinityPlugin extends BaseSitePlugin {
 
         let links: HTMLElement[] = querySelectorAll("figure figcaption a[href*='/view/']");
 
-        list = links.map(link => {
-            let href = (<HTMLAnchorElement>link).href;
+        list = links.map(linkElt => {
+            let href = (<HTMLAnchorElement>linkElt).href;
             let id = getIdFromSubmissionUrl(href);
 
-            let media: I.Media = {
+            let link: I.PageLink = {
                 url: href,
                 submissionId: id,
-                service: serviceName,
             };
-            return media;
+            return link;
         })
         
         return Promise.resolve({

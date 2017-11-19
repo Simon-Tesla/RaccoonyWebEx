@@ -1,3 +1,4 @@
+// TODO: if this page somehow manages to become more complex, consider rewriting in typescript.
 
 function onLoad() {
     let url = new URL(window.location.href);

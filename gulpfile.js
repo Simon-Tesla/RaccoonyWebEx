@@ -28,7 +28,7 @@ gulp.task("typescript:compile", ["clean"], () => {
         .on("error", function () { failed = true; })
         .on("finish", function () { failed && process.exit(1); });
 
-    return tsResult.js.pipe(gulp.dest('.'));
+    return tsResult.js.pipe(gulp.dest(`app/`));
 })
 
 function autopack(filename) {
