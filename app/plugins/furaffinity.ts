@@ -3,7 +3,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 
 const serviceName = "furaffinity";
 
-export default class FuraffinityPlugin extends BaseSitePlugin {
+export class FuraffinityPlugin extends BaseSitePlugin {
+    readonly siteName: string = serviceName;
+
     getMedia(): Promise<I.Media> {
         let { url, previewUrl } = getMediaUrls();
 

@@ -2,6 +2,8 @@ import * as I from '../definitions';
 import { MediaType } from '../enums';
 
 export default abstract class BaseSitePlugin implements I.SitePlugin {
+    abstract siteName: string;
+
     getMedia(): Promise<I.Media> {
         return Promise.resolve(null);
     }

@@ -37,6 +37,7 @@ export interface PageLinkList {
 }
 
 export interface SitePlugin {
+    readonly siteName: string;
     getMedia(): Promise<Media>;
     getPageLinkList(): Promise<PageLinkList>;
     hasMedia(): Promise<boolean>;

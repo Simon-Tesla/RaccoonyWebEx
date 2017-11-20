@@ -72,9 +72,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             if (hasMedia) {
                 // Check to see if the file has been downloaded
                 props.sitePlugin.getMedia().then((media) => {
-                    logger.log("checking if downloaded", media)
                     sendMessage(E.MessageAction.CheckDownlod, media).then((isDownloaded: boolean) => {
-                        console.log("is downloaded", isDownloaded)
                         if (isDownloaded) {
                             this.setState({ downloadState: DownloadState.Exists });
                         }
@@ -101,6 +99,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         this.setState({ downloadState: DownloadState.InProgress });
         this.props.sitePlugin.getMedia().then((media) => {
             sendMessage(E.MessageAction.Download, media).then((download: I.DownloadResponse) => {
+                // TODO: the download promise resolves when the download starts, not when it finishes.
                 this.setState({
                     downloadState: download.isError ? DownloadState.Error : DownloadState.Done,
                     downloadMessage: download.message,

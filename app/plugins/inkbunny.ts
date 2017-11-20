@@ -3,7 +3,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 
 const serviceName = "inkbunny";
 
-export default class InkbunnyPlugin extends BaseSitePlugin {
+export class InkbunnyPlugin extends BaseSitePlugin {
+    readonly siteName: string = serviceName;
+
     getMedia(): Promise<I.Media> {
         // Check to see if we're on a submission page.
         if (!isSubmissionPage()) {
@@ -40,6 +42,8 @@ export default class InkbunnyPlugin extends BaseSitePlugin {
             description: description,
             tags: tags
         };
+
+        return Promise.resolve(media);
     }
 
     getPageLinkList(): Promise<I.PageLinkList> {
