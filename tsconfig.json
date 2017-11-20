@@ -16,7 +16,8 @@
     "jsx": "react",
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/web-ext-types"
+      "node_modules/web-ext-types",
+      "typings/"
     ]
   },
   "exclude": [

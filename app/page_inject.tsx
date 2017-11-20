@@ -4,7 +4,7 @@ import { MessageAction } from './enums';
 import * as I from './definitions';
 import * as plugins from './plugins/index';
 import * as logger from './logger'
-import PageOverlay from './ui/page/pageOverlay';
+import Page from './ui/page/page';
 
 logger.log("injecting script");
 
@@ -31,5 +31,5 @@ document.addEventListener("DOMContentLoaded", () => {
     rootElt.id = "raccoonyExtensionRoot";
     document.body.appendChild(rootElt);
 
-    ReactDOM.render(<PageOverlay sitePlugin={plugin} />, rootElt);
+    ReactDOM.render(<Page sitePlugin={plugin} />, rootElt);
 })

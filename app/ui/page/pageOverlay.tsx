@@ -29,6 +29,8 @@ enum DownloadState {
 
 interface PageOverlayProps {
     sitePlugin: I.SitePlugin;
+    onClickFullscreen: () => void;
+    inFullscreen: boolean;
 }
 
 interface PageOverlayState {
@@ -36,7 +38,6 @@ interface PageOverlayState {
     hasPageLinks: boolean;
     downloadState: DownloadState;
     downloadMessage?: string;
-    inFullscreen: boolean;
     showBalloon: boolean;
     showUi: boolean;
 }
@@ -59,7 +60,6 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             hasMedia: false,
             hasPageLinks: false,
             downloadState: DownloadState.NotDownloaded,
-            inFullscreen: false,
             showBalloon: false,
             showUi: true,
         }
@@ -117,16 +117,6 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         this.props.sitePlugin.getMedia().then((media) => {
             sendMessage(E.MessageAction.ShowFile, media);
         });
-    }
-
-    onClickShowFullscreen = () => {
-        // TODO: implement
-        alert('Not yet implemented');
-    }
-
-    onClickHideFullscreen = () => {
-        // TODO: implement
-        alert('Not yet implemented');
     }
 
     onClickOptions = () => {
@@ -209,13 +199,13 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                         Open folder
                                     </ActionButton >
                                 )}
-                                {this.state.hasMedia && !this.state.inFullscreen && (
-                                    <ActionButton onClick={this.onClickShowFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
+                                {this.state.hasMedia && !this.props.inFullscreen && (
+                                    <ActionButton onClick={this.props.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
                                         Fullscreen
                                     </ActionButton>
                                 )}
-                                {this.state.hasMedia && this.state.inFullscreen && (
-                                    <ActionButton onClick={this.onClickHideFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
+                                {this.state.hasMedia && this.props.inFullscreen && (
+                                    <ActionButton onClick={this.props.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
                                         Exit fullscreen
                                     </ActionButton>
                                 )}
