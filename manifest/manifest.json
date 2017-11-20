@@ -23,11 +23,15 @@
         "browser-polyfill.js",
         "page_inject.js"
       ],
+      "css": [
+        "overlayUi.css"
+      ],
       "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
-    "delayload.html"
+    "delayload.html",
+    "*.png"
   ],
   "homepage_url": "http://raccoony.thornvalley.com/",
   "permissions": [

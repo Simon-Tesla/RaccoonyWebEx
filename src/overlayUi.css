@@ -1,0 +1,187 @@
+/* TODO: move to SCSS */
+
+#ry-ui {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    transition: opacity .4s;
+    opacity: .25;
+    padding: .25em 1em .25em .25em;
+    z-index: 1500000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px;
+    color: #000;
+    background-color: transparent;
+    display: flex;
+    align-items: flex-end;
+}
+
+#ry-ui,
+#ry-ui * {
+    box-sizing: content-box;
+}
+
+#ry-ui .ry-hide,
+#ry-ui.ry-hide {
+    display: none;
+}
+
+#ry-ui:hover,
+#ry-ui.active {
+    opacity: 1;
+}
+
+#ry-ui a {
+    text-decoration: none !important;
+    border-bottom: none;
+}
+
+#ry-ui .ry-action {
+    display: inline-block;
+    color: #fff !important;
+    border: 2px solid #004578;
+    border-radius: 0;
+    background: #004578;
+    box-shadow: none;
+    text-shadow: none;
+    padding: 4px;
+    box-sizing: border-box;
+    min-width: 150px;
+    margin: 4px;
+    font-family: "Segoe UI Semibold",'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px !important;
+    cursor: default;
+}
+
+#ry-ui .ry-action.ry-nolabel {
+    min-width: 0;
+}
+
+#ry-ui .ry-action:hover {
+    background-color: #0081e0;
+}
+
+#ry-ui .ry-action:disabled,
+#ry-ui .ry-action:hover:disabled {
+    background-color: #ddd;
+    color: #666 !important;
+    border-color: #666;
+}
+
+#ry-ui .ry-action span {
+    display: inline-block;
+    font-size: 16px;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+#ry-ui .ry-action.ry-nolabel span {
+    margin-right: 0;
+}
+
+#ry-ui .ry-circlebtn {
+    display: block;
+    color: #fff;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    border: 2px solid #fff;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 10px;
+    text-decoration: none;
+    margin: 2px 0 0 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, .5);
+}
+
+#ry-ui #ry-tabs {
+    background: rgba(0, 69, 120, 1);
+}
+
+#ry-ui #ry-dl {
+    background: rgba(0, 153, 0, 1);
+}
+
+#ry-ui #ry-dl.ry-exists {
+    background: rgba(0, 0, 0, .5);
+}
+
+#ry-ui #ry-close {
+    opacity: 0;
+    transition: opacity .4s;
+}
+
+
+#ry-ui:hover #ry-close {
+    opacity: .5;
+}
+
+#ry-ui #ry-close:hover {
+    opacity: 1;
+}
+
+#ry-ctr {
+    opacity: 1;
+    transition: opacity .4s;
+}
+
+#ry-ctr.ry-inactive {
+    opacity: 0;
+}
+
+#ry-ctr,
+#ry-img {
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+#ry-dl-progress {
+    width: 100%;
+}
+
+.ry-bubble {
+    color: #000;
+    background-color: #ddd;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px rgba(0,0,0,.5);
+    padding: 5px 10px;
+    background-image: -moz-linear-gradient(top, #ddd, #ddd);
+    position: relative;
+    margin-left: 15px;
+}
+
+.ry-bubble::before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    border: 0.8em solid transparent;
+    position: absolute;
+    /* below styles align the beak */
+    left: -20px;
+    bottom: 15px;
+    border-right: 10px solid #ddd;
+}
+
+#ry-nodownload {
+    display: block;
+    color: #600;
+    vertical-align: center;
+    border-bottom: 1px solid #000;
+    margin: 4px;
+    padding-bottom: 4px;
+}
+
+#ry-nodownload span {
+    display: inline-block;
+}
+
+#ry-nodownload .ry-msg {
+    margin: 4px;
+}
+
+#ry-nodownload .ry-icon {
+    font-size: 20px;
+}

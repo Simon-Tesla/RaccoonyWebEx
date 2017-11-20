@@ -79,12 +79,12 @@ function getMediaUrls() {
     // Get the download button, if it exists
     let button: HTMLAnchorElement = querySelector(".actions a[href^='//d.facdn.net/art/']") ||
         querySelector('.sidebar-section a.button.download-logged-in'); //Beta UI
-    let url = button.href;
+    let url = button && button.href;
 
     let img = <HTMLImageElement>document.getElementById('submissionImg');
-    let previewUrl = img.getAttribute('data-preview-src');
+    let previewUrl = img && img.getAttribute('data-preview-src');
 
-    if (!url) {
+    if (!url && img) {
         // If all else fails, get the submission image source URL
         url = img.getAttribute('data-fullview-src') || img.src;
         if (url.indexOf('http:') !== 0 || url.indexOf('https:') !== 0) {

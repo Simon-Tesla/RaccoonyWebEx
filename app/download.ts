@@ -55,12 +55,24 @@ function getDownloadedFile(media: I.Media): Promise<browser.downloads.DownloadIt
 }
 
 export function isDownloaded(media: I.Media): Promise<boolean> {
-    return getDownloadedFile(media).then(item => item && item.exists);
+    return getDownloadedFile(media).then(item => {
+        logger.log('got download item', item);
+        return item && item.exists
+    });
 }
 
 export function showFile(media: I.Media): Promise<void> {
     return getDownloadedFile(media).then(download => {
-        return browser.downloads.show(download.id);
+        logger.log('attempting to show item', download);
+        if (download) {
+            // TODO: polyfill doesn't work in Chrome; API doesn't support promises
+            //return browser.downloads.show(download.id);
+            return new Promise<void>((resolve, reject) => {
+                chrome.downloads.show(download.id)
+                resolve();
+            });
+        }
+        return Promise.reject(new Error('Download not found'));
     });
 }
 
