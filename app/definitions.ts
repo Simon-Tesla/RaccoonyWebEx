@@ -49,3 +49,11 @@ export interface SitePlugin {
     // next
     // favorite
 }
+
+export interface PageActions {
+    openPageLinksInTabs(): void;
+    downloadMedia(): void;
+    showDownloadMedia(): void;
+    toggleFullscreen(): void;
+    openOptions(): void;
+}

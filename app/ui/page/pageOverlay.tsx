@@ -3,6 +3,7 @@ import * as I from '../../definitions';
 import * as E from '../../enums'
 import * as classnames from 'classnames';
 import * as logger from '../../logger';
+import { initializeHotkeys } from './hotkeys';
 
 function n(name: string) {
     return `ry-${name}`;
@@ -33,6 +34,7 @@ interface PageOverlayProps {
     inFullscreen: boolean;
 }
 
+// TODO: move most of this state out to Page, and make Page listen to events from background.js, etc.
 interface PageOverlayState {
     hasMedia: boolean;
     hasPageLinks: boolean;
@@ -51,8 +53,10 @@ function sendMessage<T>(action: E.MessageAction, data: T) {
     return browser.runtime.sendMessage(message);
 }
 
-export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> {
+// TODO: Make Page (or some other class) implement PageActions and pass that in as a prop.
+export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> implements I.PageActions {
     private _mouseLeaveTimeout: number;
+    private _hotkeysDisposer: () => void;
 
     constructor(props: PageOverlayProps, context) {
         super(props, context);
@@ -89,13 +93,13 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         });
     }
 
-    onClickOpenTabs = () => {
+    openPageLinksInTabs() {
         this.props.sitePlugin.getPageLinkList().then((list) => {
             sendMessage(E.MessageAction.OpenTabs, list);
         });
     }
 
-    onClickDownload = () => {
+    downloadMedia() {
         this.setState({ downloadState: DownloadState.InProgress });
         this.props.sitePlugin.getMedia().then((media) => {
             sendMessage(E.MessageAction.Download, media).then((download: I.DownloadResponse) => {
@@ -112,32 +116,65 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         });
     }
 
-    onClickOpenFolder = () => {
+    showDownloadMedia() {
         // TODO: cache the download ID for already downloaded files?
         this.props.sitePlugin.getMedia().then((media) => {
             sendMessage(E.MessageAction.ShowFile, media);
         });
     }
 
-    onClickOptions = () => {
+    toggleFullscreen() {
+        this.props.onClickFullscreen();
+    }
+
+    openOptions() {
         // TODO: implement
         alert('Not yet implemented');
     }
 
-    onMouseOver = () => {
+    componentDidMount() {
+        // TODO: make hotkeys disable-able
+        this._hotkeysDisposer = initializeHotkeys(this);
+    }
+
+    componentWillUnmount() {
+        this._hotkeysDisposer && this._hotkeysDisposer();
+    }
+
+    private onClickOpenTabs = () => {
+        this.openPageLinksInTabs();
+    }
+
+    private onClickDownload = () => {
+        this.downloadMedia();
+    }
+
+    private onClickOpenFolder = () => {
+        this.showDownloadMedia();
+    }
+
+    private onClickFullscreen = () => {
+        this.toggleFullscreen();
+    }
+
+    private onClickOptions = () => {
+        this.openOptions();
+    }
+
+    private onMouseOver = () => {
         if (this._mouseLeaveTimeout) {
             clearTimeout(this._mouseLeaveTimeout);
         }
         this.setState({ showBalloon: true });
     }
 
-    onMouseOut = () => {
+    private onMouseOut = () => {
         this._mouseLeaveTimeout = window.setTimeout(() => {
             this.setState({ showBalloon: false });
         }, 1000)
     }
 
-    onClickClose = () => {
+    private onClickClose = () => {
         this.setState({ showUi: false })
     }
 
@@ -195,17 +232,17 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                     </ActionButton>
                                 )}
                                 {this.state.hasMedia && this.state.downloadState === DownloadState.Exists && (
-                                    <ActionButton onClick={this.onClickOpenFolder} title="Hotkey: R" icon={IconGlyph.OpenFolder}>
+                                    <ActionButton onClick={this.onClickOpenFolder} title="Hotkey: F" icon={IconGlyph.OpenFolder}>
                                         Open folder
                                     </ActionButton >
                                 )}
                                 {this.state.hasMedia && !this.props.inFullscreen && (
-                                    <ActionButton onClick={this.props.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
+                                    <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
                                         Fullscreen
                                     </ActionButton>
                                 )}
                                 {this.state.hasMedia && this.props.inFullscreen && (
-                                    <ActionButton onClick={this.props.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
+                                    <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
                                         Exit fullscreen
                                     </ActionButton>
                                 )}
