@@ -185,6 +185,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         let showDownloadStatus = this.state.downloadState === DownloadState.InProgress ||
             this.state.downloadState === DownloadState.Done ||
             this.state.downloadState === DownloadState.Error;
+        let showBalloon = this.state.showBalloon || showDownloadStatus
 
         let mainClassNames = classnames(!showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
 
@@ -211,7 +212,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                 <a id={n("imglink")} title="Raccoony - click for page options">
                     <img src={logoUrl} id={n("img")} width={64} height={64} />
                 </a>
-                <div id={n("ctr")} className={this.state.showBalloon ? null : n('inactive')}>
+                <div id={n("ctr")} className={showBalloon ? null : n('inactive')}>
                     {showDownloadStatus ?
                         (
                             <DownloadProgress
@@ -298,7 +299,7 @@ class DownloadProgress extends React.Component<DownloadProgressProps, {}> {
             case DownloadState.Done:
                 return "Download complete.";
             case DownloadState.Error:
-                return "Error downloading: "
+                return "An error occurred while attempting to download."
         }
     }
     

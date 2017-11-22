@@ -18,13 +18,14 @@ export function downloadFile(media: I.Media): Promise<I.DownloadResponse> {
     })
         .then(() => {
             return {
-                message: "Download finished"
+                message: "",
+                isError: false,
             }
         })
         .catch((err) => {
             logger.error("Error occurred while downloading:", err);
             return {
-                message: "Error downloading",
+                message: "",
                 isError: true,
             }
         });

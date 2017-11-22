@@ -27,7 +27,7 @@
 }
 
 #ry-ui:hover,
-#ry-ui.active {
+#ry-ui.ry-active {
     opacity: 1;
 }
 
@@ -129,6 +129,9 @@
 
 #ry-ctr.ry-inactive {
     opacity: 0;
+    /* Fix the out animation so that the element is removed from the flow, otherwise can hover over the hidden element */
+    /* Maybe use https://github.com/reactjs/react-transition-group */
+    display: none;
 }
 
 #ry-ctr,
