@@ -1,5 +1,6 @@
 import * as I from '../definitions';
 import { MediaType } from '../enums';
+import * as logger from '../logger';
 
 export default abstract class BaseSitePlugin implements I.SitePlugin {
     abstract siteName: string;
@@ -7,6 +8,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
     private _pageChangeHandler: () => void = () => { };
 
     constructor(mutationSelector?: string) {
+        logger.log('initializing plugin', this.siteName);
         if (mutationSelector) {
             let element = document.querySelector(mutationSelector);
             let observer = new MutationObserver((mutations, observer) => {

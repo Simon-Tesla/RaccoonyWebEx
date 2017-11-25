@@ -78,14 +78,14 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
         });
     }
 
-    getPageLinkList(): Promise<I.PageLinkList> {
-        // FurryNetwork has ajax paging, so we're not going to support lists for now.
-        // TODO: could try to look for links on the page that are visible but haven't been opened?
-        // Would need an code to filter out visited pages.
-        let list: I.PageLink[] = [];
-        return Promise.resolve({
-            list: list,
-            sortable: false
-        });
-    }
+    // FurryNetwork has ajax paging, so we're not going to support lists for now.
+    // TODO: could try to look for links on the page that are visible but haven't been opened?
+    // Would need an code to filter out visited pages.
+    //getPageLinkList(): Promise<I.PageLinkList> {
+    //    let list: I.PageLink[] = [];
+    //    return Promise.resolve({
+    //        list: list,
+    //        sortable: false
+    //    });
+    //}
 }

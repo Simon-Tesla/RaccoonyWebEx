@@ -20,7 +20,15 @@
     {
       "matches": [
         "*://*.furaffinity.net/*",
-        "*://*.inkbunny.net/*" 
+        "*://*.inkbunny.net/*",
+        "*://*.weasyl.com/*",
+        "*://*.sofurry.com/*",
+        "*://*.deviantart.com/*",
+        "*://*.furrynetwork.com/*",
+        "*://*.e621.net/*",
+        "*://*.patreon.com/*",
+        "*://*.hiccears.com/*",
+        "*://*.aryion.com/*"
       ],
       "js": [
         "browser-polyfill.js",
