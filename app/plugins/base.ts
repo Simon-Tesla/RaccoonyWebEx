@@ -4,6 +4,20 @@ import { MediaType } from '../enums';
 export default abstract class BaseSitePlugin implements I.SitePlugin {
     abstract siteName: string;
 
+    private _pageChangeHandler: () => void = () => { };
+
+    constructor(mutationSelector?: string) {
+        if (mutationSelector) {
+            let element = document.querySelector(mutationSelector);
+            let observer = new MutationObserver((mutations, observer) => {
+                if (mutations.some(mut => mut.addedNodes.length > 0) || mutations.some(mut => mut.removedNodes.length > 0)) {
+                    this.notifyPageChange();
+                }
+            });
+            observer.observe(element, { childList: true, subtree: true });
+        }
+    }
+
     getMedia(): Promise<I.Media> {
         return Promise.resolve(null);
     }
@@ -14,7 +28,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
 
     hasMedia(): Promise<boolean> {
         return this.getMedia()
-            .then(media => !!media);
+            .then(media => media && !!media.url);
             //.catch(err => {
             //    // Swallow errors
             //    console.error("[rc.hasMedia] error:", err);
@@ -30,6 +44,14 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
             //    console.error("[rc.hasMediaList] error:", err);
             //    return Promise.resolve(false)
             //});
+    }
+
+    registerPageChangeHandler(handler: () => void): void {
+        this._pageChangeHandler = handler;
+    }
+
+    protected notifyPageChange() {
+        this._pageChangeHandler && this._pageChangeHandler();
     }
 }
 

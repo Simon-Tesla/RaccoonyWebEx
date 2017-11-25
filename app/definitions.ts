@@ -42,8 +42,8 @@ export interface SitePlugin {
     getPageLinkList(): Promise<PageLinkList>;
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
+    registerPageChangeHandler(handler: () => void): void;
     // defaultSettings
-    // reinitOnMutation -- probably better to just re-query the DOM when saving/open in tabs
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
     // previous
     // next
