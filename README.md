@@ -9,7 +9,6 @@ Build output will end up in the `dist/` folder.
 ## Todo list 
 
 ### Alpha release
-- Add rest of plugins
 - Add configs/options UI
 - Add mechanism for detecting changes for sites that need it (FurryNetwork)
 

@@ -16,3 +16,8 @@ export enum MediaType {
     Video,
     Audio,
 }
+
+export enum TabLoadOrder {
+    Date = "date",
+    Page = "page",
+}

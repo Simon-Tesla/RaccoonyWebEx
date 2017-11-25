@@ -1,14 +1,31 @@
 import * as I from '../definitions';
-import { MediaType } from '../enums';
+import { MediaType, TabLoadOrder } from '../enums';
 import * as logger from '../logger';
 
+const defaultSiteSettings: I.SiteSettings = {
+    autoFullscreen: false,
+    downloadPath: null,
+    hotkeysEnabled: true,
+    tabLoadDelay: 1,
+    tabLoadSortBy: TabLoadOrder.Date,
+    tabLoadSortAsc: true,
+    writeMetadata: false,
+};
+
+// TODO: create Site class that handles shared logic and acts as intermediary between plugin and rest of code.
 export default abstract class BaseSitePlugin implements I.SitePlugin {
     abstract siteName: string;
 
     private _pageChangeHandler: () => void = () => { };
 
+    protected settings: I.SiteSettings;
+
     constructor(mutationSelector?: string) {
         logger.log('initializing plugin', this.siteName);
+        this.getSettings().then(() => {
+            // TODO: handle autofullscreen
+            // TODO: indicate to clients that the plugin is ready
+        })
         if (mutationSelector) {
             let element = document.querySelector(mutationSelector);
             let observer = new MutationObserver((mutations, observer) => {
@@ -18,6 +35,32 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
             });
             observer.observe(element, { childList: true, subtree: true });
         }
+    }
+
+    getSettings(): Promise<I.SiteSettings> {
+        return browser.storage.sync.get(`${this.siteName}_settings`).then((settings) => {
+            let siteSettings: I.SiteSettings = <any>settings || {};
+            siteSettings = Object.assign({}, defaultSiteSettings, siteSettings);
+            logger.log(`${this.siteName}: loaded settings:`, siteSettings, settings);
+            this.settings = settings;
+            return siteSettings;
+        });
+    }
+
+
+    saveSettings(settings: I.SiteSettings) {
+        const settingsKey = `${this.siteName}_settings`;
+        return browser.storage.sync.get(settingsKey)
+            .then(storedSettings => {
+                // Get the existing settings and overwrite with changes.
+                settings = Object.assign({}, storedSettings, settings);
+                let settingsToSave: any = {};
+                settingsToSave[settingsKey] = settings;
+                logger.log(`${this.siteName}: saving settings:`, settings);
+                return browser.storage.sync.set(settingsToSave);
+            })
+            .then(() => logger.log(`${this.siteName} settings saved.`));
+        
     }
 
     getMedia(): Promise<I.Media> {

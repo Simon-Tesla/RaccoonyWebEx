@@ -43,7 +43,8 @@ export interface SitePlugin {
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
-    // defaultSettings
+    getSettings(): Promise<SiteSettings>;
+    saveSettings(settings: SiteSettings): Promise<void>;
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
     // previous
     // next
@@ -56,4 +57,18 @@ export interface PageActions {
     showDownloadMedia(): void;
     toggleFullscreen(): void;
     openOptions(): void;
+}
+
+export interface SiteSettings {
+    hotkeysEnabled?: boolean;
+    autoFullscreen?: boolean;
+    writeMetadata?: boolean;
+    tabLoadDelay?: number;
+    tabLoadSortBy?: E.TabLoadOrder;
+    tabLoadSortAsc?: boolean;
+    downloadPath?: string;
+}
+
+export interface ExtensionSettings {
+    firstRunVersion: string;
 }
