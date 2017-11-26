@@ -21,6 +21,10 @@ export class HiccearsPlugin extends BaseSitePlugin {
         let previewImg: HTMLImageElement = querySelector('.panel-body img[src^="./upl0ads"]');
         let previewUrl = '';
         let ext = '';
+        if (previewImg.classList.contains('img-thumbnail')) {
+            //This is actually a gallery thumbnail, not a full image. Ignore it.
+            return Promise.resolve(null);
+        }
         if (previewImg) {
             let previewImgUrl = new URL(previewImg.src);
             ext = previewImgUrl.pathname.split('.').pop();

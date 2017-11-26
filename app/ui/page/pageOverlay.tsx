@@ -218,7 +218,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                             <DownloadProgress
                                 downloadState={this.state.downloadState}
                                 message={this.state.downloadMessage}
-                                onClickOpenTabs={this.onClickOpenTabs}
+                                onClickOpenFolder={this.onClickOpenFolder}
                             />
                         ) : (
                             <div className={n("bubble")}>
@@ -288,7 +288,7 @@ class ActionButton extends React.Component<ActionButtonProps, {}> {
 interface DownloadProgressProps {
     downloadState: DownloadState;
     message?: string;
-    onClickOpenTabs: () => void;
+    onClickOpenFolder: () => void;
 }
 
 class DownloadProgress extends React.Component<DownloadProgressProps, {}> {
@@ -306,10 +306,10 @@ class DownloadProgress extends React.Component<DownloadProgressProps, {}> {
     render() {
         return (
             <div className={n("bubble")}>
-                <div>{this.message + ' ' + this.props.message || ''}</div>
+                <div>{this.message + ' ' + (this.props.message || '')}</div>
                 {this.props.downloadState === DownloadState.InProgress && <progress />}
                 {this.props.downloadState === DownloadState.Done && (
-                    < ActionButton title="Hotkey: R" icon={IconGlyph.OpenFolder} onClick={this.props.onClickOpenTabs}>
+                    < ActionButton title="Hotkey: R" icon={IconGlyph.OpenFolder} onClick={this.props.onClickOpenFolder}>
                         Open folder
                     </ActionButton>
                 )}

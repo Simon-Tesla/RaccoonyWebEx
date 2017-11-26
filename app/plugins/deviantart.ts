@@ -110,7 +110,7 @@ export class DeviantArtPlugin extends BaseSitePlugin {
             window.location.search.indexOf("q=") !== -1 ||
             window.location.search.indexOf("order=") !== -1;
 
-        let links: HTMLAnchorElement[] = querySelectorAll(".messages a.thumb, .folderview a.thumb, .stream a.thumb");
+        let links: HTMLAnchorElement[] = querySelectorAll(".messages a.thumb, .folderview a.thumb, .stream a.thumb, a.torpedo-thumb-link");
         let list: I.PageLink[] = getPageLinksFromAnchors(links, href => {
             // dA submission URLs are usually of the format
             // http://www.deviantart.com/art/[title]-[id]

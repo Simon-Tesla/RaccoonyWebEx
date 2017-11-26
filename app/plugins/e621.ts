@@ -14,10 +14,13 @@ export class E621Plugin extends BaseSitePlugin {
         // e621 image URLs are of the format
         // https://static1.e621.net/data/99/c5/99c5a9f2195e8025df8e03acef6e2b2f.png
         let url = button && button.getAttribute("src");
+        if (!url) {
+            return Promise.resolve(null);
+        }
 
         // Get the artist's name
         let usernameElt = querySelector(".tag-type-artist a[href^='/post/search']");
-        let username = usernameElt.textContent || "unknown";
+        let username = usernameElt && usernameElt.textContent || "unknown";
 
         // Get the filename
         // e612 submission pages are of the format:

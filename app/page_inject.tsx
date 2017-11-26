@@ -18,6 +18,9 @@ function getSitePlugin(): I.SitePlugin {
     else if (hostname.includes('inkbunny.net')) {
         return new plugins.InkbunnyPlugin();
     }
+    else if (hostname.includes('weasyl.com')) {
+        return new plugins.WeasylPlugin();
+    }
     else if (hostname.includes('sofurry.com')) {
         return new plugins.SofurryPlugin();
     }

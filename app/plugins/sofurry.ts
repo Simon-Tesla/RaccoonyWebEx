@@ -56,7 +56,7 @@ export class SofurryPlugin extends BaseSitePlugin {
         let nosort = window.location.search.indexOf("sort=") !== -1 ||
             window.location.search.indexOf("sortby=") !== -1 ||
             window.location.pathname.indexOf("/browse") === 0;
-        let links: HTMLAnchorElement[] = querySelectorAll(".items a.sfArtworkSmallInner, .items .sf-story-big-headline a, .items .sf-story-headline a, .items .sfTextDark a, .items .sf-browse-shortlist-title a");
+        let links: HTMLAnchorElement[] = querySelectorAll(".items a.sfArtworkSmallInner, .items .sf-story-big-headline a, .items .sf-story-headline a, .items .sfTextDark a, .items .sf-browse-shortlist-title a, a.watchlist_thumbnail_link");
         let list = getPageLinksFromAnchors(links, href => {
             // SoFurry submission URLs are of the format
             // https://www.sofurry.com/view/[id]

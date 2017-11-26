@@ -113,21 +113,28 @@ export class EkasPlugin extends BaseSitePlugin {
 
         if (!filenameext) {
             // Try the noscript element next
-            let noscr = document.getElementsByTagName("noscript")[0];
-            let noscrtext = noscr.textContent;
-            logger.log("ekas: noscript", noscrtext);
+            let noscr = document.getElementsByTagName("noscript");
+            if (noscr && noscr.length > 0) {
+                let noscrtext = noscr[0].textContent;
+                logger.log("ekas: noscript", noscrtext);
 
-            // Kill everything after <img> closing quote, to get rid
-            // of the / in the closing tag
-            let endjunk = noscrtext.lastIndexOf("' alt='Item' />");
-            let noscrtext2 = noscrtext.slice(0, endjunk);
-            logger.log("ekas: noscript 2", noscrtext2);
+                // Kill everything after <img> closing quote, to get rid
+                // of the / in the closing tag
+                let endjunk = noscrtext.lastIndexOf("' alt='Item' />");
+                let noscrtext2 = noscrtext.slice(0, endjunk);
+                logger.log("ekas: noscript 2", noscrtext2);
 
-            // Find last / and skip it, to get filename with extension
-            let filestart = noscrtext2.lastIndexOf('/') + 1;
-            filenameext = noscrtext2.slice(filestart);
+                // Find last / and skip it, to get filename with extension
+                let filestart = noscrtext2.lastIndexOf('/') + 1;
+                filenameext = noscrtext2.slice(filestart);
+            }
         }
         logger.log("ekas: filename+ext", filenameext);
+        if (!filenameext) {
+            // If we've gotten to the point that we don't have a filename, 
+            // then this must not be a regular submission page.
+            return Promise.resolve(null);
+        }
 
         // Last . should be where extension starts;
         // split based on where that is
