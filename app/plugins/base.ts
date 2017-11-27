@@ -2,7 +2,7 @@ import * as I from '../definitions';
 import { MediaType, TabLoadOrder } from '../enums';
 import * as logger from '../logger';
 
-const defaultSiteSettings: I.SiteSettings = {
+export const defaultSiteSettings: I.SiteSettings = {
     autoFullscreen: false,
     downloadPath: null,
     hotkeysEnabled: true,
@@ -18,14 +18,8 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
 
     private _pageChangeHandler: () => void = () => { };
 
-    protected settings: I.SiteSettings;
-
     constructor(mutationSelector?: string) {
         logger.log('initializing plugin', this.siteName);
-        this.getSettings().then(() => {
-            // TODO: handle autofullscreen
-            // TODO: indicate to clients that the plugin is ready
-        })
         if (mutationSelector) {
             let element = document.querySelector(mutationSelector);
             let observer = new MutationObserver((mutations, observer) => {
@@ -37,12 +31,14 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         }
     }
 
-    getSettings(): Promise<I.SiteSettings> {
-        return browser.storage.sync.get(`${this.siteName}_settings`).then((settings) => {
-            let siteSettings: I.SiteSettings = <any>settings || {};
-            siteSettings = Object.assign({}, defaultSiteSettings, siteSettings);
+    getSettings(noDefaults?: boolean): Promise<I.SiteSettings> {
+        const settingsKey = `${this.siteName}_settings`;
+        return browser.storage.sync.get(settingsKey).then((settings) => {
+            let siteSettings: I.SiteSettings = <any>settings[settingsKey] || {};
+            if (!noDefaults) {
+                siteSettings = Object.assign({}, defaultSiteSettings, siteSettings);
+            }
             logger.log(`${this.siteName}: loaded settings:`, siteSettings, settings);
-            this.settings = settings;
             return siteSettings;
         });
     }
@@ -56,7 +52,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
                 settings = Object.assign({}, storedSettings, settings);
                 let settingsToSave: any = {};
                 settingsToSave[settingsKey] = settings;
-                logger.log(`${this.siteName}: saving settings:`, settings);
+                logger.log(`${this.siteName}: saving settings:`, settings, settingsToSave);
                 return browser.storage.sync.set(settingsToSave);
             })
             .then(() => logger.log(`${this.siteName} settings saved.`));
@@ -96,6 +92,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
     }
 
     protected notifyPageChange() {
+        logger.log('notifying page change')
         this._pageChangeHandler && this._pageChangeHandler();
     }
 }

@@ -8,12 +8,11 @@ Build output will end up in the `dist/` folder.
 
 ## Todo list 
 
-### Alpha release
-- Add configs/options UI
-- Add mechanism for detecting changes for sites that need it (FurryNetwork)
-
-### Later
-- Add auto-fullscreen (maybe)
-- Fix download progress indicator (maybe)
+- Fix download progress indicator
 - Fix downloaded status badge on overlay 
-- Save metadata file (maybe)
+- Save metadata file
+- Refactor pageOverlay to have less internal state
+- Add option to configure download directory
+- Add option to sort tabs
+- Add configurable tab delay (including an initial delay to allow the browser to load the delay pages)
+- Add help/first run experience

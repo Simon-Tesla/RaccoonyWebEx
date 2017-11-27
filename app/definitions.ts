@@ -43,7 +43,7 @@ export interface SitePlugin {
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
-    getSettings(): Promise<SiteSettings>;
+    getSettings(noDefaults?: boolean): Promise<SiteSettings>;
     saveSettings(settings: SiteSettings): Promise<void>;
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
     // previous
