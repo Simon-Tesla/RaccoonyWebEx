@@ -24,7 +24,7 @@ export default class Page extends React.Component<PageProps, PageState> {
             isFullscreen: false,
             settings: null,
         }
-        props.sitePlugin.getSettings().then((settings) => {
+        this.props.sitePlugin.getSettings().then((settings) => {
             this.setState({ settings });
         });
     }

@@ -1,1 +1,7 @@
-{}
+{
+  "applications": {
+    "gecko": {
+      "id": "raccoony@thornvalley.com"
+    }
+  }
+}

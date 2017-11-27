@@ -13,6 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "classnames": "^2.2.5",
+    "debounce": "^1.1.0",
     "react": "^16.1.1",
     "react-dom": "^16.1.1",
     "react-image-lightbox": "^4.3.0",

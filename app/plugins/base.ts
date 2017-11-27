@@ -40,6 +40,9 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
             }
             logger.log(`${this.siteName}: loaded settings:`, siteSettings, settings);
             return siteSettings;
+        }).catch((e) => {
+            logger.log('error getting settings', e)
+            return Promise.reject(e);
         });
     }
 
@@ -55,7 +58,11 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
                 logger.log(`${this.siteName}: saving settings:`, settings, settingsToSave);
                 return browser.storage.sync.set(settingsToSave);
             })
-            .then(() => logger.log(`${this.siteName} settings saved.`));
+            .then(() => logger.log(`${this.siteName} settings saved.`))
+            .catch((e) => {
+                logger.log('error saving settings', e)
+                return Promise.reject(e);
+            });;
         
     }
 

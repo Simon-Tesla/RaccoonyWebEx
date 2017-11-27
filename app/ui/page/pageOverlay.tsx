@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as I from '../../definitions';
 import * as E from '../../enums'
 import * as classnames from 'classnames';
+import debounce from 'debounce';
 import * as logger from '../../logger';
 import { initializeHotkeys } from './hotkeys';
 import ActionButton from './actionButton';
@@ -62,7 +63,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             showUi: true,
             showOptions: false,
         }
-        //this.props.sitePlugin.registerPageChangeHandler(debounce(this.handlePageChange, 200));
+        this.props.sitePlugin.registerPageChangeHandler(debounce(this.handlePageChange, 200));
         this.initialize();
     }
 

@@ -58,4 +58,5 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(rootElt);
 
     ReactDOM.render(<Page sitePlugin={plugin} />, rootElt);
+    console.log("finished page_inject")
 })
