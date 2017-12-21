@@ -13,7 +13,9 @@ interface PageProps {
 interface PageState {
     isFullscreen: boolean;
     lightboxUrl: string;
+    lightboxTitle: string;
     settings: I.SiteSettings;
+    enableZoom: boolean;
 }
 
 export default class Page extends React.Component<PageProps, PageState> {
@@ -21,12 +23,22 @@ export default class Page extends React.Component<PageProps, PageState> {
         super(props, context);
         this.state = {
             lightboxUrl: '',
+            lightboxTitle: '',
             isFullscreen: false,
             settings: null,
+            enableZoom: true,
         }
         this.props.sitePlugin.getSettings().then((settings) => {
             this.setState({ settings });
         });
+    }
+
+    componentDidMount() {
+        window.addEventListener("wheel", this.onWheel);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("wheel", this.onWheel);
     }
 
     componentDidUpdate(prevProps: PageProps, prevState: PageState) {
@@ -38,11 +50,24 @@ export default class Page extends React.Component<PageProps, PageState> {
         }
     }
 
+    private onWheel = (ev: WheelEvent) => {
+        if (!this.state.isFullscreen &&
+            this.state.settings && this.state.settings.fullscreenScrollGestureEnabled &&
+            ev.deltaY < 0 && window.scrollY === 0
+        ) {
+            //Disable zoom for half a second to prevent the scroll from zooming the picture.
+            this.setState({ enableZoom: false });
+            this.enterFullscreen();
+            setTimeout(() => this.setState({ enableZoom: true }), 500);
+        }
+    }
+
     private enterFullscreen() {
         this.props.sitePlugin.getMedia().then((media) => {
-            if (media) {
+            if (media && media.type === E.MediaType.Image) {
                 this.setState({
                     lightboxUrl: media.url,
+                    lightboxTitle: media.title,
                     isFullscreen: true,
                 });
             }
@@ -58,11 +83,16 @@ export default class Page extends React.Component<PageProps, PageState> {
         }
     }
 
+    onFullscreenError = () => {
+        this.setState({ isFullscreen: false });
+    }
+
     onClickClose = () => {
         this.setState({ isFullscreen: false });
     }
 
-    onChangeSettings = (settings: I.SiteSettings) => {
+    onChangeSettings = (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => {
+        //TODO support saving default settings
         this.props.sitePlugin.saveSettings(settings).then(() => {
             this.setState({ settings });
         });
@@ -73,6 +103,11 @@ export default class Page extends React.Component<PageProps, PageState> {
             // Wait for settings to load before showing the UI
             return null;
         }
+        //TODO: add toolbar buttons for Raccoony actions in the lightbox?
+        let title = this.state.lightboxTitle && (
+            <span>{this.state.lightboxTitle}</span>
+        );
+
         return (
             <div>
                 <PageOverlay
@@ -89,6 +124,9 @@ export default class Page extends React.Component<PageProps, PageState> {
                         reactModalStyle={{
                             overlay: { zIndex: 1000000 }
                         }}
+                        imageTitle={title}
+                        onImageLoadError={this.onFullscreenError}
+                        enableZoom={this.state.enableZoom}
                     />
                 )}
             </div>

@@ -5,7 +5,7 @@ import { IconGlyph } from '../../enums'
 import { n } from './common'
 
 
-interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: IconGlyph;
 }
 

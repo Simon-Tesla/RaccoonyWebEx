@@ -4,6 +4,7 @@ import * as logger from '../logger';
 
 export const defaultSiteSettings: I.SiteSettings = {
     autoFullscreen: false,
+    fullscreenScrollGestureEnabled: false,
     downloadPath: null,
     hotkeysEnabled: true,
     tabLoadDelay: 1,

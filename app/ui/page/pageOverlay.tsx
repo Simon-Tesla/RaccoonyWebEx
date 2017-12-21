@@ -5,7 +5,7 @@ import * as classnames from 'classnames';
 import debounce from 'debounce';
 import * as logger from '../../logger';
 import { initializeHotkeys } from './hotkeys';
-import ActionButton from './actionButton';
+import ActionButton, { ActionButtonProps } from './actionButton';
 import SettingsUi from './settings';
 import { defaultSiteSettings } from '../../plugins/base';
 import { n } from './common'
@@ -25,18 +25,23 @@ interface PageOverlayProps {
     siteSettings: I.SiteSettings;
     onClickFullscreen: () => void;
     inFullscreen: boolean;
-    onChangeSettings: (settings: I.SiteSettings) => void;
+    onChangeSettings: (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => void;
 }
 
 // TODO: move most of this state out to Page, and make Page listen to events from background.js, etc.
 interface PageOverlayState {
     hasMedia: boolean;
     hasPageLinks: boolean;
+    canFullscreen: boolean;
     downloadState: DownloadState;
     downloadMessage?: string;
     showBalloon: boolean;
     showOptions: boolean;
     showUi: boolean;
+}
+
+interface DownloadButtonProps extends ActionButtonProps {
+    label: string,
 }
 
 function sendMessage<T>(action: E.MessageAction, data: T) {
@@ -46,6 +51,26 @@ function sendMessage<T>(action: E.MessageAction, data: T) {
     }
     logger.log("sending message", message);
     return browser.runtime.sendMessage(message);
+}
+
+const downloadButtonDefaultProps: { [state: number]: DownloadButtonProps } = {};
+downloadButtonDefaultProps[DownloadState.Done] = downloadButtonDefaultProps[DownloadState.Exists] = {
+    icon: IconGlyph.Exists,
+    label: "Downloaded",
+    disabled: true,
+}
+downloadButtonDefaultProps[DownloadState.Error] = {
+    icon: IconGlyph.Download,
+    label: "Download error",
+}
+downloadButtonDefaultProps[DownloadState.InProgress] = {
+    icon: IconGlyph.Download,
+    label: "Downloading",
+    disabled: true,
+}
+downloadButtonDefaultProps[DownloadState.NotDownloaded] = {
+    icon: IconGlyph.Download,
+    label: "Download",
 }
 
 // TODO: Make Page (or some other class) implement PageActions and pass that in as a prop.
@@ -62,6 +87,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             showBalloon: false,
             showUi: true,
             showOptions: false,
+            canFullscreen: false,
         }
         this.props.sitePlugin.registerPageChangeHandler(debounce(this.handlePageChange, 200));
         this.initialize();
@@ -77,6 +103,9 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             if (hasMedia) {
                 // Check to see if the file has been downloaded
                 this.props.sitePlugin.getMedia().then((media) => {
+                    if (media && media.type === E.MediaType.Image) {
+                        this.setState({ canFullscreen: true });
+                    }
                     sendMessage(E.MessageAction.CheckDownlod, media).then((isDownloaded: boolean) => {
                         if (isDownloaded) {
                             this.setState({ downloadState: DownloadState.Exists });
@@ -193,9 +222,9 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         this.setState({ showOptions: false });
     }
 
-    private onSaveOptions = (settings: I.SiteSettings) => {
+    private onSaveOptions = (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => {
         this.onDismissOptions();
-        this.props.onChangeSettings(settings);
+        this.props.onChangeSettings(settings, defaultSettings);
     }
 
     private onMouseOver = () => {
@@ -222,23 +251,13 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         let showDownloadStatus = this.state.downloadState === DownloadState.InProgress ||
             this.state.downloadState === DownloadState.Done ||
             this.state.downloadState === DownloadState.Error;
-        let showBalloon = this.state.showBalloon;
+        let showBalloon = this.state.showBalloon || showDownloadStatus;
 
         let mainClassNames = classnames(!showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
 
         let alternateBalloonUi: JSX.Element = null;
 
-        if (showDownloadStatus) {
-            showBalloon = true;
-            alternateBalloonUi = (
-                <DownloadProgress
-                    downloadState={this.state.downloadState}
-                    message={this.state.downloadMessage}
-                    onClickOpenFolder={this.onClickOpenFolder}
-                />
-            )
-        }
-
+        // TODO: move the options into a modal dialog
         if (this.state.showOptions) {
             showBalloon = true;
             alternateBalloonUi = (
@@ -250,6 +269,8 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                 />
             );
         }
+
+        const downloadButtonProps = downloadButtonDefaultProps[this.state.downloadState];
 
         //TODO: fix mini-download button if the downloaded file exists
         return (
@@ -280,14 +301,14 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                             alternateBalloonUi
                         ) : (
                             <div className={n("bubble")}>
-                                {this.state.hasMedia && canDownload && (
-                                    <ActionButton onClick={this.onClickDownload} title="Hotkey: D" icon={IconGlyph.Download}>
-                                        Download
-                                    </ActionButton>
-                                )}
-                                {this.state.hasMedia && this.state.downloadState === DownloadState.Exists && (
-                                    <ActionButton icon={IconGlyph.Exists} disabled>
-                                        File exists
+                                {this.state.hasMedia && (
+                                    <ActionButton
+                                        onClick={this.onClickDownload}
+                                        title={downloadButtonProps.disabled ? null : 'Hotkey: D'}
+                                        icon={downloadButtonProps.icon}
+                                        disabled={downloadButtonProps.disabled}
+                                    >
+                                        {downloadButtonProps.label}
                                     </ActionButton>
                                 )}
                                 {this.state.hasMedia && this.state.downloadState === DownloadState.Exists && (
@@ -295,12 +316,12 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                         Open folder
                                     </ActionButton >
                                 )}
-                                {this.state.hasMedia && !this.props.inFullscreen && (
+                                {this.state.canFullscreen && !this.props.inFullscreen && (
                                     <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
                                         Fullscreen
                                     </ActionButton>
                                 )}
-                                {this.state.hasMedia && this.props.inFullscreen && (
+                                {this.props.inFullscreen && (
                                     <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
                                         Exit fullscreen
                                     </ActionButton>
@@ -319,39 +340,6 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                             </div >
                         )}
                 </div>
-            </div>
-        );
-    }
-}
-
-interface DownloadProgressProps {
-    downloadState: DownloadState;
-    message?: string;
-    onClickOpenFolder: () => void;
-}
-
-class DownloadProgress extends React.Component<DownloadProgressProps, {}> {
-    get message() {
-        switch (this.props.downloadState) {
-            case DownloadState.InProgress:
-                return "Downloading...";
-            case DownloadState.Done:
-                return "Download complete.";
-            case DownloadState.Error:
-                return "An error occurred while attempting to download."
-        }
-    }
-    
-    render() {
-        return (
-            <div className={n("bubble")}>
-                <div>{this.message + ' ' + (this.props.message || '')}</div>
-                {this.props.downloadState === DownloadState.InProgress && <progress />}
-                {this.props.downloadState === DownloadState.Done && (
-                    < ActionButton title="Hotkey: R" icon={IconGlyph.OpenFolder} onClick={this.props.onClickOpenFolder}>
-                        Open folder
-                    </ActionButton>
-                )}
             </div>
         );
     }

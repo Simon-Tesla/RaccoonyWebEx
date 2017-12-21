@@ -9,7 +9,7 @@ export enum MessageAction {
 }
 
 export enum MediaType {
-    Unknown = -1,
+    Unknown = 0,
     Image,
     Text,
     Flash,
@@ -31,4 +31,5 @@ export enum IconGlyph {
     OpenTabs = "\u{29C9}",
     Config = "\u{2699}",
     Close = "\u{2716}",
+    Warning = "\u{26A0}"
 }

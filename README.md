@@ -6,9 +6,18 @@ Inspired by the [FurAffinity Extender](https://andrewneo.github.io/faextender/) 
 This README is a work in progress, however if you are familiar with npm and gulp, you can build the extension yourself. 
 Build output will end up in the `dist/` folder.
 
+## Changelog
+
+1.0.1
+- Simplified download progress UI
+- Fixed lightbox to only be available for images
+- Fixed e621 bug: Raccoony will now always download the highest resolution available for an image
+
+1.0.0
+- Initial release
+
 ## Todo list 
 
-- Fix download progress indicator
 - Fix downloaded status badge on overlay 
 - Save metadata file
 - Refactor pageOverlay to have less internal state

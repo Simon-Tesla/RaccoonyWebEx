@@ -7,12 +7,13 @@ import ActionButton from './actionButton'
 interface SettingsUiProps {
     settingsProvider: () => Promise<I.SiteSettings>;
     defaultSettings: I.SiteSettings;
-    onSaveSettings: (settings: I.SiteSettings) => void
+    onSaveSettings: (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => void
     onDismiss: () => void;
 }
 
 interface SettingsUiState {
     settings: I.SiteSettings;
+    defaultSettings: I.SiteSettings;
 }
 
 export default class SettingsUi extends React.Component<SettingsUiProps, SettingsUiState> {
@@ -20,7 +21,9 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
         super(props, context);
         this.state = {
             settings: null,
+            defaultSettings: this.props.defaultSettings,
         }
+        //TODO get default settings from the settings store
         this.props.settingsProvider().then((settings) => {
             this.setState({ settings });
         })
@@ -42,7 +45,7 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
     }
 
     onSave = () => {
-        this.props.onSaveSettings(this.state.settings);
+        this.props.onSaveSettings(this.state.settings, this.state.defaultSettings);
     }
 
     render() {

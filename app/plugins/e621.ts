@@ -7,13 +7,20 @@ export class E621Plugin extends BaseSitePlugin {
     readonly siteName: string = serviceName;
 
     getMedia(): Promise<I.Media> {
-        // Get the download button
-        let button = document.getElementById("image");
+        // Look for the high-res download button
+        let button = document.getElementById('highres') as HTMLAnchorElement;
+        let url = button && button.href;
 
-        // Get the URL
-        // e621 image URLs are of the format
-        // https://static1.e621.net/data/99/c5/99c5a9f2195e8025df8e03acef6e2b2f.png
-        let url = button && button.getAttribute("src");
+        if (!url) {
+            // Get the download button
+            let image = document.getElementById("image");
+
+            // Get the URL
+            // e621 image URLs are of the format
+            // https://static1.e621.net/data/99/c5/99c5a9f2195e8025df8e03acef6e2b2f.png
+            url = image && image.getAttribute("src");
+        }
+
         if (!url) {
             return Promise.resolve(null);
         }
