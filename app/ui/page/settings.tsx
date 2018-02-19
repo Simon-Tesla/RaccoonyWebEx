@@ -5,9 +5,8 @@ import { n } from './common'
 import ActionButton from './actionButton'
 
 interface SettingsUiProps {
-    settingsProvider: () => Promise<I.SiteSettings>;
-    defaultSettings: I.SiteSettings;
-    onSaveSettings: (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => void
+    settingsProvider: () => Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }>;
+    onSaveSettings: (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => void
     onDismiss: () => void;
 }
 
@@ -21,11 +20,13 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
         super(props, context);
         this.state = {
             settings: null,
-            defaultSettings: this.props.defaultSettings,
+            defaultSettings: null,
         }
-        //TODO get default settings from the settings store
         this.props.settingsProvider().then((settings) => {
-            this.setState({ settings });
+            this.setState({
+                settings: settings.currentSettings,
+                defaultSettings: settings.defaultSettings
+            });
         })
     }
 
@@ -44,8 +45,15 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
         this.updateSettings({ autoFullscreen: value });
     }
 
+    onFullscreenGestureChange = (value: boolean) => {
+        this.updateSettings({ fullscreenScrollGestureEnabled: value });
+    }
+
     onSave = () => {
-        this.props.onSaveSettings(this.state.settings, this.state.defaultSettings);
+        this.props.onSaveSettings({
+            currentSettings: this.state.settings,
+            defaultSettings: this.state.defaultSettings
+        });
     }
 
     render() {
@@ -57,15 +65,22 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
                 <div>
                     <label>
                         Hotkeys enabled
-                        (default: {this.props.defaultSettings.hotkeysEnabled.toString()}):
+                        (default: {this.state.defaultSettings.hotkeysEnabled.toString()}):
                         {getTristate(this.state.settings.hotkeysEnabled, this.onHotkeysChange)}
                     </label>
                 </div>
                 <div>
                     <label>
                         AutoFullscreen enabled
-                        (default: {this.props.defaultSettings.autoFullscreen.toString()}):
+                        (default: {this.state.defaultSettings.autoFullscreen.toString()}):
                         {getTristate(this.state.settings.autoFullscreen, this.onAutoFullscreenChange)}
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        Fullscreen scroll gesture enabled
+                        (default: {this.state.defaultSettings.fullscreenScrollGestureEnabled.toString()}):
+                        {getTristate(this.state.settings.fullscreenScrollGestureEnabled, this.onFullscreenGestureChange)}
                     </label>
                 </div>
                 <div>

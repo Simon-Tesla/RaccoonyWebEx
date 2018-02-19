@@ -17,10 +17,13 @@ class SiteActions implements I.SitePlugin {
     registerPageChangeHandler(handler: () => void): void {
         throw new Error("Method not implemented.");
     }
-    getSettings(noDefaults?: boolean): Promise<I.SiteSettings> {
+    getCurrentSettings(): Promise<I.SiteSettings> {
         throw new Error("Method not implemented.");
     }
-    saveSettings(settings: I.SiteSettings): Promise<void> {
+    getSettings(): Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }> {
+        throw new Error("Method not implemented.");
+    }
+    saveSettings(settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }): Promise<void> {
         throw new Error("Method not implemented.");
     }
     //TODO: wrap site plugin, provide methods for saving settings etc.

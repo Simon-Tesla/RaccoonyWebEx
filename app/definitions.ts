@@ -44,8 +44,9 @@ export interface SitePlugin {
     hasPageLinkList(): Promise<boolean>;
     //TODO remove these from plugin interface
     registerPageChangeHandler(handler: () => void): void;
-    getSettings(noDefaults?: boolean): Promise<SiteSettings>;
-    saveSettings(settings: SiteSettings): Promise<void>;
+    getCurrentSettings(): Promise<SiteSettings>;
+    getSettings(): Promise<{ defaultSettings: SiteSettings; currentSettings: SiteSettings; }>;
+    saveSettings(settings: { defaultSettings?: SiteSettings, currentSettings?: SiteSettings }): Promise<void>;
 
     //TODO: implement support for these
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu

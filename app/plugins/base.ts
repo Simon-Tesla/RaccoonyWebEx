@@ -13,6 +13,8 @@ export const defaultSiteSettings: I.SiteSettings = {
     writeMetadata: false,
 };
 
+const DefaultSettingsKey = 'default_settings';
+
 // TODO: create Site class that handles shared logic and acts as intermediary between plugin and rest of code.
 export default abstract class BaseSitePlugin implements I.SitePlugin {
     abstract siteName: string;
@@ -32,39 +34,51 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         }
     }
 
-    getSettings(noDefaults?: boolean): Promise<I.SiteSettings> {
-        const settingsKey = `${this.siteName}_settings`;
-        return browser.storage.sync.get(settingsKey).then((settings) => {
-            let siteSettings: I.SiteSettings = <any>settings[settingsKey] || {};
-            if (!noDefaults) {
-                siteSettings = Object.assign({}, defaultSiteSettings, siteSettings);
-            }
-            logger.log(`${this.siteName}: loaded settings:`, siteSettings, settings);
-            return siteSettings;
+    private get settingsKey() {
+        return `${this.siteName}_settings`;
+    }
+
+    getSettings(): Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }> {
+        const keys = [this.settingsKey, DefaultSettingsKey];
+        return browser.storage.sync.get(keys).then((settings) => {
+            let defaultSettings: I.SiteSettings = <any>settings[DefaultSettingsKey] || defaultSiteSettings;
+            let currentSettings: I.SiteSettings = <any>settings[this.settingsKey] || {};
+            logger.log(`${this.siteName} loaded all settings`, currentSettings, defaultSettings);
+            return {
+                defaultSettings,
+                currentSettings,
+            };
         }).catch((e) => {
             logger.log('error getting settings', e)
             return Promise.reject(e);
         });
     }
 
-
-    saveSettings(settings: I.SiteSettings) {
-        const settingsKey = `${this.siteName}_settings`;
-        return browser.storage.sync.get(settingsKey)
-            .then(storedSettings => {
-                // Get the existing settings and overwrite with changes.
-                settings = Object.assign({}, storedSettings, settings);
+    saveSettings(settings: { defaultSettings?: I.SiteSettings, currentSettings?: I.SiteSettings }): Promise<void> {
+        const { defaultSettings, currentSettings } = settings;
+        return this.getSettings()
+            .then((store) => {
                 let settingsToSave: any = {};
-                settingsToSave[settingsKey] = settings;
-                logger.log(`${this.siteName}: saving settings:`, settings, settingsToSave);
+                if (defaultSettings) {
+                    settingsToSave[DefaultSettingsKey] = Object.assign({}, store.defaultSettings, defaultSettings);
+                }
+                if (currentSettings) {
+                    settingsToSave[this.settingsKey] = Object.assign({}, store.currentSettings, currentSettings);
+                }
                 return browser.storage.sync.set(settingsToSave);
             })
             .then(() => logger.log(`${this.siteName} settings saved.`))
             .catch((e) => {
                 logger.log('error saving settings', e)
                 return Promise.reject(e);
-            });;
-        
+            });
+    }
+
+    getCurrentSettings(): Promise<I.SiteSettings> {
+        return this.getSettings()
+            .then((store) => {
+                return Object.assign({}, store.defaultSettings, store.currentSettings);
+            });
     }
 
     getMedia(): Promise<I.Media> {

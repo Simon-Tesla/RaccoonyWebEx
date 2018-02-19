@@ -7,7 +7,6 @@ import * as logger from '../../logger';
 import { initializeHotkeys } from './hotkeys';
 import ActionButton, { ActionButtonProps } from './actionButton';
 import SettingsUi from './settings';
-import { defaultSiteSettings } from '../../plugins/base';
 import { n } from './common'
 
 const IconGlyph = E.IconGlyph;
@@ -25,7 +24,7 @@ interface PageOverlayProps {
     siteSettings: I.SiteSettings;
     onClickFullscreen: () => void;
     inFullscreen: boolean;
-    onChangeSettings: (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => void;
+    onChangeSettings: (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => void;
 }
 
 // TODO: move most of this state out to Page, and make Page listen to events from background.js, etc.
@@ -222,9 +221,9 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         this.setState({ showOptions: false });
     }
 
-    private onSaveOptions = (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => {
+    private onSaveOptions = (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
         this.onDismissOptions();
-        this.props.onChangeSettings(settings, defaultSettings);
+        this.props.onChangeSettings(settings);
     }
 
     private onMouseOver = () => {
@@ -262,8 +261,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             showBalloon = true;
             alternateBalloonUi = (
                 <SettingsUi
-                    settingsProvider={() => this.props.sitePlugin.getSettings(true)}
-                    defaultSettings={defaultSiteSettings}
+                    settingsProvider={() => this.props.sitePlugin.getSettings()}
                     onDismiss={this.onDismissOptions}
                     onSaveSettings={this.onSaveOptions}
                 />

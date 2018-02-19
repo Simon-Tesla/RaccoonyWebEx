@@ -28,7 +28,7 @@ export default class Page extends React.Component<PageProps, PageState> {
             settings: null,
             enableZoom: true,
         }
-        this.props.sitePlugin.getSettings().then((settings) => {
+        this.props.sitePlugin.getCurrentSettings().then((settings) => {
             this.setState({ settings });
         });
     }
@@ -91,11 +91,12 @@ export default class Page extends React.Component<PageProps, PageState> {
         this.setState({ isFullscreen: false });
     }
 
-    onChangeSettings = (settings: I.SiteSettings, defaultSettings: I.SiteSettings) => {
-        //TODO support saving default settings
-        this.props.sitePlugin.saveSettings(settings).then(() => {
-            this.setState({ settings });
-        });
+    onChangeSettings = (settingsToSave: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
+        this.props.sitePlugin.saveSettings(settingsToSave)
+            .then(() => this.props.sitePlugin.getCurrentSettings())
+            .then((settings) => {
+                this.setState({ settings });
+            });
     }
 
     render() {
