@@ -1,0 +1,16 @@
+{
+  "addons": {
+    "raccoony@thornvalley.com": {
+      "updates": [
+        {
+          "version": "1.0.0",
+          "update_link": "https://github.com/Simon-Tesla/RaccoonyWebEx/releases/download/1.0.0/raccoony_webextension-1.0.0-an.fx.xpi"
+        },
+        {
+          "version": "1.0.1",
+          "update_link": "https://github.com/Simon-Tesla/RaccoonyWebEx/releases/download/1.0.1/raccoony_webextension-1.0.1-an.fx.xpi"
+        }
+      ]
+    }
+  }
+}
