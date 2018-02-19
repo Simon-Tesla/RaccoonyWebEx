@@ -15,6 +15,11 @@ This README is a work in progress.
 
 See the TODO list below for more planned features.
 
+## Download & Install
+
+For **Firefox** - download the XPI for the latest release on the **[releases page](https://github.com/Simon-Tesla/RaccoonyWebEx/releases)**
+
+For **Chrome** - install from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/raccoony-webextension/ejcbnfgeiphhnkmpjggnkkhnbefihelh)** 
 ## Building
 - Install [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com/) (usually comes with Node.js)
 - (Optional?) Run `npm install -g typescript gulp`
