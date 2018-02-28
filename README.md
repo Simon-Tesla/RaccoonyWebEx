@@ -54,8 +54,6 @@ While I don't plan on implementing every TODO for it, I want to get most of them
 - Add functional toolbar/address bar icon
 
 ### Architecture TODO
-- Introduce a wrapper class (SiteActions) for the SitePlugins and move logic out of the BaseSitePlugin into SiteActions (in other words, let's favor composition over inheritance)
-- Move all shared state out of PageOverlay and into Page
 - Move SettingsUi as a child of Page
 - Maybe package for Edge? 
 

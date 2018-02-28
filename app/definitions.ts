@@ -57,6 +57,7 @@ export interface UserActions {
     showDownloadMedia(): void;
     toggleFullscreen(): void;
     openOptions(): void;
+    dismissOptions(): void;
 }
 
 export interface SiteSettings {
@@ -72,4 +73,13 @@ export interface SiteSettings {
 
 export interface ExtensionSettings {
     firstRunVersion: string;
+}
+
+export interface AppState {
+    hasMedia: boolean;
+    hasPageLinks: boolean;
+    canFullscreen: boolean;
+    downloadState: E.DownloadState;
+    showOptions: boolean;
+    isFullscreen: boolean;
 }

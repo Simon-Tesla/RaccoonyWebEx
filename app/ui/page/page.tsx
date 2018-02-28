@@ -6,32 +6,45 @@ import * as logger from '../../logger';
 import PageOverlay from './pageOverlay';
 import Lightbox from 'react-image-lightbox';
 import SiteActions from '../siteActions'
+import { initializeHotkeys } from './hotkeys';
+import debounce from 'debounce';
 
 interface PageProps {
     siteActions: SiteActions;
 }
 
-interface PageState {
-    isFullscreen: boolean;
+interface PageState extends I.AppState {
     lightboxUrl: string;
     lightboxTitle: string;
     settings: I.SiteSettings;
     enableZoom: boolean;
 }
 
-export default class Page extends React.Component<PageProps, PageState> {
+export default class Page extends React.Component<PageProps, PageState> implements I.UserActions {
+    private _hotkeysDisposer: () => void;
+
     constructor(props: PageProps, context) {
         super(props, context);
         this.state = {
             lightboxUrl: '',
             lightboxTitle: '',
-            isFullscreen: false,
             settings: null,
             enableZoom: true,
+
+            hasMedia: false,
+            hasPageLinks: false,
+            canFullscreen: false,
+            downloadState: E.DownloadState.NotDownloaded,
+            showOptions: false,
+            isFullscreen: false,
         }
-        this.props.siteActions.getCurrentSettings().then((settings) => {
-            this.setState({ settings });
-        });
+
+        this.props.siteActions.registerPageChangeHandler(debounce(this.handlePageChange, 200));
+        this.props.siteActions.getCurrentSettings()
+            .then((settings) => {
+                this.setState({ settings });
+            });
+        this.initialize();
     }
 
     componentDidMount() {
@@ -40,6 +53,7 @@ export default class Page extends React.Component<PageProps, PageState> {
 
     componentWillUnmount() {
         window.removeEventListener("wheel", this.onWheel);
+        this.disableHotkeys();
     }
 
     componentDidUpdate(prevProps: PageProps, prevState: PageState) {
@@ -49,6 +63,163 @@ export default class Page extends React.Component<PageProps, PageState> {
                 this.enterFullscreen();
             }
         }
+        if (prevState.settings) {
+            if (prevState.settings.hotkeysEnabled !== this.state.settings.hotkeysEnabled) {
+                if (this.state.settings.hotkeysEnabled) {
+                    this.enableHotkeys();
+                }
+                else {
+                    this.disableHotkeys();
+                }
+            }
+        }
+    }
+
+    openPageLinksInTabs = () => {
+        this.props.siteActions.getPageLinkList().then((list) => {
+            sendMessage(E.MessageAction.OpenTabs, list);
+        });
+    }
+
+    downloadMedia = () => {
+        this.setState({ downloadState: E.DownloadState.InProgress });
+        this.props.siteActions.getMedia().then((media) => {
+            sendMessage(E.MessageAction.Download, media).then((download: I.DownloadResponse) => {
+                // The download promise resolves when the download starts, not when it finishes.
+                // May want to figure out how to get the download end event.
+                this.setState({
+                    downloadState: download.isError ? E.DownloadState.Error : E.DownloadState.Done,
+                })
+                setTimeout(() => this.setState({
+                    downloadState: download.isError ? E.DownloadState.NotDownloaded : E.DownloadState.Exists,
+                }), 5000);
+            })
+        });
+    }
+
+    showDownloadMedia = () => {
+        // TODO: cache the download ID for already downloaded files?
+        this.props.siteActions.getMedia().then((media) => {
+            sendMessage(E.MessageAction.ShowFile, media);
+        });
+    }
+
+    toggleFullscreen = () => {
+        this.onClickFullscreen();
+    }
+
+    openOptions = () => {
+        this.setState({ showOptions: true });
+    }
+
+    dismissOptions = () => {
+        this.setState({ showOptions: false });
+    }
+
+    onClickFullscreen = () => {
+        if (this.state.isFullscreen) {
+            this.setState({ isFullscreen: false });
+        }
+        else {
+            this.enterFullscreen();
+        }
+    }
+
+    onFullscreenError = () => {
+        this.setState({ isFullscreen: false });
+    }
+
+    onClickLightboxClose = () => {
+        this.setState({ isFullscreen: false });
+    }
+
+    onChangeSettings = (settingsToSave: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
+        this.props.siteActions.saveSettings(settingsToSave)
+            .then(() => this.props.siteActions.getCurrentSettings())
+            .then((settings) => {
+                this.setState({ settings });
+            });
+    }
+
+    render() {
+        if (!this.state.settings) {
+            // Wait for settings to load before showing the UI
+            return null;
+        }
+        //TODO: add toolbar buttons for Raccoony actions in the lightbox?
+        let title = this.state.lightboxTitle && (
+            <span>{this.state.lightboxTitle}</span>
+        );
+
+        return (
+            <div>
+                <PageOverlay
+                    userActions={this}
+                    siteActions={this.props.siteActions}
+                    onClickFullscreen={this.onClickFullscreen}
+                    isFullscreen={this.state.isFullscreen}
+                    siteSettings={this.state.settings}
+                    onChangeSettings={this.onChangeSettings}
+                    hasMedia={this.state.hasMedia}
+                    hasPageLinks={this.state.hasPageLinks}
+                    canFullscreen={this.state.canFullscreen}
+                    downloadState={this.state.downloadState}
+                    showOptions={this.state.showOptions}
+                />
+                {this.state.isFullscreen && (
+                    <Lightbox
+                        mainSrc={this.state.lightboxUrl}
+                        onCloseRequest={this.onClickLightboxClose}
+                        reactModalStyle={{
+                            overlay: { zIndex: 1000000 }
+                        }}
+                        imageTitle={title}
+                        onImageLoadError={this.onFullscreenError}
+                        enableZoom={this.state.enableZoom}
+                    />
+                )}
+            </div>
+        );
+    }
+
+    private initialize() {
+        logger.log("initializing page UI");
+        this.props.siteActions.hasMedia().then((hasMedia) => {
+            logger.log("hasMedia", hasMedia);
+            this.setState({
+                hasMedia,
+            });
+            if (hasMedia) {
+                // Check to see if the file has been downloaded
+                this.props.siteActions.getMedia().then((media) => {
+                    if (media && media.type === E.MediaType.Image) {
+                        this.setState({ canFullscreen: true });
+                    }
+                    sendMessage(E.MessageAction.CheckDownlod, media).then((isDownloaded: boolean) => {
+                        if (isDownloaded) {
+                            this.setState({ downloadState: E.DownloadState.Exists });
+                        }
+                    });
+                });
+            }
+        })
+
+        this.props.siteActions.hasPageLinkList().then((hasPageLinks) => {
+            logger.log("hasPageLinks", hasPageLinks);
+            this.setState({
+                hasPageLinks,
+            });
+        });
+    }
+
+    private enableHotkeys() {
+        if (!this._hotkeysDisposer) {
+            this._hotkeysDisposer = initializeHotkeys(this);
+        }
+    }
+
+    private disableHotkeys() {
+        this._hotkeysDisposer && this._hotkeysDisposer();
     }
 
     private onWheel = (ev: WheelEvent) => {
@@ -75,63 +246,16 @@ export default class Page extends React.Component<PageProps, PageState> {
         });
     }
 
-    onClickFullscreen = () => {
-        if (this.state.isFullscreen) {
-            this.setState({ isFullscreen: false });
-        }
-        else {
-            this.enterFullscreen();
-        }
+    private handlePageChange = () => {
+        this.initialize();
     }
+}
 
-    onFullscreenError = () => {
-        this.setState({ isFullscreen: false });
+function sendMessage<T>(action: E.MessageAction, data: T) {
+    let message: I.MessageRequest<T> = {
+        action,
+        data,
     }
-
-    onClickClose = () => {
-        this.setState({ isFullscreen: false });
-    }
-
-    onChangeSettings = (settingsToSave: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
-        this.props.siteActions.saveSettings(settingsToSave)
-            .then(() => this.props.siteActions.getCurrentSettings())
-            .then((settings) => {
-                this.setState({ settings });
-            });
-    }
-
-    render() {
-        if (!this.state.settings) {
-            // Wait for settings to load before showing the UI
-            return null;
-        }
-        //TODO: add toolbar buttons for Raccoony actions in the lightbox?
-        let title = this.state.lightboxTitle && (
-            <span>{this.state.lightboxTitle}</span>
-        );
-
-        return (
-            <div>
-                <PageOverlay
-                    siteActions={this.props.siteActions}
-                    onClickFullscreen={this.onClickFullscreen}
-                    inFullscreen={this.state.isFullscreen}
-                    siteSettings={this.state.settings}
-                    onChangeSettings={this.onChangeSettings}
-                />
-                {this.state.isFullscreen && (
-                    <Lightbox
-                        mainSrc={this.state.lightboxUrl}
-                        onCloseRequest={this.onClickClose}
-                        reactModalStyle={{
-                            overlay: { zIndex: 1000000 }
-                        }}
-                        imageTitle={title}
-                        onImageLoadError={this.onFullscreenError}
-                        enableZoom={this.state.enableZoom}
-                    />
-                )}
-            </div>
-        );
-    }
+    logger.log("sending message", message);
+    return browser.runtime.sendMessage(message);
 }

@@ -33,3 +33,11 @@ export enum IconGlyph {
     Close = "\u{2716}",
     Warning = "\u{26A0}"
 }
+
+export enum DownloadState {
+    NotDownloaded,
+    InProgress,
+    Done,
+    Exists,
+    Error,
+}

@@ -15,6 +15,7 @@ export const defaultSiteSettings: I.SiteSettings = {
 
 const DefaultSettingsKey = 'default_settings';
 
+//TODO: rename this to something like AppDataProvider
 export default class SiteActions {
     private plugin: I.SitePlugin;
 
