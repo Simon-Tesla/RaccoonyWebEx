@@ -17,13 +17,22 @@
 //                  for the new plugin API.
 
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import {
+    default as BaseSitePlugin,
+    querySelector,
+    querySelectorAll,
+    getFileTypeByExt,
+    getPageLinksFromAnchors,
+    getFilenameParts
+} from './base';
 import * as logger from '../logger';
 
 const serviceName = "ekas";
 
 export class EkasPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         // Are we on a submission page?  If not, bail out.

@@ -5,9 +5,10 @@ import * as classnames from 'classnames';
 import * as logger from '../../logger';
 import PageOverlay from './pageOverlay';
 import Lightbox from 'react-image-lightbox';
+import SiteActions from '../siteActions'
 
 interface PageProps {
-    sitePlugin: I.SitePlugin;
+    siteActions: SiteActions;
 }
 
 interface PageState {
@@ -28,7 +29,7 @@ export default class Page extends React.Component<PageProps, PageState> {
             settings: null,
             enableZoom: true,
         }
-        this.props.sitePlugin.getCurrentSettings().then((settings) => {
+        this.props.siteActions.getCurrentSettings().then((settings) => {
             this.setState({ settings });
         });
     }
@@ -63,7 +64,7 @@ export default class Page extends React.Component<PageProps, PageState> {
     }
 
     private enterFullscreen() {
-        this.props.sitePlugin.getMedia().then((media) => {
+        this.props.siteActions.getMedia().then((media) => {
             if (media && media.type === E.MediaType.Image) {
                 this.setState({
                     lightboxUrl: media.url,
@@ -92,8 +93,8 @@ export default class Page extends React.Component<PageProps, PageState> {
     }
 
     onChangeSettings = (settingsToSave: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
-        this.props.sitePlugin.saveSettings(settingsToSave)
-            .then(() => this.props.sitePlugin.getCurrentSettings())
+        this.props.siteActions.saveSettings(settingsToSave)
+            .then(() => this.props.siteActions.getCurrentSettings())
             .then((settings) => {
                 this.setState({ settings });
             });
@@ -112,7 +113,7 @@ export default class Page extends React.Component<PageProps, PageState> {
         return (
             <div>
                 <PageOverlay
-                    sitePlugin={this.props.sitePlugin}
+                    siteActions={this.props.siteActions}
                     onClickFullscreen={this.onClickFullscreen}
                     inFullscreen={this.state.isFullscreen}
                     siteSettings={this.state.settings}

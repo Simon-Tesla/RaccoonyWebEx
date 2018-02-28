@@ -4,7 +4,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 const serviceName = "hiccears";
 
 export class HiccearsPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         // Get the username

@@ -2,26 +2,14 @@ import * as I from '../definitions';
 import { MediaType, TabLoadOrder } from '../enums';
 import * as logger from '../logger';
 
-export const defaultSiteSettings: I.SiteSettings = {
-    autoFullscreen: false,
-    fullscreenScrollGestureEnabled: false,
-    downloadPath: null,
-    hotkeysEnabled: true,
-    tabLoadDelay: 1,
-    tabLoadSortBy: TabLoadOrder.Date,
-    tabLoadSortAsc: true,
-    writeMetadata: false,
-};
-
-const DefaultSettingsKey = 'default_settings';
-
-// TODO: create Site class that handles shared logic and acts as intermediary between plugin and rest of code.
 export default abstract class BaseSitePlugin implements I.SitePlugin {
-    abstract siteName: string;
+    siteName: string;
 
     private _pageChangeHandler: () => void = () => { };
 
-    constructor(mutationSelector?: string) {
+    constructor(siteName: string, mutationSelector?: string) {
+        this.siteName = siteName;
+
         logger.log('initializing plugin', this.siteName);
         if (mutationSelector) {
             let element = document.querySelector(mutationSelector);
@@ -32,53 +20,6 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
             });
             observer.observe(element, { childList: true, subtree: true });
         }
-    }
-
-    private get settingsKey() {
-        return `${this.siteName}_settings`;
-    }
-
-    getSettings(): Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }> {
-        const keys = [this.settingsKey, DefaultSettingsKey];
-        return browser.storage.sync.get(keys).then((settings) => {
-            let defaultSettings: I.SiteSettings = <any>settings[DefaultSettingsKey] || defaultSiteSettings;
-            let currentSettings: I.SiteSettings = <any>settings[this.settingsKey] || {};
-            logger.log(`${this.siteName} loaded all settings`, currentSettings, defaultSettings);
-            return {
-                defaultSettings,
-                currentSettings,
-            };
-        }).catch((e) => {
-            logger.log('error getting settings', e)
-            return Promise.reject(e);
-        });
-    }
-
-    saveSettings(settings: { defaultSettings?: I.SiteSettings, currentSettings?: I.SiteSettings }): Promise<void> {
-        const { defaultSettings, currentSettings } = settings;
-        return this.getSettings()
-            .then((store) => {
-                let settingsToSave: any = {};
-                if (defaultSettings) {
-                    settingsToSave[DefaultSettingsKey] = Object.assign({}, store.defaultSettings, defaultSettings);
-                }
-                if (currentSettings) {
-                    settingsToSave[this.settingsKey] = Object.assign({}, store.currentSettings, currentSettings);
-                }
-                return browser.storage.sync.set(settingsToSave);
-            })
-            .then(() => logger.log(`${this.siteName} settings saved.`))
-            .catch((e) => {
-                logger.log('error saving settings', e)
-                return Promise.reject(e);
-            });
-    }
-
-    getCurrentSettings(): Promise<I.SiteSettings> {
-        return this.getSettings()
-            .then((store) => {
-                return Object.assign({}, store.defaultSettings, store.currentSettings);
-            });
     }
 
     getMedia(): Promise<I.Media> {
@@ -92,21 +33,11 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
     hasMedia(): Promise<boolean> {
         return this.getMedia()
             .then(media => media && !!media.url);
-            //.catch(err => {
-            //    // Swallow errors
-            //    console.error("[rc.hasMedia] error:", err);
-            //    return Promise.resolve(false)
-            //});
     }
 
     hasPageLinkList(): Promise<boolean> {
         return this.getPageLinkList()
             .then(list => list && list.list.length > 0);
-            //.catch(err => {
-            //    // Swallow errors
-            //    console.error("[rc.hasMediaList] error:", err);
-            //    return Promise.resolve(false)
-            //});
     }
 
     registerPageChangeHandler(handler: () => void): void {

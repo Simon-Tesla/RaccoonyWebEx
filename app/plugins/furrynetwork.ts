@@ -5,10 +5,8 @@ import * as logger from '../logger';
 const serviceName = "furrynetwork";
 
 export class FurryNetworkPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
-
     constructor() {
-        super("#app");
+        super(serviceName, "#app");
     }
 
     getMedia(): Promise<I.Media> {

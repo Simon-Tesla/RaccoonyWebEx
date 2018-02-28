@@ -8,6 +8,7 @@ import { initializeHotkeys } from './hotkeys';
 import ActionButton, { ActionButtonProps } from './actionButton';
 import SettingsUi from './settings';
 import { n } from './common'
+import SiteActions from '../siteActions'
 
 const IconGlyph = E.IconGlyph;
 
@@ -20,7 +21,7 @@ enum DownloadState {
 }
 
 interface PageOverlayProps {
-    sitePlugin: I.SitePlugin;
+    siteActions: SiteActions;
     siteSettings: I.SiteSettings;
     onClickFullscreen: () => void;
     inFullscreen: boolean;
@@ -73,7 +74,7 @@ downloadButtonDefaultProps[DownloadState.NotDownloaded] = {
 }
 
 // TODO: Make Page (or some other class) implement PageActions and pass that in as a prop.
-export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> implements I.PageActions {
+export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> implements I.UserActions {
     private _mouseLeaveTimeout: number;
     private _hotkeysDisposer: () => void;
 
@@ -88,20 +89,20 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             showOptions: false,
             canFullscreen: false,
         }
-        this.props.sitePlugin.registerPageChangeHandler(debounce(this.handlePageChange, 200));
+        this.props.siteActions.registerPageChangeHandler(debounce(this.handlePageChange, 200));
         this.initialize();
     }
 
     initialize() {
         logger.log("initializing pageOverlay UI");
-        this.props.sitePlugin.hasMedia().then((hasMedia) => {
+        this.props.siteActions.hasMedia().then((hasMedia) => {
             logger.log("hasMedia", hasMedia);
             this.setState({
                 hasMedia,
             });
             if (hasMedia) {
                 // Check to see if the file has been downloaded
-                this.props.sitePlugin.getMedia().then((media) => {
+                this.props.siteActions.getMedia().then((media) => {
                     if (media && media.type === E.MediaType.Image) {
                         this.setState({ canFullscreen: true });
                     }
@@ -114,7 +115,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             }
         })
 
-        this.props.sitePlugin.hasPageLinkList().then((hasPageLinks) => {
+        this.props.siteActions.hasPageLinkList().then((hasPageLinks) => {
             logger.log("hasPageLinks", hasPageLinks);
             this.setState({
                 hasPageLinks,
@@ -123,14 +124,14 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
     }
 
     openPageLinksInTabs() {
-        this.props.sitePlugin.getPageLinkList().then((list) => {
+        this.props.siteActions.getPageLinkList().then((list) => {
             sendMessage(E.MessageAction.OpenTabs, list);
         });
     }
 
     downloadMedia() {
         this.setState({ downloadState: DownloadState.InProgress });
-        this.props.sitePlugin.getMedia().then((media) => {
+        this.props.siteActions.getMedia().then((media) => {
             sendMessage(E.MessageAction.Download, media).then((download: I.DownloadResponse) => {
                 // TODO: the download promise resolves when the download starts, not when it finishes.
                 this.setState({
@@ -147,7 +148,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
 
     showDownloadMedia() {
         // TODO: cache the download ID for already downloaded files?
-        this.props.sitePlugin.getMedia().then((media) => {
+        this.props.siteActions.getMedia().then((media) => {
             sendMessage(E.MessageAction.ShowFile, media);
         });
     }
@@ -261,7 +262,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             showBalloon = true;
             alternateBalloonUi = (
                 <SettingsUi
-                    settingsProvider={() => this.props.sitePlugin.getSettings()}
+                    settingsProvider={() => this.props.siteActions.getSettings()}
                     onDismiss={this.onDismissOptions}
                     onSaveSettings={this.onSaveOptions}
                 />

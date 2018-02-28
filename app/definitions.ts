@@ -42,11 +42,7 @@ export interface SitePlugin {
     getPageLinkList(): Promise<PageLinkList>;
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
-    //TODO remove these from plugin interface
     registerPageChangeHandler(handler: () => void): void;
-    getCurrentSettings(): Promise<SiteSettings>;
-    getSettings(): Promise<{ defaultSettings: SiteSettings; currentSettings: SiteSettings; }>;
-    saveSettings(settings: { defaultSettings?: SiteSettings, currentSettings?: SiteSettings }): Promise<void>;
 
     //TODO: implement support for these
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
@@ -55,7 +51,7 @@ export interface SitePlugin {
     // favorite
 }
 
-export interface PageActions {
+export interface UserActions {
     openPageLinksInTabs(): void;
     downloadMedia(): void;
     showDownloadMedia(): void;

@@ -5,10 +5,8 @@ const serviceName = "deviantart";
 const mutationSelector = 'body';
 
 export class DeviantArtPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
-
     constructor() {
-        super(mutationSelector);
+        super(serviceName, mutationSelector);
     }
 
     getMedia(): Promise<I.Media> {

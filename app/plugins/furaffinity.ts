@@ -4,7 +4,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 const serviceName = "furaffinity";
 
 export class FuraffinityPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         let { url, previewUrl } = getMediaUrls();
