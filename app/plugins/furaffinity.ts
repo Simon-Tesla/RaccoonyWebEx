@@ -46,12 +46,12 @@ export class FuraffinityPlugin extends BaseSitePlugin {
 
         const result: I.Media = {
             url: url,
-            service: serviceName,
+            siteName: serviceName,
             submissionId: id,
             previewUrl: previewUrl,
             author: username,
             filename: filename,
-            serviceFilename: serviceFilename,
+            siteFilename: serviceFilename,
             extension: ext,
             type: getFileTypeByExt(ext),
             title: title,

@@ -5,8 +5,8 @@ import { n } from './common'
 import ActionButton from './actionButton'
 
 interface SettingsUiProps {
-    settingsProvider: () => Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }>;
-    onSaveSettings: (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => void
+    settingsProvider: () => Promise<I.Settings>;
+    onSaveSettings: (settings: I.Settings) => void
     onDismiss: () => void;
 }
 
@@ -14,6 +14,8 @@ interface SettingsUiState {
     settings: I.SiteSettings;
     defaultSettings: I.SiteSettings;
 }
+
+//TODO: add sort order settings UI
 
 export default class SettingsUi extends React.Component<SettingsUiProps, SettingsUiState> {
     constructor(props: SettingsUiProps, context) {

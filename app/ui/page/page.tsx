@@ -84,24 +84,26 @@ export default class Page extends React.Component<PageProps, PageState> implemen
     downloadMedia = () => {
         this.setState({ downloadState: E.DownloadState.InProgress });
         this.props.siteActions.getMedia().then((media) => {
-            sendMessage(E.MessageAction.Download, media).then((download: I.DownloadResponse) => {
-                // The download promise resolves when the download starts, not when it finishes.
-                // May want to figure out how to get the download end event.
-                this.setState({
-                    downloadState: download.isError ? E.DownloadState.Error : E.DownloadState.Done,
+            sendMessage(E.MessageAction.Download, media)
+                .then((download: I.DownloadResponse) => {
+                    // The download promise resolves when the download starts, not when it finishes.
+                    // May want to figure out how to get the download end event.
+                    this.setState({
+                        downloadState: download.isError ? E.DownloadState.Error : E.DownloadState.Done,
+                    })
+                    setTimeout(() => this.setState({
+                        downloadState: download.isError ? E.DownloadState.NotDownloaded : E.DownloadState.Exists,
+                    }), 5000);
                 })
-                setTimeout(() => this.setState({
-                    downloadState: download.isError ? E.DownloadState.NotDownloaded : E.DownloadState.Exists,
-                }), 5000);
-            })
         });
     }
 
     showDownloadMedia = () => {
         // TODO: cache the download ID for already downloaded files?
-        this.props.siteActions.getMedia().then((media) => {
-            sendMessage(E.MessageAction.ShowFile, media);
-        });
+        this.props.siteActions.getMedia()
+            .then((media) => {
+                sendMessage(E.MessageAction.ShowFile, media);
+            });
     }
 
     toggleFullscreen = () => {
@@ -133,7 +135,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         this.setState({ isFullscreen: false });
     }
 
-    onChangeSettings = (settingsToSave: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
+    onChangeSettings = (settingsToSave: I.Settings) => {
         this.props.siteActions.saveSettings(settingsToSave)
             .then(() => this.props.siteActions.getCurrentSettings())
             .then((settings) => {

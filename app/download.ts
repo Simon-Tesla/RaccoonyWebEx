@@ -4,7 +4,7 @@ import * as logger from './logger';
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
 
-export function downloadFile(media: I.Media): Promise<I.DownloadResponse> {
+export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
     // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/downloads/FilenameConflictAction
     let conflictAction = isFirefox ? "overwrite" : "prompt";
@@ -36,7 +36,7 @@ function makeDownloadFilePath(media: I.Media) {
 
     let path: string[] = [
         downloadRootFolder,
-        media.service,
+        media.siteName,
         media.author,
         `${media.submissionId}_${media.filename}_by_${media.author}.${media.extension}`
     ];

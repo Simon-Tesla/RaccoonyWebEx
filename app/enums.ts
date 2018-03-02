@@ -1,6 +1,5 @@
 
 export enum MessageAction {
-    Test = "messageaction_test",
     Download = "messageaction_download",
     OpenTabs = "messageaction_opentabs",
     ShowFile = "messageaction_showfile",

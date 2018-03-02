@@ -45,7 +45,7 @@ export class SofurryPlugin extends BaseSitePlugin {
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,
-            service: serviceName,
+            siteName: serviceName,
             title: title,
             description: description,
             tags: tags

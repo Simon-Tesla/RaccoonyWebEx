@@ -12,12 +12,12 @@ export interface DownloadResponse {
 
 export interface Media {
     url: string;
-    service: string;
+    siteName: string;
     submissionId?: string;
     previewUrl?: string;
     author?: string;
     filename?: string;
-    serviceFilename?: string;
+    siteFilename?: string;
     extension?: string;
     type?: E.MediaType;
     title?: string;
@@ -32,6 +32,7 @@ export interface PageLink {
 }
 
 export interface PageLinkList {
+    siteName?: string;
     list: PageLink[];
     sortable: boolean;
 }
@@ -58,6 +59,17 @@ export interface UserActions {
     toggleFullscreen(): void;
     openOptions(): void;
     dismissOptions(): void;
+}
+
+export interface AllSettings {
+    default_settings: SiteSettings,
+    [siteKey: string]: SiteSettings
+}
+
+export interface Settings {
+    siteKey?: string;
+    defaultSettings: SiteSettings;
+    currentSettings: SiteSettings;
 }
 
 export interface SiteSettings {

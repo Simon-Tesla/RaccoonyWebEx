@@ -4,7 +4,7 @@ import * as E from '../../enums'
 import * as classnames from 'classnames';
 import * as logger from '../../logger';
 import ActionButton, { ActionButtonProps } from './actionButton';
-import SettingsUi from './settings';
+import SettingsUi from './settingsUi';
 import { n } from './common'
 import SiteActions from '../siteActions'
 
@@ -15,7 +15,7 @@ interface PageOverlayProps extends I.AppState  {
     userActions: I.UserActions;
     siteSettings: I.SiteSettings;
     onClickFullscreen: () => void;
-    onChangeSettings: (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => void;
+    onChangeSettings: (settings: I.Settings) => void;
 }
 
 interface PageOverlayState {
@@ -82,7 +82,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         this.props.userActions.dismissOptions();
     }
 
-    private onSaveOptions = (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
+    private onSaveOptions = (settings: I.Settings) => {
         this.onDismissOptions();
         this.props.onChangeSettings(settings);
     }

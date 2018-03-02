@@ -51,11 +51,11 @@ export class WeasylPlugin extends BaseSitePlugin {
             previewUrl: previewUrl,
             author: username,
             filename: filename,
-            serviceFilename: serviceFilename,
+            siteFilename: serviceFilename,
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,
-            service: serviceName,
+            siteName: serviceName,
             title: title,
             description: description,
             tags: tags

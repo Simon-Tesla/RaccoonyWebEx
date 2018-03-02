@@ -1,21 +1,9 @@
 import * as I from '../definitions';
 import * as logger from '../logger';
 import { MediaType, TabLoadOrder } from '../enums';
+import * as Settings from '../settings';
 
-export const defaultSiteSettings: I.SiteSettings = {
-    autoFullscreen: false,
-    fullscreenScrollGestureEnabled: false,
-    downloadPath: null,
-    hotkeysEnabled: true,
-    tabLoadDelay: 1,
-    tabLoadSortBy: TabLoadOrder.Date,
-    tabLoadSortAsc: true,
-    writeMetadata: false,
-};
-
-const DefaultSettingsKey = 'default_settings';
-
-//TODO: rename this to something like AppDataProvider
+//TODO: rename this to something like SiteDataProvider
 export default class SiteActions {
     private plugin: I.SitePlugin;
 
@@ -32,11 +20,19 @@ export default class SiteActions {
     }
 
     getMedia(): Promise<I.Media> {
-        return this.plugin.getMedia();
+        return this.plugin.getMedia()
+            .then(media => {
+                media.siteName = this.siteName;
+                return media;
+            })
     }
 
     getPageLinkList(): Promise<I.PageLinkList> {
-        return this.plugin.getPageLinkList();
+        return this.plugin.getPageLinkList()
+            .then(list => {
+                list.siteName = this.siteName;
+                return list;
+            })
     }
 
     hasMedia(): Promise<boolean> {
@@ -61,46 +57,18 @@ export default class SiteActions {
         return this.plugin.registerPageChangeHandler(handler);
     }
 
-    getSettings(): Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }> {
-        const keys = [this.settingsKey, DefaultSettingsKey];
-        return browser.storage.sync.get(keys).then((settings) => {
-            let defaultSettings: I.SiteSettings = <any>settings[DefaultSettingsKey] || defaultSiteSettings;
-            let currentSettings: I.SiteSettings = <any>settings[this.settingsKey] || {};
-            logger.log(`${this.siteName} loaded all settings`, currentSettings, defaultSettings);
-            return {
-                defaultSettings,
-                currentSettings,
-            };
-        }).catch((e) => {
-            logger.log('error getting settings', e)
-            return Promise.reject(e);
-        });
+    getSettings(): Promise<I.Settings> {
+        return Settings.getSettings(this.settingsKey);
     }
 
     getCurrentSettings(): Promise<I.SiteSettings> {
-        return this.getSettings()
-            .then((store) => {
-                return Object.assign({}, store.defaultSettings, store.currentSettings);
-            });
+        return Settings.getCurrentSettings(this.settingsKey);
     }
 
-    saveSettings(settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }): Promise<void> {
-        const { defaultSettings, currentSettings } = settings;
-        return this.getSettings()
-            .then((store) => {
-                let settingsToSave: any = {};
-                if (defaultSettings) {
-                    settingsToSave[DefaultSettingsKey] = Object.assign({}, store.defaultSettings, defaultSettings);
-                }
-                if (currentSettings) {
-                    settingsToSave[this.settingsKey] = Object.assign({}, store.currentSettings, currentSettings);
-                }
-                return browser.storage.sync.set(settingsToSave);
-            })
-            .then(() => logger.log(`${this.siteName} settings saved.`))
-            .catch((e) => {
-                logger.log('error saving settings', e)
-                return Promise.reject(e);
-            });
+    saveSettings(settings: I.Settings): Promise<void> {
+        return Settings.saveSettings({
+            siteKey: this.settingsKey,
+            ...settings
+        });
     }
 }

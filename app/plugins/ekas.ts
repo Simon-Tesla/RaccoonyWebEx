@@ -228,11 +228,11 @@ export class EkasPlugin extends BaseSitePlugin {
             previewUrl: url,
             author: username,
             filename: cleanfilename,
-            serviceFilename: filenameext,
+            siteFilename: filenameext,
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,
-            service: serviceName,
+            siteName: serviceName,
             title: title,
             description: description,
             tags: tags
