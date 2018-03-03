@@ -1,45 +1,55 @@
 import * as I from './definitions';
 import * as logger from './logger';
+import MessageFormat from 'messageformat'
 
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
+
+const mf = new MessageFormat().setIntlSupport(true);
 
 export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
     // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/downloads/FilenameConflictAction
     let conflictAction = isFirefox ? "overwrite" : "prompt";
-    let filePath = makeDownloadFilePath(media);
+    let filePath = makeDownloadFilePath(media, settings);
 
-    return browser.downloads.download({
+    let promises: Promise<any>[] = [];
+    if (settings.writeMetadata) {
+        promises.push(createMetadataFile(media, filePath));
+    }
+
+    promises.push(browser.downloads.download({
         url: media.url,
         filename: filePath,
         saveAs: false,
         conflictAction,
-    })
+    }));
+
+    return Promise.all(promises)
         .then(() => {
-            return {
-                message: "",
-                isError: false,
-            }
+            return { success: true };
         })
         .catch((err) => {
             logger.error("Error occurred while downloading:", err);
-            return {
-                message: "",
-                isError: true,
-            }
+            return { success: false };
         });
 }
 
-function makeDownloadFilePath(media: I.Media) {
-    // TODO: make this configurable
-
-    let path: string[] = [
-        downloadRootFolder,
-        media.siteName,
-        media.author,
-        `${media.submissionId}_${media.filename}_by_${media.author}.${media.extension}`
-    ];
+function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
+    let path: string[]
+    if (settings.downloadPath) {
+        path = replacePathPlaceholders(settings.downloadPath, media)
+            .split('/')
+            .filter(pathPart => !!(pathPart.trim()));
+    }
+    else {
+        path = [
+            downloadRootFolder,
+            media.siteName,
+            media.author,
+            `${media.submissionId}_${media.filename}_by_${media.author}.${media.extension}`
+        ];
+    }
 
     return path.map(sanitizePath).join('/');
 }
@@ -83,8 +93,7 @@ export function openFile(media: I.Media) {
     });
 }
 
-export function createMetadataFile(media: I.Media) {
-    // TODO: integrate
+export function createMetadataFile(media: I.Media, mediaFilePath: string) {
     let metadata = `Title:\t${media.title}
 Author:\t${media.author}
 Tags:\t${(media.tags || []).join(', ')}
@@ -94,7 +103,7 @@ ${media.description}
 JSON:
 ${JSON.stringify(media, null, '  ')}
 `;
-    let filePath = makeDownloadFilePath(media) + '.txt';
+    let filePath = mediaFilePath + '.txt';
     let file = new Blob([metadata], { type: 'text/plain', endings: 'native' });
     let url = URL.createObjectURL(file);
     return browser.downloads.download({
@@ -112,4 +121,20 @@ function sanitizePath(pathPart: string) {
     pathPart = pathPart.replace(/\.+/g, ".");
     // Replace any significant OS characters with underscores.
     return pathPart.replace(/[*"\\\/:|?%<>]/g, "_");
+}
+
+function replacePathPlaceholders(path: string, media: I.Media) {
+    let url = new URL(media.url);
+    return mf.compile(path)({
+        siteName: media.siteName,
+        submissionId: media.submissionId,
+        author: media.author,
+        filename: media.filename,
+        siteFilename: media.siteFilename,
+        extension: media.extension,
+        type: media.type,
+        title: media.title,
+        domain: url.hostname,
+        currentDate: new Date()
+    });
 }

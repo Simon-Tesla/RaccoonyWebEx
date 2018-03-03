@@ -89,11 +89,11 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     // The download promise resolves when the download starts, not when it finishes.
                     // May want to figure out how to get the download end event.
                     this.setState({
-                        downloadState: download.isError ? E.DownloadState.Error : E.DownloadState.Done,
+                        downloadState: download.success ? E.DownloadState.Done : E.DownloadState.Error,
                     })
                     setTimeout(() => this.setState({
-                        downloadState: download.isError ? E.DownloadState.NotDownloaded : E.DownloadState.Exists,
-                    }), 5000);
+                        downloadState: download.success ? E.DownloadState.Exists : E.DownloadState.NotDownloaded,
+                    }), 2000);
                 })
         });
     }

@@ -8,12 +8,12 @@ export enum MessageAction {
 }
 
 export enum MediaType {
-    Unknown = 0,
-    Image,
-    Text,
-    Flash,
-    Video,
-    Audio,
+    Unknown = "unknown",
+    Image = "image",
+    Text = "text",
+    Flash = "flash",
+    Video = "video",
+    Audio = "audio",
 }
 
 export enum TabLoadOrder {

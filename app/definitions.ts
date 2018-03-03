@@ -6,8 +6,7 @@ export interface MessageRequest<T> {
 }
 
 export interface DownloadResponse {
-    message: string;
-    isError?: boolean;
+    success: boolean;
 }
 
 export interface Media {

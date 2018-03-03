@@ -16,6 +16,8 @@ interface SettingsUiState {
 }
 
 //TODO: add sort order settings UI
+//TODO: add metafile UI
+//TODO: add download path UI
 
 export default class SettingsUi extends React.Component<SettingsUiProps, SettingsUiState> {
     constructor(props: SettingsUiProps, context) {

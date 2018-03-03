@@ -87,22 +87,26 @@ export function getFilenameParts(filename: string) {
     }
 }
 
-let extMap: { [ext: string]: MediaType } = {};
-let fileTypes: string[][] = [];
-fileTypes[MediaType.Image] = ['jpg', 'jpeg', 'png', 'gif'];
-fileTypes[MediaType.Text] = ['txt', 'rtf', 'doc', 'docx', 'odf'];
-fileTypes[MediaType.Flash] = ['swf'];
-fileTypes[MediaType.Video] = ['mpeg', 'mpg', 'mp4', 'avi', 'divx', 'mkv', 'flv', 'mov', 'wmv'];
-fileTypes[MediaType.Audio] = ['wav', 'mp3', 'm4a', 'flac', 'ogg', 'wma'];
+let fileTypes: [MediaType, string[]][] = [
+    [MediaType.Image, ['jpg', 'jpeg', 'png', 'gif']],
+    [MediaType.Text, ['txt', 'rtf', 'doc', 'docx', 'odf']],
+    [MediaType.Flash, ['swf']],
+    [MediaType.Video, ['mpeg', 'mpg', 'mp4', 'avi', 'divx', 'mkv', 'flv', 'mov', 'wmv']],
+    [MediaType.Audio, ['wav', 'mp3', 'm4a', 'flac', 'ogg', 'wma']]
+];
 
 // Create extension to type mapping
-let type: MediaType;
-fileTypes.forEach((extList, type: MediaType) => {
-    for (let ext of extList) {
-        extMap[ext] = type;
-    }
-});
+let extensionToTypeMap = (() => {
+    let extMap: { [ext: string]: MediaType } = {};
+    fileTypes.forEach(typeTuple => {
+        const [type, extensions] = typeTuple;
+        extensions.forEach(ext => {
+            extMap[ext] = type;
+        })
+    })
+    return extMap;
+})();
 
 export function getFileTypeByExt(ext: string): MediaType {
-    return extMap[ext] || MediaType.Unknown;
+    return extensionToTypeMap[ext] || MediaType.Unknown;
 }
