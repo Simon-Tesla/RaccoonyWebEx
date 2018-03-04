@@ -12,9 +12,9 @@ export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSet
         list.reverse();
     }
 
+    const delaySecs = settings.tabLoadDelay || defaultDelaySecs;
     list.forEach((page, idx) => {
-        let delaySecs = settings.tabLoadDelay || defaultDelaySecs;
-        openMediaInTab(page, idx * defaultDelaySecs);
+        openMediaInTab(page, idx * delaySecs);
     });
 }
 
