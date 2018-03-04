@@ -90,6 +90,7 @@ export class CachedSettings {
     }
 
     getSettings(siteKey: string) {
+        siteKey = getSiteKeyFromName(siteKey);
         const settings: I.Settings = {
             siteKey,
             defaultSettings: this.settings.default_settings || defaultSiteSettings,
@@ -99,6 +100,7 @@ export class CachedSettings {
     }
 
     getCurrentSettings(siteKey: string) {
+        siteKey = getSiteKeyFromName(siteKey);
         const settings = this.getSettings(siteKey);
         return Object.assign({}, settings.defaultSettings, settings.currentSettings);
     }

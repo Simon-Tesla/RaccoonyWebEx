@@ -22,7 +22,9 @@ export default class SiteActions {
     getMedia(): Promise<I.Media> {
         return this.plugin.getMedia()
             .then(media => {
-                media.siteName = this.siteName;
+                if (media) {
+                    media.siteName = this.siteName;
+                }
                 return media;
             })
     }
@@ -30,7 +32,9 @@ export default class SiteActions {
     getPageLinkList(): Promise<I.PageLinkList> {
         return this.plugin.getPageLinkList()
             .then(list => {
-                list.siteName = this.siteName;
+                if (list) {
+                    list.siteName = this.siteName;
+                }
                 return list;
             })
     }
