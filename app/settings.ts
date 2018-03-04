@@ -2,10 +2,11 @@ import * as I from './definitions';
 import * as logger from './logger';
 import { MediaType, TabLoadOrder } from './enums';
 
+// Do not introduce settings unless they are used, in order to avoid introducing bad default settings.
 const defaultSiteSettings: I.SiteSettings = {
     autoFullscreen: false,
     fullscreenScrollGestureEnabled: false,
-    downloadPath: null,
+    downloadPath: "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{author}.{extension}",
     hotkeysEnabled: true,
     tabLoadDelay: 1,
     tabLoadSortBy: TabLoadOrder.Date,
@@ -35,9 +36,12 @@ export function getSettings(siteKey: string): Promise<I.Settings> {
     siteKey = getSiteKeyFromName(siteKey);
     return getAllSettings()
         .then(store => {
+            if (!store.default_settings.downloadPath) {
+                delete store.default_settings.downloadPath;
+            }
             const settings: I.Settings = {
                 siteKey,
-                defaultSettings: store.default_settings || defaultSiteSettings,
+                defaultSettings: Object.assign({}, defaultSiteSettings, store.default_settings),
                 currentSettings: store[siteKey] || {}
             };
             logger.log(`retrieved site settings for ${siteKey}`, settings);
@@ -93,8 +97,8 @@ export class CachedSettings {
         siteKey = getSiteKeyFromName(siteKey);
         const settings: I.Settings = {
             siteKey,
-            defaultSettings: this.settings.default_settings || defaultSiteSettings,
-            currentSettings: this.settings[siteKey] || {}
+            defaultSettings: Object.assign({}, defaultSiteSettings, this.settings.default_settings),
+            currentSettings: Object.assign({}, this.settings[siteKey]) || {}
         };
         return settings;
     }
@@ -116,7 +120,11 @@ export class CachedSettings {
     private onSettingsChange = () => {
         this.settingsPromise = getAllSettings()
             .then(settings => {
-                this.settings = settings
+                if (!settings.default_settings.downloadPath) {
+                    // Fix a screwup with old settings set to null
+                    delete settings.default_settings.downloadPath;
+                }
+                this.settings = settings;
                 this.listeners.forEach(listener => listener(this));
             });
     }

@@ -1,11 +1,11 @@
 import * as I from './definitions';
 import * as logger from './logger';
-import MessageFormat from 'messageformat'
+import IntlMessageFormat from 'intl-messageformat';
 
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
 
-const mf = new MessageFormat().setIntlSupport(true);
+const defaultPath = "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{author}.{extension}";
 
 export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
@@ -37,21 +37,14 @@ export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<
 
 function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
     let path: string[]
-    if (settings.downloadPath) {
-        path = replacePathPlaceholders(settings.downloadPath, media)
-            .split('/')
-            .filter(pathPart => !!(pathPart.trim()));
-    }
-    else {
-        path = [
-            downloadRootFolder,
-            media.siteName,
-            media.author,
-            `${media.submissionId}_${media.filename}_by_${media.author}.${media.extension}`
-        ];
-    }
+    let downloadPath = settings.downloadPath || defaultPath;
+    path = replacePathPlaceholders(downloadPath, media)
+        .split('/')
+        .filter(pathPart => !!(pathPart.trim()));
 
-    return path.map(sanitizePath).join('/');
+    let pathStr = path.map(sanitizePath).join('/');
+    logger.log("generated path:", pathStr)
+    return pathStr;
 }
 
 function getDownloadedFile(media: I.Media): Promise<browser.downloads.DownloadItem> {
@@ -123,9 +116,21 @@ function sanitizePath(pathPart: string) {
     return pathPart.replace(/[*"\\\/:|?%<>]/g, "_");
 }
 
+let cachedMsg: IntlMessageFormat = null;
+let cachedPath: string = null;
+
 function replacePathPlaceholders(path: string, media: I.Media) {
+    // Replace any backslashes with forward slashes, since that's likely the intent on Windows
+    // and anyone who uses backslashes as significant characters in filenames deserves what they get.
+    path = path.replace(/\\/g, '/');
+
+    if (!cachedMsg || cachedPath !== path) {
+        cachedMsg = new IntlMessageFormat(path, 'en-US');
+        cachedPath = path;
+    }
+
     let url = new URL(media.url);
-    return mf.compile(path)({
+    return cachedMsg.format({
         siteName: media.siteName,
         submissionId: media.submissionId,
         author: media.author,
@@ -135,6 +140,5 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         type: media.type,
         title: media.title,
         domain: url.hostname,
-        currentDate: new Date()
     });
 }
