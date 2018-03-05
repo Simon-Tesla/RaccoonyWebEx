@@ -1,8 +1,10 @@
 import * as React from 'react';
+import * as classnames from 'classnames';
 import * as I from '../../definitions';
 import * as E from '../../enums'
 import { n } from './common'
 import ActionButton from './actionButton'
+
 
 interface SettingsUiProps {
     settingsProvider: () => Promise<I.Settings>;
@@ -14,8 +16,6 @@ interface SettingsUiState {
     settings: I.SiteSettings;
     defaultSettings: I.SiteSettings;
 }
-
-
 
 export default class SettingsUi extends React.Component<SettingsUiProps, SettingsUiState> {
     constructor(props: SettingsUiProps, context) {
@@ -76,7 +76,7 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
         }
 
         return (
-            <div className={n("bubble")}>
+            <div className={classnames(n('bubble'), n('settings'))}>
                 <table>
                     <thead>
                         <tr>
@@ -151,10 +151,10 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
                             isDefault={this.isDefault('downloadPath')}
                             onDefaultChanged={(val) => this.setDefault('downloadPath', val)}
                         >
-                            <input type="text"
+                            <DownloadPath
                                 value={this.getSettingOrDefault('downloadPath')}
-                                onChange={(ev) => this.setSetting('downloadPath', ev.currentTarget.value)}
-                                disabled={this.isDefault('downloadPath')}
+                                onChanged={(value) => this.setSetting('downloadPath', value)}
+                                enabled={!this.isDefault('downloadPath')}
                             />
                         </SettingsRow>
                         <SettingsRow
@@ -172,7 +172,7 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
                 </table>
                 <div>
                     <ActionButton onClick={this.onSave}> Save changes</ActionButton>
-                    <ActionButton onClick={this.props.onDismiss}> Cancel</ActionButton>
+                    <ActionButton className={n('cancel')} onClick={this.props.onDismiss}> Cancel</ActionButton>
                 </div>
             </div>
         );
@@ -202,7 +202,7 @@ class SettingsRow extends React.PureComponent<SettingsRowProps> {
         return (
             <tr>
                 <td>{props.label}</td>
-                <td onClick={this.onDefaultChanged}>
+                <td className={n('defaultCheck')} onClick={this.onDefaultChanged}>
                     <input type="checkbox"
                         checked={props.isDefault}
                     />
@@ -214,6 +214,65 @@ class SettingsRow extends React.PureComponent<SettingsRowProps> {
         );
     }
 };
+
+
+interface DownloadPathProps {
+    value: string;
+    onChanged: (value: string) => void;
+    enabled: boolean;
+}
+
+interface DownloadPathState {
+    helpVisible: boolean;
+}
+
+const placeholderList: [string, string][] = [
+    ["siteName", "the name of the website the submission is from"],
+    ["submissionId", "the ID of the submission; site-dependent"],
+    ["author", "the author/creator/artist of the submission"],
+    ["filename", "the filename (without extension) of the submission; may be generated"],
+    ["siteFilename", "the original filename, including extension, if available"],
+    ["extension", "the file extension (e.g. jpg, png)"],
+    ["type", "the type of file; can be one of 'image', 'text', 'flash', 'video', 'audio' or 'unknown'"],
+    ["title", "the title of the submission, if available"],
+    ["domain", "the domain name, e.g. 'example.com'"]
+];
+
+class DownloadPath extends React.Component<DownloadPathProps, DownloadPathState> {
+    constructor(props, context) {
+        super(props, context);
+        this.state = { helpVisible: false };
+    }
+
+    toggleHelp = () => {
+        this.setState({ helpVisible: !this.state.helpVisible })
+    }
+
+    render() {
+        const props = this.props;
+        const { helpVisible } = this.state;
+        return (
+            <React.Fragment>
+                <textarea
+                    value={props.value}
+                    onChange={(ev) => props.onChanged(ev.currentTarget.value)}
+                    disabled={!props.enabled}
+                    spellCheck={false}
+                />
+                <button onClick={this.toggleHelp}>{helpVisible ? "Hide help" : "Show help"}</button>
+                {helpVisible && (
+                    <div>
+                        Allowed placeholders:
+                        <ul>
+                            {placeholderList.map(([placeholder, description]) => (<li key={placeholder}><b>{`{${placeholder}}`}</b>{" - " + description}</li>))}
+                        </ul>
+                        Format string can use any valid <a href="https://messageformat.github.io/guide/" target="_blank">ICU MessageFormat</a> syntax.
+                    </div>
+                )}
+            </React.Fragment>
+        );
+    }
+}
 
 
 interface SwitchProps {
@@ -278,9 +337,9 @@ class LoadOrder extends React.PureComponent<LoadOrderProps> {
         const order = props.order;
         return (
             <React.Fragment>
-                <select onChange={this.onChangeOrder} disabled={!props.enabled} >
-                    <option value={E.TabLoadOrder.Date} selected={order === E.TabLoadOrder.Date}> Date or submission ID order</option>
-                    <option value={E.TabLoadOrder.Page} selected={order === E.TabLoadOrder.Page}> Order on page</option>
+                <select onChange={this.onChangeOrder} disabled={!props.enabled} value={order}>
+                    <option value={E.TabLoadOrder.Date}> Date or submission ID order</option>
+                    <option value={E.TabLoadOrder.Page}> Order on page</option>
                 </select>
                 <label><input type="checkbox"
                     checked={props.isReversed}

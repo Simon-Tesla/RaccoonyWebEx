@@ -122,6 +122,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         // TODO: move the options into a modal dialog
         if (props.showOptions) {
             showBalloon = true;
+            mainClassNames = classnames(mainClassNames, n('active'));
             alternateBalloonUi = (
                 <SettingsUi
                     settingsProvider={() => this.props.siteActions.getSettings()}
