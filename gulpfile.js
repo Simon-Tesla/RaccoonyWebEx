@@ -16,11 +16,14 @@ gulp.task("clean", () => {
 
 gulp.task("copy_ext", ["clean"], () => {
     // TODO: figure out how to get the typings to work when including browser-polyfill as a module
+    // TODO: upgrade browser-polyfill and web-ext-typings
     return gulp.src(["src/**", "node_modules/webextension-polyfill/dist/browser-polyfill.js"])
         .pipe(gulp.dest(`${outputDir}/ext/`));
 });
 
 gulp.task("typescript:compile", ["clean"], () => {
+    // TODO: figure out how to get source maps to work
+    // https://github.com/ivogabe/gulp-typescript
     var failed = false;
     var tsProject = ts.createProject('tsconfig.json');
     var tsResult = gulp.src(['app/**/*.ts', 'app/**/*.tsx'])
@@ -41,8 +44,8 @@ function autopack(filename) {
 
 gulp.task("pack_ext:inject", ["typescript:compile"], () => autopack("page_inject.js"));
 gulp.task("pack_ext:background", ["typescript:compile"], () => autopack("background.js"));
-//gulp.task("pack_ext:options", ["typescript:compile"], () => autopack("options.js"));
-gulp.task("pack_ext", ["pack_ext:inject", "pack_ext:background" /*, "pack_ext:options"*/]);
+gulp.task("pack_ext:options", ["typescript:compile"], () => autopack("options.js"));
+gulp.task("pack_ext", ["pack_ext:inject", "pack_ext:background", "pack_ext:options"]);
 
 
 function createTasksForPlatform(platform) {

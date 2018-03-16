@@ -3,7 +3,7 @@ import * as logger from './logger';
 import { MediaType, TabLoadOrder } from './enums';
 
 // Do not introduce settings unless they are used, in order to avoid introducing bad default settings.
-const defaultSiteSettings: I.SiteSettings = {
+export const DefaultSiteSettings: I.SiteSettings = {
     autoFullscreen: false,
     fullscreenScrollGestureEnabled: false,
     downloadPath: "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{author}.{extension}",
@@ -16,12 +16,22 @@ const defaultSiteSettings: I.SiteSettings = {
 
 const DefaultSettingsKey = 'default_settings';
 
+const settingsVersion = 1;
+
 export function getSiteKeyFromName(siteName: string) {
     return siteName.endsWith('_settings') ? siteName : `${siteName}_settings`;
 }
 
 export function getAllSettings(): Promise<I.AllSettings> {
-    return browser.storage.sync.get(null)
+    return browser.storage.local.get(null)
+        .then((storage) => {
+            const settings = storage as any as I.AllSettings;
+            if (!settings || (settings.version || 0) < settingsVersion) {
+                // If settings haven't been migrated, perform the migration
+                return migrateSettingsFromSyncToLocal()
+            }
+            return settings;
+        })
         .then((settings) => {
             logger.log("retrieved settings:", settings);
             return settings;
@@ -29,19 +39,19 @@ export function getAllSettings(): Promise<I.AllSettings> {
         .catch((e) => {
             logger.error('error getting settings', e)
             return Promise.reject(e);
-        }) as any as Promise<I.AllSettings>;
+        });
 }
 
 export function getSettings(siteKey: string): Promise<I.Settings> {
     siteKey = getSiteKeyFromName(siteKey);
     return getAllSettings()
         .then(store => {
-            if (!store.default_settings.downloadPath) {
+            if (store.default_settings && !store.default_settings.downloadPath) {
                 delete store.default_settings.downloadPath;
             }
             const settings: I.Settings = {
                 siteKey,
-                defaultSettings: Object.assign({}, defaultSiteSettings, store.default_settings),
+                defaultSettings: Object.assign({}, DefaultSiteSettings, store.default_settings),
                 currentSettings: store[siteKey] || {}
             };
             logger.log(`retrieved site settings for ${siteKey}`, settings);
@@ -59,15 +69,22 @@ export function getCurrentSettings(siteKey: string): Promise<I.SiteSettings> {
 
 export function saveSettings(settings: I.Settings): Promise<void> {
     const { defaultSettings, currentSettings, siteKey } = settings;
-    let settingsToSave: I.AllSettings = {
+    let settingsToSave: Partial<I.AllSettings> = {
         default_settings: defaultSettings
     };
     settingsToSave[siteKey] = currentSettings;
     return saveAllSettings(settingsToSave);
 }
 
-export function saveAllSettings(settings: I.AllSettings): Promise<void> {
-    return browser.storage.sync.set(settings as any)
+export function saveDefaultSettings(defaultSettings: I.SiteSettings): Promise<void> {
+    const settings: Partial<I.AllSettings> = {
+        default_settings: defaultSettings
+    }
+    return saveAllSettings(settings);
+}
+
+export function saveAllSettings(settings: Partial<I.AllSettings>): Promise<void> {
+    return browser.storage.local.set(settings as any)
         .then(() => logger.log("settings saved, keys:", Object.getOwnPropertyNames(settings)))
         .catch((e) => {
             logger.log('error saving settings', e)
@@ -75,6 +92,25 @@ export function saveAllSettings(settings: I.AllSettings): Promise<void> {
         });
 }
 
+export function clearDefaultSettings() {
+    return saveDefaultSettings(null);
+}
+
+export function clearAllSettings() {
+    return browser.storage.local.clear();
+}
+
+function migrateSettingsFromSyncToLocal(): Promise<I.AllSettings> {
+    return browser.storage.sync.get(null)
+        .then((storage) => {
+            const settings = Object.assign({}, storage) as any as I.AllSettings;
+            settings.version = settingsVersion;
+            logger.log('migrating settings from sync storage', storage, settings);
+            return saveAllSettings(settings)
+                .then(() => browser.storage.sync.clear())
+                .then(() => settings);
+        });
+}
 
 type SettingsListener = (settings: CachedSettings) => void;
 
@@ -97,7 +133,7 @@ export class CachedSettings {
         siteKey = getSiteKeyFromName(siteKey);
         const settings: I.Settings = {
             siteKey,
-            defaultSettings: Object.assign({}, defaultSiteSettings, this.settings.default_settings),
+            defaultSettings: this.getDefaultSettings(),
             currentSettings: Object.assign({}, this.settings[siteKey]) || {}
         };
         return settings;
@@ -107,6 +143,10 @@ export class CachedSettings {
         siteKey = getSiteKeyFromName(siteKey);
         const settings = this.getSettings(siteKey);
         return Object.assign({}, settings.defaultSettings, settings.currentSettings);
+    }
+
+    getDefaultSettings() {
+        return Object.assign({}, this.settings.default_settings);
     }
 
     addListener(listener: SettingsListener) {
@@ -120,7 +160,7 @@ export class CachedSettings {
     private onSettingsChange = () => {
         this.settingsPromise = getAllSettings()
             .then(settings => {
-                if (!settings.default_settings.downloadPath) {
+                if (settings.default_settings && !settings.default_settings.downloadPath) {
                     // Fix a screwup with old settings set to null
                     delete settings.default_settings.downloadPath;
                 }

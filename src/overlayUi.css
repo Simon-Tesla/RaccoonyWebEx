@@ -1,6 +1,14 @@
 /* TODO: move to SCSS */
 
-#ry-ui {
+#ry-ui,
+#ry-ui * {
+    box-sizing: content-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px;
+    color: #000;
+}
+
+#ry-ui.ry-overlay {
     position: fixed;
     left: 0;
     bottom: 0;
@@ -8,17 +16,9 @@
     opacity: .25;
     padding: .25em 1em .25em .25em;
     z-index: 1500000;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    font-size: 14px;
-    color: #000;
     background-color: transparent;
     display: flex;
     align-items: flex-end;
-}
-
-#ry-ui,
-#ry-ui * {
-    box-sizing: content-box;
 }
 
 #ry-ui .ry-hide,

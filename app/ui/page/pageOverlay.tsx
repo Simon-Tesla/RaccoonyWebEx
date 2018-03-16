@@ -115,7 +115,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             props.downloadState === E.DownloadState.Error;
         let showBalloon = this.state.showBalloon || showDownloadStatus;
 
-        let mainClassNames = classnames(!showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
+        let mainClassNames = classnames(n('overlay'), !showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
 
         let alternateBalloonUi: JSX.Element = null;
 

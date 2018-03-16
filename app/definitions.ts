@@ -60,9 +60,17 @@ export interface UserActions {
     dismissOptions(): void;
 }
 
-export interface AllSettings {
-    default_settings: SiteSettings,
-    [siteKey: string]: SiteSettings
+// TypeScript doesn't allow mixing string indexes with normal properties of different types in a single interface
+// See: https://stackoverflow.com/questions/45258216/property-is-not-assignable-to-string-index-in-interface
+export type AllSettings = PrimarySettings & PerSiteSettings;
+
+interface PrimarySettings {
+    version: Number;
+    default_settings: SiteSettings;
+}
+
+interface PerSiteSettings {
+    [siteKey: string]: SiteSettings;
 }
 
 export interface Settings {
