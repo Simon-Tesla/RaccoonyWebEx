@@ -29,6 +29,7 @@ export function getAllSettings(): Promise<I.AllSettings> {
             if (!settings || (settings.version || 0) < settingsVersion) {
                 // If settings haven't been migrated, perform the migration
                 return migrateSettingsFromSyncToLocal()
+                    .then(() => browser.storage.local.get(null) as any as I.AllSettings);
             }
             return settings;
         })
@@ -85,7 +86,7 @@ export function saveDefaultSettings(defaultSettings: I.SiteSettings): Promise<vo
 
 export function saveAllSettings(settings: Partial<I.AllSettings>): Promise<void> {
     return browser.storage.local.set(settings as any)
-        .then(() => logger.log("settings saved, keys:", Object.getOwnPropertyNames(settings)))
+        .then(() => logger.log("settings saved", settings))
         .catch((e) => {
             logger.log('error saving settings', e)
             return Promise.reject<void>(e);
@@ -158,6 +159,7 @@ export class CachedSettings {
     }
 
     private onSettingsChange = () => {
+        logger.log('detected settings change, reloading')
         this.settingsPromise = getAllSettings()
             .then(settings => {
                 if (settings.default_settings && !settings.default_settings.downloadPath) {

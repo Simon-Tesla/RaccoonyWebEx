@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as I from './definitions';
 import SiteSettingsUi from './ui/siteSettingsUi';
-import { CachedSettings, DefaultSiteSettings, saveDefaultSettings, clearDefaultSettings, clearAllSettings } from './settings';
+import { CachedSettings, DefaultSiteSettings, saveDefaultSettings, clearDefaultSettings, clearAllSettings, saveAllSettings } from './settings';
 import ActionButton from './ui/page/actionButton';
 import { n } from './ui/page/common';
 
@@ -16,16 +16,19 @@ document.addEventListener("DOMContentLoaded", () => {
 interface OptionsPageState {
     ready: boolean;
     defaultSettings: I.SiteSettings;
+    showReset: boolean;
 }
 
 class OptionsPage extends React.Component<{}, OptionsPageState> {
     private settings: CachedSettings;
+    private fileInput: HTMLInputElement;
 
     constructor(props, context) {
         super(props, context);
         this.state = {
             ready: false,
             defaultSettings: null,
+            showReset: false
         };
 
         this.settings = new CachedSettings();
@@ -52,25 +55,51 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
     }
 
     onClickExport = () => {
-        //TODO implement
+        // Create a JSON file of the settings and download it
+        const settingsJson = JSON.stringify(this.settings.settings, null, 2);
+        const file = new Blob([settingsJson], { type: 'text/plain', endings: 'native' });
+        const url = URL.createObjectURL(file);
+        browser.downloads.download({
+            url,
+            filename: 'raccoony-settings.json',
+            saveAs: true,
+        })
     }
 
     onClickImport = () => {
-        //TODO implement
+        this.fileInput.click();
+    }
+
+    onImportFile = (event: React.FormEvent<HTMLInputElement>) => {
+        if (event && event.currentTarget && event.currentTarget.files) {
+            let reader = new FileReader();
+            reader.readAsText(event.currentTarget.files[0]);
+            reader.onload = () => {
+                const importedSettings: I.AllSettings = JSON.parse(reader.result);
+                console.log("Importing settings:", importedSettings);
+                clearAllSettings()
+                    .then(() => saveAllSettings(importedSettings));
+                this.fileInput.value = null;
+            }
+        }
+    }
+
+    onClickReset = () => {
+        this.setState({ showReset: true })
     }
 
     onClickResetDefault = () => {
-        const result = true //window.confirm("Are you sure you want to reset your default settings? This cannot be undone!");
-        if (result) {
-            clearDefaultSettings();
-        }
+        clearDefaultSettings();
+        this.setState({ showReset: false })
     }
 
     onClickResetAll = () => {
-        const result = 'yes'// window.prompt("Are you sure you want to reset all settings? This cannot be undone!\nType 'yes' below to reset your settings");
-        if (result === 'yes') {
-            clearAllSettings();
-        }
+        clearAllSettings();
+        this.setState({ showReset: false })
+    }
+
+    onClickResetCancel = () => {
+        this.setState({ showReset: false })
     }
 
     render() {
@@ -80,28 +109,56 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
 
         return (
             <div id={n('ui')}>
-                <SiteSettingsUi
-                    defaultSettings={DefaultSiteSettings}
-                    settings={this.state.defaultSettings || {}}
-                    onUpdateSettings={this.onUpdateSettings}
-                    showDefaultChecks={false}
+                <fieldset>
+                    <legend>Global settings</legend>
+                    <div>These settings apply to all sites unless you have specified any custom site-specific settings.</div>
+                    <SiteSettingsUi
+                        defaultSettings={DefaultSiteSettings}
+                        settings={this.state.defaultSettings || {}}
+                        onUpdateSettings={this.onUpdateSettings}
+                        showDefaultChecks={false}
+                    />
+                </fieldset>
+                <fieldset>
+                    <legend>Advanced</legend>
+                    <div>
+                        <ActionButton onClick={this.onClickImport}>
+                            Import settings
+                        </ActionButton>
+                        <ActionButton onClick={this.onClickExport}>
+                            Export settings
+                        </ActionButton>
+                        <ActionButton onClick={this.onClickReset} disabled={this.state.showReset}>
+                            Reset settings...
+                        </ActionButton>
+                    </div>
+                    <div>
+                        {this.state.showReset && (
+                            <div>
+                                <p>Are you sure you want to reset your settings? This cannot be undone!</p>
+                                <ActionButton onClick={this.onClickResetDefault}>
+                                    Reset global settings
+                                </ActionButton>
+                                <ActionButton onClick={this.onClickResetAll}>
+                                    Reset all settings
+                                </ActionButton>
+                                <ActionButton className={n('cancel')} onClick={this.onClickResetCancel}>
+                                    Cancel
+                                </ActionButton>
+                            </div>
+                        )}
+                    </div>
+                    <pre style={{ height: '200px', overflowY: 'scroll', display: 'none' }}>
+                        {JSON.stringify(this.settings.settings, null, 2)}
+                    </pre>
+                </fieldset>
+                <input type="file"
+                    style={{ display: 'none' }}
+                    accept="*.json"
+                    multiple={false}
+                    ref={r => this.fileInput = r}
+                    onChange={this.onImportFile}
                 />
-                <ActionButton onClick={this.onClickExport}>
-                    Export settings
-                </ActionButton>
-                <ActionButton onClick={this.onClickImport}>
-                    Import settings
-                </ActionButton>
-                <ActionButton onClick={this.onClickResetDefault}>
-                    Reset default settings
-                </ActionButton>
-                <ActionButton onClick={this.onClickResetAll}>
-                    Reset all settings
-                </ActionButton>
-                <pre style={{ height: '200px', overflowY: 'scroll' }}>
-                    {JSON.stringify(this.state.defaultSettings, null, 2)}
-                    {JSON.stringify(this.settings.settings, null, 2)}
-                </pre>
             </div>
         );
     }

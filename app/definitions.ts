@@ -64,12 +64,12 @@ export interface UserActions {
 // See: https://stackoverflow.com/questions/45258216/property-is-not-assignable-to-string-index-in-interface
 export type AllSettings = PrimarySettings & PerSiteSettings;
 
-interface PrimarySettings {
+export interface PrimarySettings {
     version: Number;
     default_settings: SiteSettings;
 }
 
-interface PerSiteSettings {
+export interface PerSiteSettings {
     [siteKey: string]: SiteSettings;
 }
 
