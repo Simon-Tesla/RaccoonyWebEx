@@ -61,6 +61,7 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
                     defaultSettings={this.state.defaultSettings}
                     settings={this.state.settings}
                     onUpdateSettings={this.onUpdateSettings}
+                    showDefaultChecks={true}
                 />
                 <div>
                     <ActionButton onClick={this.onSave}> Save changes</ActionButton>

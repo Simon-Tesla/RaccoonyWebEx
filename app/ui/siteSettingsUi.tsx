@@ -8,7 +8,7 @@ interface SettingsUiProps {
     settings: I.SiteSettings;
     defaultSettings: I.SiteSettings;
     onUpdateSettings: (settings: I.SiteSettings) => void
-    //showDefaultChecks: boolean;
+    showDefaultChecks: boolean; 
 }
 
 export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps> {
@@ -39,6 +39,10 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
         return this.props.settings[key] == null;
     }
 
+    isEnabled = <K extends keyof I.SiteSettings>(key: K): boolean => {
+        return this.props.showDefaultChecks ? !this.isDefault(key) : true;
+    }
+
     setDefaultForTabOrder = (useDefault: boolean) => {
         // Strange things happen if you try to set these individually, so we set them all at once.
         const tabLoadSettings: Partial<I.SiteSettings> = {
@@ -50,10 +54,25 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
     }
 
     render() {
-        const props = this.props;
-        const { settings, defaultSettings } = this.props;
-        if (!settings) {
+        if (!this.props.settings) {
             return null;
+        }
+
+        const getRowProps = <K extends keyof I.SiteSettings>(key: K, label: string): SettingsRowProps => {
+            return {
+                label: label,
+                isDefault: this.isDefault(key),
+                onDefaultChanged: (val) => this.setDefault(key, val),
+                showDefaultCheck: this.props.showDefaultChecks,
+            }
+        }
+
+        const getSwitchProps = <K extends keyof I.SiteSettings>(key: K): SwitchProps => {
+            return {
+                value: this.getSettingOrDefault(key) as boolean,
+                onChanged: (val) => this.setSetting(key, val),
+                enabled: this.isEnabled(key)
+            }
         }
 
         return (
@@ -62,58 +81,29 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                     <thead>
                         <tr>
                             <th>Setting</th>
-                            <th>Default?</th>
+                            {this.props.showDefaultChecks && (<th>Global?</th>)}
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <SettingsRow
-                            label={"Hotkeys enabled"}
-                            isDefault={this.isDefault('hotkeysEnabled')}
-                            onDefaultChanged={(val) => this.setDefault('hotkeysEnabled', val)}
-                        >
-                            <Switch
-                                value={this.getSettingOrDefault('hotkeysEnabled')}
-                                onChanged={(val) => this.setSetting('hotkeysEnabled', val)}
-                                enabled={!this.isDefault('hotkeysEnabled')}
-                            />
+                        <SettingsRow {...getRowProps('hotkeysEnabled', "Hotkeys enabled") }>
+                            <Switch {...getSwitchProps('hotkeysEnabled') } />
                         </SettingsRow>
-                        <SettingsRow
-                            label={"Auto fullscreen enabled"}
-                            isDefault={this.isDefault('autoFullscreen')}
-                            onDefaultChanged={(val) => this.setDefault('autoFullscreen', val)}
-                        >
-                            <Switch
-                                value={this.getSettingOrDefault('autoFullscreen')}
-                                onChanged={(val) => this.setSetting('autoFullscreen', val)}
-                                enabled={!this.isDefault('autoFullscreen')}
-                            />
+                        <SettingsRow {...getRowProps('autoFullscreen', "Auto fullscreen enabled") }>
+                            <Switch {...getSwitchProps('autoFullscreen') } />
                         </SettingsRow>
-                        <SettingsRow
-                            label={"Fullscreen scroll gesture enabled"}
-                            isDefault={this.isDefault('fullscreenScrollGestureEnabled')}
-                            onDefaultChanged={(val) => this.setDefault('fullscreenScrollGestureEnabled', val)}
-                        >
-                            <Switch
-                                value={this.getSettingOrDefault('fullscreenScrollGestureEnabled')}
-                                onChanged={(val) => this.setSetting('fullscreenScrollGestureEnabled', val)}
-                                enabled={!this.isDefault('fullscreenScrollGestureEnabled')}
-                            />
+                        <SettingsRow {...getRowProps('fullscreenScrollGestureEnabled', "Fullscreen scroll gesture enabled") }>
+                            <Switch  {...getSwitchProps('fullscreenScrollGestureEnabled') } />
                         </SettingsRow>
-                        <SettingsRow
-                            label={"Delay between tab loads"}
-                            isDefault={this.isDefault('tabLoadDelay')}
-                            onDefaultChanged={(val) => this.setDefault('tabLoadDelay', val)}
-                        >
+                        <SettingsRow {...getRowProps('tabLoadDelay', "Delay between tab loads") }>
                             <TabDelay
                                 value={this.getSettingOrDefault('tabLoadDelay')}
                                 onChanged={(val) => this.setSetting('tabLoadDelay', val)}
-                                enabled={!this.isDefault('tabLoadDelay')}
+                                enabled={this.isEnabled('tabLoadDelay')}
                             />
                         </SettingsRow>
                         <SettingsRow
-                            label={"Tab loading order"}
-                            isDefault={this.isDefault('tabLoadSortBy')}
+                            {...getRowProps('tabLoadSortBy', "Tab loading order") }
                             onDefaultChanged={this.setDefaultForTabOrder}
                         >
                             <LoadOrder
@@ -121,30 +111,18 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                                 isReversed={!this.getSettingOrDefault('tabLoadSortAsc')}
                                 onChangeOrder={order => this.setSetting('tabLoadSortBy', order)}
                                 onChangeReversed={reversed => this.setSetting('tabLoadSortAsc', !reversed)}
-                                enabled={!this.isDefault('tabLoadSortBy')}
+                                enabled={this.isEnabled('tabLoadSortBy')}
                             />
                         </SettingsRow>
-                        <SettingsRow
-                            label={"Download path"}
-                            isDefault={this.isDefault('downloadPath')}
-                            onDefaultChanged={(val) => this.setDefault('downloadPath', val)}
-                        >
+                        <SettingsRow  {...getRowProps('downloadPath', "Download path") }>
                             <DownloadPath
                                 value={this.getSettingOrDefault('downloadPath')}
                                 onChanged={(value) => this.setSetting('downloadPath', value)}
-                                enabled={!this.isDefault('downloadPath')}
+                                enabled={this.isEnabled('downloadPath')}
                             />
                         </SettingsRow>
-                        <SettingsRow
-                            label={"Save metadata file"}
-                            isDefault={this.isDefault('writeMetadata')}
-                            onDefaultChanged={(val) => this.setDefault('writeMetadata', val)}
-                        >
-                            <Switch
-                                value={this.getSettingOrDefault('writeMetadata')}
-                                onChanged={(val) => this.setSetting('writeMetadata', val)}
-                                enabled={!this.isDefault('writeMetadata')}
-                            />
+                        <SettingsRow  {...getRowProps('writeMetadata', "Save metadata file") }>
+                            <Switch {...getSwitchProps('writeMetadata') } />
                         </SettingsRow>
                     </tbody>
                 </table>
@@ -158,6 +136,7 @@ interface SettingsRowProps {
     label: string;
     isDefault: boolean;
     onDefaultChanged: (value: boolean) => void;
+    showDefaultCheck: boolean;
 }
 
 class SettingsRow extends React.PureComponent<SettingsRowProps> {
@@ -176,14 +155,16 @@ class SettingsRow extends React.PureComponent<SettingsRowProps> {
         return (
             <tr>
                 <td>{props.label}</td>
-                <td className={n('defaultCheck')} onClick={this.onDefaultChanged}>
-                    <input type="checkbox"
-                        checked={props.isDefault}
-                    />
-                </td>
-                <td onClickCapture={this.onClearDefault} style={{position: 'relative'}}>
+                {this.props.showDefaultCheck && (
+                    <td className={n('defaultCheck')} onClick={this.onDefaultChanged}>
+                        <input type="checkbox"
+                            checked={props.isDefault}
+                        />
+                    </td>
+                )}
+                <td style={{position: 'relative'}}>
                     {props.children}
-                    {this.props.isDefault && (
+                    {this.props.showDefaultCheck && this.props.isDefault && (
                         <div
                             style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
                             className={n('defaultButtonOverlay')}

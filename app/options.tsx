@@ -84,6 +84,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                     defaultSettings={DefaultSiteSettings}
                     settings={this.state.defaultSettings || {}}
                     onUpdateSettings={this.onUpdateSettings}
+                    showDefaultChecks={false}
                 />
                 <ActionButton onClick={this.onClickExport}>
                     Export settings
