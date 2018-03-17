@@ -14,6 +14,7 @@ interface PageOverlayProps extends I.AppState  {
     siteActions: SiteActions;
     userActions: I.UserActions;
     siteSettings: I.SiteSettings;
+    settings: I.Settings;
     onClickFullscreen: () => void;
     onChangeSettings: (settings: I.Settings) => void;
 }
@@ -125,7 +126,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             mainClassNames = classnames(mainClassNames, n('active'));
             alternateBalloonUi = (
                 <SettingsUi
-                    settingsProvider={() => this.props.siteActions.getSettings()}
+                    settings={this.props.settings}
                     onDismiss={this.onDismissOptions}
                     onSaveSettings={this.onSaveOptions}
                 />

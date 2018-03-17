@@ -11,7 +11,7 @@ export default class SiteActions {
         this.plugin = plugin;
     }
 
-    private get siteName() {
+    get siteName() {
         return this.plugin.siteName;
     }
 
@@ -59,14 +59,6 @@ export default class SiteActions {
 
     registerPageChangeHandler(handler: () => void): void {
         return this.plugin.registerPageChangeHandler(handler);
-    }
-
-    getSettings(): Promise<I.Settings> {
-        return Settings.getSettings(this.settingsKey);
-    }
-
-    getCurrentSettings(): Promise<I.SiteSettings> {
-        return Settings.getCurrentSettings(this.settingsKey);
     }
 
     saveSettings(settings: I.Settings): Promise<void> {

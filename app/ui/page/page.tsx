@@ -8,6 +8,7 @@ import Lightbox from 'react-image-lightbox';
 import SiteActions from '../siteActions'
 import { initializeHotkeys } from './hotkeys';
 import debounce from 'debounce';
+import { CachedSettings } from '../../settings';
 
 interface PageProps {
     siteActions: SiteActions;
@@ -16,11 +17,14 @@ interface PageProps {
 interface PageState extends I.AppState {
     lightboxUrl: string;
     lightboxTitle: string;
-    settings: I.SiteSettings;
+    siteSettings: I.SiteSettings;
+    settings: I.Settings;
     enableZoom: boolean;
 }
 
 export default class Page extends React.Component<PageProps, PageState> implements I.UserActions {
+    private settingsProvider: CachedSettings;
+
     private _hotkeysDisposer: () => void;
 
     constructor(props: PageProps, context) {
@@ -28,6 +32,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         this.state = {
             lightboxUrl: '',
             lightboxTitle: '',
+            siteSettings: null,
             settings: null,
             enableZoom: true,
 
@@ -40,10 +45,11 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         }
 
         this.props.siteActions.registerPageChangeHandler(debounce(this.handlePageChange, 200));
-        this.props.siteActions.getCurrentSettings()
-            .then((settings) => {
-                this.setState({ settings });
-            });
+
+        this.settingsProvider = new CachedSettings();
+        this.settingsProvider.ready.then(this.onSettingsStoreUpdate);
+        this.settingsProvider.addListener(this.onSettingsStoreUpdate);
+
         this.initialize();
     }
 
@@ -57,15 +63,15 @@ export default class Page extends React.Component<PageProps, PageState> implemen
     }
 
     componentDidUpdate(prevProps: PageProps, prevState: PageState) {
-        if (!prevState.settings && this.state.settings) {
+        if (!prevState.siteSettings && this.state.siteSettings) {
             // Updating in response to settings initialization
-            if (this.state.settings.autoFullscreen) {
+            if (this.state.siteSettings.autoFullscreen) {
                 this.enterFullscreen();
             }
         }
-        if (prevState.settings) {
-            if (prevState.settings.hotkeysEnabled !== this.state.settings.hotkeysEnabled) {
-                if (this.state.settings.hotkeysEnabled) {
+        if (prevState.siteSettings) {
+            if (prevState.siteSettings.hotkeysEnabled !== this.state.siteSettings.hotkeysEnabled) {
+                if (this.state.siteSettings.hotkeysEnabled) {
                     this.enableHotkeys();
                 }
                 else {
@@ -73,6 +79,16 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                 }
             }
         }
+    }
+
+    onSettingsStoreUpdate = () => {
+        const siteName = this.props.siteActions.siteName;
+        const siteSettings = this.settingsProvider.getCurrentSettings(siteName);
+        const settings = this.settingsProvider.getSettings(siteName)
+        this.setState({
+            siteSettings,
+            settings
+        });
     }
 
     openPageLinksInTabs = () => {
@@ -136,15 +152,11 @@ export default class Page extends React.Component<PageProps, PageState> implemen
     }
 
     onChangeSettings = (settingsToSave: I.Settings) => {
-        this.props.siteActions.saveSettings(settingsToSave)
-            .then(() => this.props.siteActions.getCurrentSettings())
-            .then((settings) => {
-                this.setState({ settings });
-            });
+        this.props.siteActions.saveSettings(settingsToSave);
     }
 
     render() {
-        if (!this.state.settings) {
+        if (!this.state.siteSettings) {
             // Wait for settings to load before showing the UI
             return null;
         }
@@ -160,7 +172,8 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     siteActions={this.props.siteActions}
                     onClickFullscreen={this.onClickFullscreen}
                     isFullscreen={this.state.isFullscreen}
-                    siteSettings={this.state.settings}
+                    siteSettings={this.state.siteSettings}
+                    settings={this.state.settings}
                     onChangeSettings={this.onChangeSettings}
                     hasMedia={this.state.hasMedia}
                     hasPageLinks={this.state.hasPageLinks}
@@ -226,7 +239,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
 
     private onWheel = (ev: WheelEvent) => {
         if (!this.state.isFullscreen &&
-            this.state.settings && this.state.settings.fullscreenScrollGestureEnabled &&
+            this.state.siteSettings && this.state.siteSettings.fullscreenScrollGestureEnabled &&
             ev.deltaY < 0 && window.scrollY === 0
         ) {
             //Disable zoom for half a second to prevent the scroll from zooming the picture.
