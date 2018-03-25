@@ -32,6 +32,9 @@ Extension files and build output will be in `dist/`.
 
 ## Changelog
 
+1.1.1
+- Fix a bug that prevented the settings UI from operating correctly under certain circumstances.
+
 1.1.0
 - Added a new UI for managing settings, both on a per-site and a global basis.
 - Added the ability to customize your download path.
