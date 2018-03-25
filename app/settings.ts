@@ -147,7 +147,7 @@ export class CachedSettings {
     }
 
     getDefaultSettings() {
-        return Object.assign({}, this.settings.default_settings);
+        return Object.assign({}, DefaultSiteSettings, this.settings.default_settings);
     }
 
     addListener(listener: SettingsListener) {
