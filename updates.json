@@ -13,6 +13,10 @@
         {
           "version": "1.1.0",
           "update_link": "https://github.com/Simon-Tesla/RaccoonyWebEx/releases/download/1.1.0/raccoony_webextension-1.1.0-an.fx.xpi"
+        },
+        {
+          "version": "1.1.1",
+          "update_link": "https://github.com/Simon-Tesla/RaccoonyWebEx/releases/download/1.1.1/raccoony_webextension-1.1.1-an.fx.xpi"
         }
       ]
     }
