@@ -1,6 +1,14 @@
 /* TODO: move to SCSS */
 
-#ry-ui {
+#ry-ui,
+#ry-ui * {
+    box-sizing: content-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 14px;
+    color: #000;
+}
+
+#ry-ui.ry-overlay {
     position: fixed;
     left: 0;
     bottom: 0;
@@ -8,17 +16,9 @@
     opacity: .25;
     padding: .25em 1em .25em .25em;
     z-index: 1500000;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    font-size: 14px;
-    color: #000;
     background-color: transparent;
     display: flex;
     align-items: flex-end;
-}
-
-#ry-ui,
-#ry-ui * {
-    box-sizing: content-box;
 }
 
 #ry-ui .ry-hide,
@@ -72,6 +72,16 @@
     display: inline-block;
     font-size: 16px;
     margin-right: 4px;
+}
+
+#ry-ui .ry-action.ry-cancel {
+    background: #ddd;
+    color: #000 !important;
+    min-width: 100px;
+}
+
+#ry-ui .ry-action.ry-cancel:hover {
+    background: #eee;
 }
 
 #ry-ui .ry-action.ry-nolabel span {
@@ -185,4 +195,67 @@
 
 #ry-nodownload .ry-icon {
     font-size: 20px;
+}
+
+#ry-ui .ry-settings * {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+}
+
+#ry-ui .ry-settings table {
+    border-collapse: collapse;
+}
+
+#ry-ui .ry-settings th,
+#ry-ui .ry-settings td {
+    text-align: left;
+    vertical-align: top;
+    padding: 2px;
+}
+
+#ry-ui .ry-settings tbody tr:nth-child(2n) {
+    background-color: #ccc;
+}
+
+#ry-ui .ry-settings .ry-defaultCheck {
+    text-align: center;
+    padding-top: 4px;
+}
+
+#ry-ui .ry-settings textarea,
+#ry-ui .ry-settings select,
+#ry-ui .ry-settings option {
+    color: #000;
+    background-color: #fff !important;
+}
+
+#ry-ui .ry-settings textarea,
+#ry-ui .ry-settings select,
+#ry-ui .ry-settings input[type=number] {
+    border: 1px solid #000;
+}
+
+#ry-ui .ry-settings input[type=number] {
+    padding: 3px 4px;
+    width: 4em;
+}
+
+#ry-ui .ry-settings textarea {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: none;
+    padding: 4px;
+}
+
+#ry-ui .ry-settings select {
+    box-shadow: none;
+    height: auto;
+    padding-left: 4px;
+    padding-bottom: 4px;
+    padding-top: 4px;
+    margin-right: 10px;
+}
+
+#ry-ui .ry-settings a {
+    color: #004578 !important;
 }

@@ -17,13 +17,22 @@
 //                  for the new plugin API.
 
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import {
+    default as BaseSitePlugin,
+    querySelector,
+    querySelectorAll,
+    getFileTypeByExt,
+    getPageLinksFromAnchors,
+    getFilenameParts
+} from './base';
 import * as logger from '../logger';
 
 const serviceName = "ekas";
 
 export class EkasPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         // Are we on a submission page?  If not, bail out.
@@ -219,11 +228,11 @@ export class EkasPlugin extends BaseSitePlugin {
             previewUrl: url,
             author: username,
             filename: cleanfilename,
-            serviceFilename: filenameext,
+            siteFilename: filenameext,
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,
-            service: serviceName,
+            siteName: serviceName,
             title: title,
             description: description,
             tags: tags

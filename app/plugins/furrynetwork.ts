@@ -5,10 +5,8 @@ import * as logger from '../logger';
 const serviceName = "furrynetwork";
 
 export class FurryNetworkPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
-
     constructor() {
-        super("#app");
+        super(serviceName, "#app");
     }
 
     getMedia(): Promise<I.Media> {
@@ -58,12 +56,12 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
                         url: url,
                         previewUrl: url,
                         author: username,
-                        serviceFilename: dlFilename,
+                        siteFilename: dlFilename,
                         filename: filename,
                         extension: ext,
                         type: getFileTypeByExt(ext),
                         submissionId: id,
-                        service: serviceName,
+                        siteName: serviceName,
                         title: title,
                         description: description,
                         tags: tags

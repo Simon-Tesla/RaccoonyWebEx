@@ -45,6 +45,9 @@
     "*.png"
   ],
   "homepage_url": "http://raccoony.thornvalley.com/",
+  "options_ui": {
+    "page": "options.html" 
+  },
   "permissions": [
     "storage",
     "downloads"

@@ -5,6 +5,7 @@ import * as I from './definitions';
 import * as plugins from './plugins/index';
 import * as logger from './logger'
 import Page from './ui/page/page';
+import SiteActions from './ui/siteActions';
 
 logger.log("injecting script");
 
@@ -53,10 +54,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     logger.log("loading plugin", plugin.siteName);
 
+    const actions = new SiteActions(plugin);
+
     let rootElt = document.createElement('div');
     rootElt.id = "raccoonyExtensionRoot";
     document.body.appendChild(rootElt);
 
-    ReactDOM.render(<Page sitePlugin={plugin} />, rootElt);
+    ReactDOM.render(<Page siteActions={actions} />, rootElt);
     console.log("finished page_inject")
 })

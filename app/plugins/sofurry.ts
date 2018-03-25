@@ -4,7 +4,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 const serviceName = "sofurry";
 
 export class SofurryPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         // Get the download button
@@ -43,7 +45,7 @@ export class SofurryPlugin extends BaseSitePlugin {
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,
-            service: serviceName,
+            siteName: serviceName,
             title: title,
             description: description,
             tags: tags

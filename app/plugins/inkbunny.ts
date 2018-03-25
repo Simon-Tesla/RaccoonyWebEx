@@ -4,7 +4,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 const serviceName = "inkbunny";
 
 export class InkbunnyPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         // Check to see if we're on a submission page.
@@ -37,7 +39,7 @@ export class InkbunnyPlugin extends BaseSitePlugin {
             submissionId: id,
             extension: ext,
             type: getFileTypeByExt(ext),
-            service: serviceName,
+            siteName: serviceName,
             title: title,
             description: description,
             tags: tags

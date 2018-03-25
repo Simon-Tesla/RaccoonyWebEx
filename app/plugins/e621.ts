@@ -4,7 +4,9 @@ import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileType
 const serviceName = "e621";
 
 export class E621Plugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         // Look for the high-res download button
@@ -52,12 +54,12 @@ export class E621Plugin extends BaseSitePlugin {
             url: url,
             previewUrl: url,
             author: username,
-            serviceFilename: serviceFilename,
+            siteFilename: serviceFilename,
             filename: filename,
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,
-            service: serviceName,
+            siteName: serviceName,
             title: null,
             description: description,
             tags: tags

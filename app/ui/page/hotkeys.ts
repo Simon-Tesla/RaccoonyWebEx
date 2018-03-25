@@ -1,6 +1,6 @@
 import * as I from '../../definitions';
 
-export function initializeHotkeys(handler: I.PageActions) {
+export function initializeHotkeys(handler: I.UserActions) {
     let handlerFn = (ev: KeyboardEvent) => {
         if (!(ev.altKey || ev.ctrlKey || ev.metaKey)) {
             let el = document.activeElement;

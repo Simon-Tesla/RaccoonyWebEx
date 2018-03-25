@@ -1,31 +1,70 @@
 import * as I from '../definitions';
+import * as logger from '../logger';
+import { MediaType, TabLoadOrder } from '../enums';
+import * as Settings from '../settings';
 
-class SiteActions implements I.SitePlugin {
-    siteName: string;
+//TODO: rename this to something like SiteDataProvider
+export default class SiteActions {
+    private plugin: I.SitePlugin;
+
+    constructor(plugin: I.SitePlugin) {
+        this.plugin = plugin;
+    }
+
+    get siteName() {
+        return this.plugin.siteName;
+    }
+
+    private get settingsKey() {
+        return `${this.siteName}_settings`;
+    }
+
     getMedia(): Promise<I.Media> {
-        throw new Error("Method not implemented.");
+        return this.plugin.getMedia()
+            .then(media => {
+                if (media) {
+                    media.siteName = this.siteName;
+                }
+                return media;
+            })
     }
-    getPageLinkList(): Promise<I.PageLinkList> {
-        throw new Error("Method not implemented.");
-    }
-    hasMedia(): Promise<boolean> {
-        throw new Error("Method not implemented.");
-    }
-    hasPageLinkList(): Promise<boolean> {
-        throw new Error("Method not implemented.");
-    }
-    registerPageChangeHandler(handler: () => void): void {
-        throw new Error("Method not implemented.");
-    }
-    getCurrentSettings(): Promise<I.SiteSettings> {
-        throw new Error("Method not implemented.");
-    }
-    getSettings(): Promise<{ defaultSettings: I.SiteSettings; currentSettings: I.SiteSettings; }> {
-        throw new Error("Method not implemented.");
-    }
-    saveSettings(settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-    //TODO: wrap site plugin, provide methods for saving settings etc.
 
+    getPageLinkList(): Promise<I.PageLinkList> {
+        return this.plugin.getPageLinkList()
+            .then(list => {
+                if (list) {
+                    list.siteName = this.siteName;
+                }
+                return list;
+            })
+    }
+
+    hasMedia(): Promise<boolean> {
+        return this.plugin.hasMedia()
+            .catch(err => {
+                // Swallow errors
+                logger.error("[hasMedia] error: ", err);
+                return Promise.resolve(false);
+            });
+    }
+
+    hasPageLinkList(): Promise<boolean> {
+        return this.plugin.hasPageLinkList()
+            .catch(err => {
+                // Swallow errors
+                logger.error("[hasPageLinkList] error: ", err);
+                return Promise.resolve(false);
+            });
+    }
+
+    registerPageChangeHandler(handler: () => void): void {
+        return this.plugin.registerPageChangeHandler(handler);
+    }
+
+    saveSettings(settings: I.Settings): Promise<void> {
+        return Settings.saveSettings({
+            siteKey: this.settingsKey,
+            ...settings
+        });
+    }
 }

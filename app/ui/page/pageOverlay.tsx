@@ -2,226 +2,88 @@ import * as React from 'react';
 import * as I from '../../definitions';
 import * as E from '../../enums'
 import * as classnames from 'classnames';
-import debounce from 'debounce';
 import * as logger from '../../logger';
-import { initializeHotkeys } from './hotkeys';
 import ActionButton, { ActionButtonProps } from './actionButton';
-import SettingsUi from './settings';
+import SettingsUi from './settingsUi';
 import { n } from './common'
+import SiteActions from '../siteActions'
 
 const IconGlyph = E.IconGlyph;
 
-enum DownloadState {
-    NotDownloaded,
-    InProgress,
-    Done,
-    Exists,
-    Error,
-}
-
-interface PageOverlayProps {
-    sitePlugin: I.SitePlugin;
+interface PageOverlayProps extends I.AppState  {
+    siteActions: SiteActions;
+    userActions: I.UserActions;
     siteSettings: I.SiteSettings;
+    settings: I.Settings;
     onClickFullscreen: () => void;
-    inFullscreen: boolean;
-    onChangeSettings: (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => void;
+    onChangeSettings: (settings: I.Settings) => void;
 }
 
-// TODO: move most of this state out to Page, and make Page listen to events from background.js, etc.
 interface PageOverlayState {
-    hasMedia: boolean;
-    hasPageLinks: boolean;
-    canFullscreen: boolean;
-    downloadState: DownloadState;
-    downloadMessage?: string;
-    showBalloon: boolean;
-    showOptions: boolean;
     showUi: boolean;
+    showBalloon: boolean;
 }
 
 interface DownloadButtonProps extends ActionButtonProps {
     label: string,
 }
 
-function sendMessage<T>(action: E.MessageAction, data: T) {
-    let message: I.MessageRequest<T> = {
-        action,
-        data,
-    }
-    logger.log("sending message", message);
-    return browser.runtime.sendMessage(message);
-}
-
 const downloadButtonDefaultProps: { [state: number]: DownloadButtonProps } = {};
-downloadButtonDefaultProps[DownloadState.Done] = downloadButtonDefaultProps[DownloadState.Exists] = {
+downloadButtonDefaultProps[E.DownloadState.Done] = downloadButtonDefaultProps[E.DownloadState.Exists] = {
     icon: IconGlyph.Exists,
     label: "Downloaded",
     disabled: true,
 }
-downloadButtonDefaultProps[DownloadState.Error] = {
+downloadButtonDefaultProps[E.DownloadState.Error] = {
     icon: IconGlyph.Download,
     label: "Download error",
 }
-downloadButtonDefaultProps[DownloadState.InProgress] = {
+downloadButtonDefaultProps[E.DownloadState.InProgress] = {
     icon: IconGlyph.Download,
     label: "Downloading",
     disabled: true,
 }
-downloadButtonDefaultProps[DownloadState.NotDownloaded] = {
+downloadButtonDefaultProps[E.DownloadState.NotDownloaded] = {
     icon: IconGlyph.Download,
     label: "Download",
 }
 
-// TODO: Make Page (or some other class) implement PageActions and pass that in as a prop.
-export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> implements I.PageActions {
+export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> {
     private _mouseLeaveTimeout: number;
-    private _hotkeysDisposer: () => void;
 
     constructor(props: PageOverlayProps, context) {
         super(props, context);
         this.state = {
-            hasMedia: false,
-            hasPageLinks: false,
-            downloadState: DownloadState.NotDownloaded,
-            showBalloon: false,
             showUi: true,
-            showOptions: false,
-            canFullscreen: false,
+            showBalloon: false,
         }
-        this.props.sitePlugin.registerPageChangeHandler(debounce(this.handlePageChange, 200));
-        this.initialize();
-    }
-
-    initialize() {
-        logger.log("initializing pageOverlay UI");
-        this.props.sitePlugin.hasMedia().then((hasMedia) => {
-            logger.log("hasMedia", hasMedia);
-            this.setState({
-                hasMedia,
-            });
-            if (hasMedia) {
-                // Check to see if the file has been downloaded
-                this.props.sitePlugin.getMedia().then((media) => {
-                    if (media && media.type === E.MediaType.Image) {
-                        this.setState({ canFullscreen: true });
-                    }
-                    sendMessage(E.MessageAction.CheckDownlod, media).then((isDownloaded: boolean) => {
-                        if (isDownloaded) {
-                            this.setState({ downloadState: DownloadState.Exists });
-                        }
-                    });
-                });
-            }
-        })
-
-        this.props.sitePlugin.hasPageLinkList().then((hasPageLinks) => {
-            logger.log("hasPageLinks", hasPageLinks);
-            this.setState({
-                hasPageLinks,
-            });
-        });
-    }
-
-    openPageLinksInTabs() {
-        this.props.sitePlugin.getPageLinkList().then((list) => {
-            sendMessage(E.MessageAction.OpenTabs, list);
-        });
-    }
-
-    downloadMedia() {
-        this.setState({ downloadState: DownloadState.InProgress });
-        this.props.sitePlugin.getMedia().then((media) => {
-            sendMessage(E.MessageAction.Download, media).then((download: I.DownloadResponse) => {
-                // TODO: the download promise resolves when the download starts, not when it finishes.
-                this.setState({
-                    downloadState: download.isError ? DownloadState.Error : DownloadState.Done,
-                    downloadMessage: download.message,
-                })
-                setTimeout(() => this.setState({
-                    downloadState: download.isError ? DownloadState.NotDownloaded : DownloadState.Exists,
-                    downloadMessage: '',
-                }), 5000);
-            })
-        });
-    }
-
-    showDownloadMedia() {
-        // TODO: cache the download ID for already downloaded files?
-        this.props.sitePlugin.getMedia().then((media) => {
-            sendMessage(E.MessageAction.ShowFile, media);
-        });
-    }
-
-    toggleFullscreen() {
-        this.props.onClickFullscreen();
-    }
-
-    openOptions() {
-        this.setState({ showOptions: true });
-    }
-
-    componentDidMount() {
-        if (this.props.siteSettings.hotkeysEnabled) {
-            this.enableHotkeys();
-        }
-    }
-
-    componentDidUpdate(prevProps: PageOverlayProps, prevState: PageOverlayState) {
-        if (prevProps.siteSettings) {
-            if (prevProps.siteSettings.hotkeysEnabled !== this.props.siteSettings.hotkeysEnabled) {
-                if (this.props.siteSettings.hotkeysEnabled) {
-                    this.enableHotkeys();
-                }
-                else {
-                    this.disableHotkeys();
-                }
-            }
-        }
-    }
-
-    componentWillUnmount() {
-        this.disableHotkeys();
-    }
-
-    private handlePageChange = () => {
-        this.initialize();
-    }
-
-    private enableHotkeys() {
-        if (!this._hotkeysDisposer) {
-            this._hotkeysDisposer = initializeHotkeys(this);
-        }
-    }
-
-    private disableHotkeys() {
-        this._hotkeysDisposer && this._hotkeysDisposer();
     }
 
     private onClickOpenTabs = () => {
-        this.openPageLinksInTabs();
+        this.props.userActions.openPageLinksInTabs();
     }
 
     private onClickDownload = () => {
-        this.downloadMedia();
+        this.props.userActions.downloadMedia();
     }
 
     private onClickOpenFolder = () => {
-        this.showDownloadMedia();
+        this.props.userActions.showDownloadMedia();
     }
 
     private onClickFullscreen = () => {
-        this.toggleFullscreen();
+        this.props.userActions.toggleFullscreen();
     }
 
     private onClickOptions = () => {
-        this.openOptions();
+        this.props.userActions.openOptions();
     }
 
     private onDismissOptions = () => {
-        this.setState({ showOptions: false });
+        this.props.userActions.dismissOptions();
     }
 
-    private onSaveOptions = (settings: { defaultSettings?: I.SiteSettings; currentSettings?: I.SiteSettings; }) => {
+    private onSaveOptions = (settings: I.Settings) => {
         this.onDismissOptions();
         this.props.onChangeSettings(settings);
     }
@@ -240,35 +102,38 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
     }
 
     private onClickClose = () => {
-        this.setState({ showUi: false })
+        this.setState({ showUi: false });
     }
 
     render() {
+        let props = this.props;
+        let state = this.state;
         let logoUrl = browser.extension.getURL('icon-64.png');
-        let showUi = this.state.showUi && (this.state.hasMedia || this.state.hasPageLinks);
-        let canDownload = this.state.downloadState === DownloadState.NotDownloaded;
-        let showDownloadStatus = this.state.downloadState === DownloadState.InProgress ||
-            this.state.downloadState === DownloadState.Done ||
-            this.state.downloadState === DownloadState.Error;
+        let showUi = state.showUi && (props.hasMedia || props.hasPageLinks);
+        let canDownload = props.downloadState === E.DownloadState.NotDownloaded;
+        let showDownloadStatus = props.downloadState === E.DownloadState.InProgress ||
+            props.downloadState === E.DownloadState.Done ||
+            props.downloadState === E.DownloadState.Error;
         let showBalloon = this.state.showBalloon || showDownloadStatus;
 
-        let mainClassNames = classnames(!showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
+        let mainClassNames = classnames(n('overlay'), !showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
 
         let alternateBalloonUi: JSX.Element = null;
 
         // TODO: move the options into a modal dialog
-        if (this.state.showOptions) {
+        if (props.showOptions) {
             showBalloon = true;
+            mainClassNames = classnames(mainClassNames, n('active'));
             alternateBalloonUi = (
                 <SettingsUi
-                    settingsProvider={() => this.props.sitePlugin.getSettings()}
+                    settings={this.props.settings}
                     onDismiss={this.onDismissOptions}
                     onSaveSettings={this.onSaveOptions}
                 />
             );
         }
 
-        const downloadButtonProps = downloadButtonDefaultProps[this.state.downloadState];
+        const downloadButtonProps = downloadButtonDefaultProps[props.downloadState];
 
         //TODO: fix mini-download button if the downloaded file exists
         return (
@@ -284,10 +149,10 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                     >{IconGlyph.Close}</a>
                     <a id={n('tabs')} className={n("circlebtn")} title="Open all in Tabs (Hotkey: T)"
                         onClick={this.onClickOpenTabs}
-                        style={{ visibility: this.state.hasPageLinks ? 'visible' : 'hidden' }}
+                        style={{ visibility: props.hasPageLinks ? 'visible' : 'hidden' }}
                     >{IconGlyph.OpenTabs}</a>
                     <a id={n('dl')} className={n("circlebtn")} title="Download (Hotkey: D)"
-                        style={{ visibility: this.state.hasMedia && canDownload ? 'visible' : 'hidden' }}
+                        style={{ visibility: props.hasMedia && canDownload ? 'visible' : 'hidden' }}
                     >{IconGlyph.Download}</a>
                 </div>
                 <a id={n("imglink")} title="Raccoony - click for page options">
@@ -299,7 +164,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                             alternateBalloonUi
                         ) : (
                             <div className={n("bubble")}>
-                                {this.state.hasMedia && (
+                                {props.hasMedia && (
                                     <ActionButton
                                         onClick={this.onClickDownload}
                                         title={downloadButtonProps.disabled ? null : 'Hotkey: D'}
@@ -309,22 +174,22 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                         {downloadButtonProps.label}
                                     </ActionButton>
                                 )}
-                                {this.state.hasMedia && this.state.downloadState === DownloadState.Exists && (
+                                {props.hasMedia && (props.downloadState === E.DownloadState.Exists || props.downloadState === E.DownloadState.Done) && (
                                     <ActionButton onClick={this.onClickOpenFolder} title="Hotkey: F" icon={IconGlyph.OpenFolder}>
                                         Open folder
                                     </ActionButton >
                                 )}
-                                {this.state.canFullscreen && !this.props.inFullscreen && (
+                                {props.canFullscreen && !props.isFullscreen && (
                                     <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
                                         Fullscreen
                                     </ActionButton>
                                 )}
-                                {this.props.inFullscreen && (
+                                {props.isFullscreen && (
                                     <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
                                         Exit fullscreen
                                     </ActionButton>
                                 )}
-                                {this.state.hasPageLinks && (
+                                {props.hasPageLinks && (
                                     <ActionButton onClick={this.onClickOpenTabs} title="Hotkey: T" icon={IconGlyph.OpenTabs}>
                                         Open all in tabs
                                     </ActionButton>

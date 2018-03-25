@@ -5,7 +5,9 @@ import * as logger from '../logger';
 const serviceName = "patreon";
 
 export class PatreonPlugin extends BaseSitePlugin {
-    readonly siteName: string = serviceName;
+    constructor() {
+        super(serviceName);
+    }
 
     getMedia(): Promise<I.Media> {
         return new Promise(function (resolve, reject) {
@@ -54,7 +56,7 @@ export class PatreonPlugin extends BaseSitePlugin {
                         extension: ext,
                         type: getFileTypeByExt(ext),
                         submissionId: id,
-                        service: serviceName,
+                        siteName: serviceName,
                         title: title,
                         description: description,
                         tags: tags

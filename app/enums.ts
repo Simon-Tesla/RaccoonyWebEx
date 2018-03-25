@@ -1,6 +1,5 @@
 
 export enum MessageAction {
-    Test = "messageaction_test",
     Download = "messageaction_download",
     OpenTabs = "messageaction_opentabs",
     ShowFile = "messageaction_showfile",
@@ -9,12 +8,12 @@ export enum MessageAction {
 }
 
 export enum MediaType {
-    Unknown = 0,
-    Image,
-    Text,
-    Flash,
-    Video,
-    Audio,
+    Unknown = "unknown",
+    Image = "image",
+    Text = "text",
+    Flash = "flash",
+    Video = "video",
+    Audio = "audio",
 }
 
 export enum TabLoadOrder {
@@ -32,4 +31,12 @@ export enum IconGlyph {
     Config = "\u{2699}",
     Close = "\u{2716}",
     Warning = "\u{26A0}"
+}
+
+export enum DownloadState {
+    NotDownloaded,
+    InProgress,
+    Done,
+    Exists,
+    Error,
 }

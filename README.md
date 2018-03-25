@@ -1,4 +1,6 @@
-# RaccoonyWebEx ![Raccoony logo][logo]
+# Raccoony! ![Raccoony logo][logo]
+
+**Now with 100% more WebExtension goodness™**
 
 A web extension for Firefox and Chrome that adds shiny new features (like automatic downloading) to art sites. 
 Inspired by the [FurAffinity Extender](https://andrewneo.github.io/faextender/) and [Inkbunny Downloader](http://www.humbird0.com/#/addons/inkbunny_downloader) Firefox addons.
@@ -46,16 +48,11 @@ While I don't plan on implementing every TODO for it, I want to get most of them
 
 ### Feature TODO list 
 - Fix downloaded status badge on overlay 
-- Save metadata file
-- Add option to configure download directory
-- Add option to sort tabs
-- Add configurable tab delay (including an initial delay to allow the browser to load the delay pages)
 - Add help/first run experience
 - Add functional toolbar/address bar icon
+- Fullscreen UI actions
 
 ### Architecture TODO
-- Introduce a wrapper class (SiteActions) for the SitePlugins and move logic out of the BaseSitePlugin into SiteActions (in other words, let's favor composition over inheritance)
-- Move all shared state out of PageOverlay and into Page
 - Move SettingsUi as a child of Page
 - Maybe package for Edge? 
 
