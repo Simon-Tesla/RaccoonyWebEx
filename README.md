@@ -32,6 +32,15 @@ Extension files and build output will be in `dist/`.
 
 ## Changelog
 
+1.1.0
+- Added a new UI for managing settings, both on a per-site and a global basis.
+- Added the ability to customize your download path.
+- Added back the ability to adjust the delay for opening all in tabs.
+- Added back the ability to change the order tabs are opened in.
+- Added back the metadata save feature.
+- Implemented settings import/export feature.
+- Many updates to the general code architecture to improve maintainability.
+
 1.0.1
 - Simplified download progress UI
 - Fixed lightbox to only be available for images

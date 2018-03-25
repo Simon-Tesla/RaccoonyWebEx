@@ -1,6 +1,6 @@
 {
   "name": "Raccoony WebExtension",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "manifest_version": 2,
   "description": "A WebExtension for adding shiny features to art websites.",
   "icons": {
