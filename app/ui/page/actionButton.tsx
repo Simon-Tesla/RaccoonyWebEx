@@ -4,6 +4,7 @@ import * as classnames from 'classnames';
 import { IconGlyph } from '../../enums'
 import { n } from './common'
 
+//TODO: move out of /page
 
 export interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     icon?: IconGlyph;

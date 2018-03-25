@@ -53,7 +53,7 @@ While I don't plan on implementing every TODO for it, I want to get most of them
 - Fullscreen UI actions
 
 ### Architecture TODO
-- Move SettingsUi as a child of Page
+- Move SettingsUi as a child of Page?
 - Maybe package for Edge? 
 
 ## Credits
