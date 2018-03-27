@@ -32,8 +32,13 @@ Extension files and build output will be in `dist/`.
 
 ## Changelog
 
+1.1.2
+- Fixed: issue prevented hotkey handler from initializing correctly. (issue #4)
+- Fixed: unsetting settings wouldn't behave correctly.
+- Fixed: sourceUrl missing from metadata file output.
+
 1.1.1
-- Fix a bug that prevented the settings UI from operating correctly under certain circumstances.
+- Fixed a bug that prevented the settings UI from operating correctly under certain circumstances.
 
 1.1.0
 - Added a new UI for managing settings, both on a per-site and a global basis.
