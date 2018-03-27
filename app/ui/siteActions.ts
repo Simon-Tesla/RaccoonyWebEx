@@ -24,6 +24,7 @@ export default class SiteActions {
             .then(media => {
                 if (media) {
                     media.siteName = this.siteName;
+                    media.sourceUrl = window.location.href;
                 }
                 return media;
             })

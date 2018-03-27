@@ -27,6 +27,10 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
 
     setSetting = <K extends keyof I.SiteSettings>(key: K, value: I.SiteSettings[K]) => {
         const settings = Object.assign({}, this.props.settings, { [key]: value });
+        if (value == null) {
+            // If a setting is unset, delete it.
+            delete settings[key];
+        }
         this.props.onUpdateSettings(settings);
     }
 
@@ -45,11 +49,15 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
 
     setDefaultForTabOrder = (useDefault: boolean) => {
         // Strange things happen if you try to set these individually, so we set them all at once.
-        const tabLoadSettings: Partial<I.SiteSettings> = {
-            tabLoadSortBy: useDefault ? null : this.props.defaultSettings.tabLoadSortBy,
-            tabLoadSortAsc: useDefault ? null : this.props.defaultSettings.tabLoadSortAsc
-        };
-        const settings = Object.assign({}, this.props.settings, tabLoadSettings);
+        const settings = Object.assign({}, this.props.settings);
+        if (useDefault) {
+            settings.tabLoadSortBy = E.TabLoadOrder.Date;
+            settings.tabLoadSortAsc = true;
+        }
+        else {
+            delete settings.tabLoadSortBy;
+            delete settings.tabLoadSortAsc;
+        }
         this.props.onUpdateSettings(settings);
     }
 

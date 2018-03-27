@@ -69,16 +69,13 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                 this.enterFullscreen();
             }
         }
-        if (prevState.siteSettings) {
-            if (prevState.siteSettings.hotkeysEnabled !== this.state.siteSettings.hotkeysEnabled) {
-                if (this.state.siteSettings.hotkeysEnabled) {
-                    this.enableHotkeys();
-                }
-                else {
-                    this.disableHotkeys();
-                }
-            }
+        if (this.state.siteSettings && this.state.siteSettings.hotkeysEnabled) {
+            this.enableHotkeys();
         }
+        else {
+            this.disableHotkeys();
+        }
+        
     }
 
     onSettingsStoreUpdate = () => {

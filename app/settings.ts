@@ -16,7 +16,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
 
 const DefaultSettingsKey = 'default_settings';
 
-const settingsVersion = 1;
+const settingsVersion = 2;
 
 export function getSiteKeyFromName(siteName: string) {
     return siteName.endsWith('_settings') ? siteName : `${siteName}_settings`;
@@ -26,9 +26,13 @@ export function getAllSettings(): Promise<I.AllSettings> {
     return browser.storage.local.get(null)
         .then((storage) => {
             const settings = storage as any as I.AllSettings;
-            if (!settings || (settings.version || 0) < settingsVersion) {
+            if (!settings) {
                 // If settings haven't been migrated, perform the migration
                 return migrateSettingsFromSyncToLocal()
+                    .then(() => browser.storage.local.get(null) as any as I.AllSettings);
+            }
+            else if ((settings.version || 0) < settingsVersion) {
+                return upgradeSettings(settings)
                     .then(() => browser.storage.local.get(null) as any as I.AllSettings);
             }
             return settings;
@@ -111,6 +115,24 @@ function migrateSettingsFromSyncToLocal(): Promise<I.AllSettings> {
                 .then(() => browser.storage.sync.clear())
                 .then(() => settings);
         });
+}
+
+function upgradeSettings(settings: I.AllSettings) {
+    if (settings.version === 1) {
+        // Filter out any property set to null.
+        const keys = Object.getOwnPropertyNames(settings)
+            .filter(key => key.endsWith('_settings'));
+        keys.forEach(key => {
+            const siteSetting = settings[key];
+            const skeys = Object.getOwnPropertyNames(siteSetting);
+            skeys.filter(k => siteSetting[k] == null)
+                .forEach(k => {
+                    delete siteSetting[k];
+                });
+        })
+    }
+    settings.version = settingsVersion;
+    return saveAllSettings(settings);
 }
 
 type SettingsListener = (settings: CachedSettings) => void;
