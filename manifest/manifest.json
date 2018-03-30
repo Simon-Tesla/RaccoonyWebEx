@@ -28,7 +28,8 @@
         "*://*.e621.net/*",
         "*://*.patreon.com/*",
         "*://*.hiccears.com/*",
-        "*://*.aryion.com/*"
+        "*://*.aryion.com/*",
+        "*://*.shorpy.com/*"
       ],
       "js": [
         "browser-polyfill.js",

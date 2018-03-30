@@ -43,6 +43,9 @@ function getSitePlugin(): I.SitePlugin {
     else if (hostname.includes('aryion.com')) {
         return new plugins.EkasPlugin();
     }
+    else if (hostname.includes('shorpy.com')) {
+        return new plugins.ShorpyPlugin();
+    }
 }
 
 

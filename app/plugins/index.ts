@@ -8,3 +8,4 @@ export * from './hiccears';
 export * from './patreon';
 export * from './sofurry';
 export * from './weasyl';
+export * from './shorpy'
