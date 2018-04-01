@@ -14,6 +14,7 @@ This README is a work in progress.
 - Open all submissions in a gallery/notifications in tabs (with a timed delay)
 - Show pictures in a "full-screen" view that covers the entire page (and optionally enter this view automatically)
 - Hotkey support for downloading, opening in tabs and fullscreen
+- Supported sites: deviantArt, e621, Eka's Portal (contributed by Eupeptic), FurAffinity, Furry Network, HicceArs, InkBunny, Patreon, Shorpy.com (contributed by Eupeptic), SoFurry, and Weasyl.
 
 See the TODO list below for more planned features.
 
@@ -22,6 +23,7 @@ See the TODO list below for more planned features.
 For **Firefox** - download the XPI for the latest release on the **[releases page](https://github.com/Simon-Tesla/RaccoonyWebEx/releases)**
 
 For **Chrome** - install from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/raccoony-webextension/ejcbnfgeiphhnkmpjggnkkhnbefihelh)** 
+
 ## Building
 - Install [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com/) (usually comes with Node.js)
 - Run `npm install -g typescript gulp`
@@ -75,7 +77,7 @@ While I don't plan on implementing every TODO for it, I want to get most of them
 
 ## Credits
 - The Raccoony logo ![Raccoony logo][logo] is ©[ScruffKerfluff][logoauthor], and is only licenced to be distributed as-is with unmodified Raccoony source code or binary distributions. It **MAY NOT** be distributed or modified under any other circumstances or used for profit.
-- Eupeptic for contributing the base for Eka's Portal support
+- Eupeptic for contributing the Eka's Portal and Shorpy plugins.
 - AndrewNeo for his excellent [FurAffinity Extender](https://andrewneo.github.io/faextender-chrome/) extension. Some code in Raccoony is based on his work, and I consulted his code for some of the WebExtension API handling and for setting up the gulp build framework.
 
 [logo]: https://github.com/Simon-Tesla/RaccoonyWebEx/raw/master/src/icon-64.png
