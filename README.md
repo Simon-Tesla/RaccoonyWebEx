@@ -34,6 +34,10 @@ Extension files and build output will be in `dist/`.
 
 ## Changelog
 
+1.1.3
+- Fixed: #7 Patreon plugin not finding posts
+- Added Shorpy plugin, contributed by Eupeptic
+
 1.1.2
 - Fixed: issue prevented hotkey handler from initializing correctly. (issue #4)
 - Fixed: unsetting settings wouldn't behave correctly.
