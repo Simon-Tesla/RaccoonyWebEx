@@ -38,7 +38,6 @@
 
 #ry-ui .ry-action {
     display: inline-block;
-    color: #fff !important;
     border: 2px solid #004578;
     border-radius: 0;
     background: #004578;
@@ -48,9 +47,14 @@
     box-sizing: border-box;
     min-width: 150px;
     margin: 4px;
+    cursor: default;
+}
+
+#ry-ui .ry-action,
+#ry-ui .ry-action * {
     font-family: "Segoe UI Semibold",'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     font-size: 14px !important;
-    cursor: default;
+    color: #fff !important;
 }
 
 #ry-ui .ry-action.ry-nolabel {
@@ -70,7 +74,7 @@
 
 #ry-ui .ry-action span {
     display: inline-block;
-    font-size: 16px;
+    font-size: 16px !important;
     margin-right: 4px;
 }
 

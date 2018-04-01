@@ -7,7 +7,7 @@ import { n } from './common'
 //TODO: move out of /page
 
 export interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    icon?: IconGlyph;
+    icon?: IconGlyph | JSX.Element;
 }
 
 export default class ActionButton extends React.Component<ActionButtonProps, {}> {
