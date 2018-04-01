@@ -60,6 +60,28 @@ export function querySelector<T extends HTMLElement>(selector: string, scope?: H
     return <T>((scope || document).querySelector(selector));
 }
 
+const MinimumImageElementSizeThreshold = 300 * 300;
+
+export function getLargestImageElement(thresholdPx: number = MinimumImageElementSizeThreshold, selector: string | HTMLElement = document.body) {
+    let candidates: HTMLImageElement[];
+    if (typeof selector === 'string') {
+        candidates = Array.from(document.querySelectorAll(selector + ' img'));
+    }
+    else {
+        candidates = Array.from(selector.getElementsByTagName('img'));
+    }
+    let largestImg = null;
+    let imgSize = thresholdPx;
+    candidates.forEach((img) => {
+        const currSize = img.naturalWidth * img.naturalHeight;
+        if (currSize > imgSize) {
+            largestImg = img;
+            imgSize = currSize
+        }
+    });
+    return largestImg;
+}
+
 export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string) => string): I.PageLink[] {
     return links.map(linkElt => {
         let href = linkElt.href;
