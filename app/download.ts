@@ -112,6 +112,8 @@ function sanitizePath(pathPart: string) {
     pathPart = pathPart.replace(" ", "_");
     // Replace any consecutive dots (e.g. "..") with a single dot.
     pathPart = pathPart.replace(/\.+/g, ".");
+    // Replace any leading or trailing dots
+    pathPart = pathPart.replace(/^\.|\.$/g, '_');
     // Replace any significant OS characters with underscores.
     return pathPart.replace(/[*"\\\/:|?%<>]/g, "_");
 }
