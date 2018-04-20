@@ -29,7 +29,8 @@
         "*://*.patreon.com/*",
         "*://*.hiccears.com/*",
         "*://*.aryion.com/*",
-        "*://*.shorpy.com/*"
+        "*://*.shorpy.com/*",
+        "*://*.gearfetishx.com/*"
       ],
       "js": [
         "browser-polyfill.js",

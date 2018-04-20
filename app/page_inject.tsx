@@ -46,6 +46,9 @@ function getSitePlugin(): I.SitePlugin {
     else if (hostname.includes('shorpy.com')) {
         return new plugins.ShorpyPlugin();
     }
+    else if (hostname.includes('gearfetishx.com')) {
+        return new plugins.GfxPlugin();
+    }
 }
 
 
