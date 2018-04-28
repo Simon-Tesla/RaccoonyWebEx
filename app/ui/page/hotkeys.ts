@@ -14,17 +14,15 @@ export function initializeHotkeys(handler: I.UserActions) {
 
             switch (ev.key) {
                 case 't':
-                    handler.openPageLinksInTabs();
-                    break;
+                    return handler.openPageLinksInTabs();
                 case 'd':
-                    handler.downloadMedia();
-                    break;
+                    return handler.downloadMedia(ev.shiftKey);
+                case 'D':
+                    return handler.downloadMedia(true);
                 case 'f':
-                    handler.showDownloadMedia();
-                    break;
+                    return handler.showDownloadMedia();
                 case 'o':
-                    handler.toggleFullscreen();
-                    break;
+                    return handler.toggleFullscreen();
             }
         }
     }
