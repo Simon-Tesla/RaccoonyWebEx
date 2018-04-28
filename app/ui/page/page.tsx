@@ -94,9 +94,17 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         });
     }
 
-    downloadMedia = () => {
-        this.setState({ downloadState: E.DownloadState.InProgress });
+    downloadMedia = (force: boolean = false) => {
         this.props.siteActions.getMedia().then((media) => {
+            const { downloadState } = this.state;
+            if (!force && (downloadState === E.DownloadState.InProgress ||
+                downloadState === E.DownloadState.Done ||
+                downloadState === E.DownloadState.Exists)) {
+                // If downloading has already started, then don't try to re-download.
+                return;
+            }
+
+            this.setState({ downloadState: E.DownloadState.InProgress });
             sendMessage(E.MessageAction.Download, media)
                 .then((download: I.DownloadResponse) => {
                     // The download promise resolves when the download starts, not when it finishes.
@@ -210,6 +218,9 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     sendMessage(E.MessageAction.CheckDownlod, media).then((isDownloaded: boolean) => {
                         if (isDownloaded) {
                             this.setState({ downloadState: E.DownloadState.Exists });
+                        }
+                        else if (this.state.siteSettings.autoDownload) {
+                            this.downloadMedia();
                         }
                     });
                 });

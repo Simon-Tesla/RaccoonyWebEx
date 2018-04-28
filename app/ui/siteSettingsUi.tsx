@@ -132,6 +132,9 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                         <SettingsRow  {...getRowProps('writeMetadata', "Save metadata file") }>
                             <Switch {...getSwitchProps('writeMetadata') } />
                         </SettingsRow>
+                        <SettingsRow {...getRowProps('autoDownload', "Automatically download opened submissions") }>
+                            <Switch {...getSwitchProps('autoDownload') } />
+                        </SettingsRow>
                     </tbody>
                 </table>
             </div>

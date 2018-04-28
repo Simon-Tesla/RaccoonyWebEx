@@ -53,7 +53,7 @@ export interface SitePlugin {
 
 export interface UserActions {
     openPageLinksInTabs(): void;
-    downloadMedia(): void;
+    downloadMedia(force?: boolean): void;
     showDownloadMedia(): void;
     toggleFullscreen(): void;
     openOptions(): void;
@@ -88,6 +88,7 @@ export interface SiteSettings {
     tabLoadSortBy?: E.TabLoadOrder;
     tabLoadSortAsc?: boolean;
     downloadPath?: string;
+    autoDownload?: boolean;
 }
 
 export interface ExtensionSettings {

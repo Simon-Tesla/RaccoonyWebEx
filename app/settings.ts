@@ -12,6 +12,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
     tabLoadSortBy: TabLoadOrder.Date,
     tabLoadSortAsc: true,
     writeMetadata: false,
+    autoDownload: false,
 };
 
 const DefaultSettingsKey = 'default_settings';
