@@ -10,7 +10,7 @@ const defaultPath = "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{
 export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
     // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/downloads/FilenameConflictAction
-    let conflictAction = "uniquify";
+    let conflictAction = "overwrite";
     let filePath = makeDownloadFilePath(media, settings);
 
     let promises: Promise<any>[] = [];
@@ -112,8 +112,8 @@ function sanitizePath(pathPart: string) {
     pathPart = pathPart.replace(" ", "_");
     // Replace any consecutive dots (e.g. "..") with a single dot.
     pathPart = pathPart.replace(/\.+/g, ".");
-    // Replace any leading or trailing dots
-    pathPart = pathPart.replace(/^\.|\.$/g, '_');
+    // Replace any trailing dots
+    pathPart = pathPart.replace(/\.$/g, '_');
     // Replace any significant OS characters with underscores.
     return pathPart.replace(/[*"\\\/:|?%<>]/g, "_");
 }
