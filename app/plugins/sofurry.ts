@@ -9,6 +9,7 @@ export class SofurryPlugin extends BaseSitePlugin {
     }
 
     getMedia(): Promise<I.Media> {
+        // TODO: support downloading stories
         // Get the download button
         let button = document.getElementById("sfDownload") || querySelector("#sfContentImage a");
         if (!button) {
@@ -24,8 +25,10 @@ export class SofurryPlugin extends BaseSitePlugin {
         var filename = titleElt.textContent.trim();
         // And the extension - we use the preview image to determine this.
         var imgPreview: HTMLImageElement = querySelector("#sfContentImage img");
-        var ext = imgPreview.getAttribute("src").split('.').pop();
-        var previewUrl = imgPreview.src;
+        let previewUrl = imgPreview.src;
+        let previewUrlObj = new URL(previewUrl);
+        let siteFilename = previewUrlObj.searchParams.get('filename');
+        var ext = siteFilename.split('.').pop();
 
         // Get the username
         var usernameElt = document.querySelector("#sf-userinfo-outer .sf-username");
@@ -42,6 +45,7 @@ export class SofurryPlugin extends BaseSitePlugin {
             previewUrl: previewUrl,
             author: username,
             filename: filename,
+            siteFilename: siteFilename,
             extension: ext,
             type: getFileTypeByExt(ext),
             submissionId: id,

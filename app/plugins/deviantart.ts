@@ -58,7 +58,7 @@ export class DeviantArtPlugin extends BaseSitePlugin {
             url = previewUrl;
 
             // De-munge the filename.
-            filename = url.split("/").pop();
+            serviceFilename = filename = url.split("/").pop();
             ext = filename.split(".").pop();
             let byIdx = filename.lastIndexOf("_by_");
             //console.log("submission filename 1", filename, byIdx);

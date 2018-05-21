@@ -25,6 +25,9 @@ export default class SiteActions {
                 if (media) {
                     media.siteName = this.siteName;
                     media.sourceUrl = window.location.href;
+                    media.siteFilename = media.siteFilename || `${media.filename}.${media.extension}`;
+                    media.previewUrl = media.previewUrl || media.url;
+                    media.author = media.author || "unknown";
                 }
                 return media;
             })
