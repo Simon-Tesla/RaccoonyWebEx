@@ -36,6 +36,7 @@ export class InkbunnyPlugin extends BaseSitePlugin {
             previewUrl: previewUrl,
             author: author,
             filename: filename,
+            siteFilename: serviceFilename,
             submissionId: id,
             extension: ext,
             type: getFileTypeByExt(ext),
