@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.5 (2018-05-20)
+- Fixed: leading dots allowed in filenames again [(issue #13)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/13)
+- Fixed: some site plugins didn't provide a siteFilename under all circumstances [(issue #14)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/14)
+
 ## 1.1.4 (2018-04-28)
 - Added feature to automatically download a submission when viewing its page [(Issue #5)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/5)
 - Added gearfetishx plugin, contributed by Eupeptic
