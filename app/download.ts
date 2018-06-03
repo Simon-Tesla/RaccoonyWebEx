@@ -7,7 +7,12 @@ const isFirefox = window.location.protocol === 'moz-extension:';
 
 const defaultPath = "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{author}.{extension}";
 
-export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
+export interface DownloadSettings {
+    writeMetadata?: boolean;
+    downloadPath?: string;
+}
+
+export function downloadFile(media: I.Media, settings: DownloadSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
     // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/downloads/FilenameConflictAction
     let conflictAction = "overwrite";
@@ -35,7 +40,7 @@ export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<
         });
 }
 
-function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
+function makeDownloadFilePath(media: I.Media, settings: DownloadSettings) {
     let path: string[]
     let downloadPath = settings.downloadPath || defaultPath;
     path = replacePathPlaceholders(downloadPath, media)
@@ -132,11 +137,18 @@ function replacePathPlaceholders(path: string, media: I.Media) {
     }
 
     let url = new URL(media.url);
+
+    const siteFilenameExt = (!media.extension || media.siteFilename.endsWith(media.extension))
+        ? media.siteFilename
+        : `${media.siteFilename}.${media.extension}`
+
     return cachedMsg.format({
         siteName: media.siteName,
         submissionId: media.submissionId,
         author: media.author,
         filename: media.filename,
+        filenameExt: media.extension ? `${media.filename}.${media.extension}` : media.filename,
+        siteFilenameExt: siteFilenameExt,
         siteFilename: media.siteFilename,
         extension: media.extension,
         type: media.type,

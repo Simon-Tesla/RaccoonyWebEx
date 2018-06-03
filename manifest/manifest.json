@@ -52,6 +52,7 @@
   },
   "permissions": [
     "storage",
-    "downloads"
+    "downloads",
+    "contextMenus"
   ]
 }

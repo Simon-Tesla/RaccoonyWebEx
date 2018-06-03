@@ -4,6 +4,7 @@ import openInTabs from './openTabs';
 import * as download from './download';
 import * as logger from './logger';
 import { CachedSettings } from './settings'
+import { initializeContextMenu } from './contextMenu';
 
 logger.log("[background] setting up listeners");
 
@@ -26,8 +27,12 @@ browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: c
                     return download.showFile(request.data);
                 case MessageAction.CheckDownlod:
                     return download.isDownloaded(request.data);
+                case MessageAction.ShowGlobalOptions:
+                    return browser.runtime.openOptionsPage();
             }
             logger.error('Invalid message received')
             return Promise.reject<any>(new Error('Invalid message'));
         })
 });
+
+initializeContextMenu();

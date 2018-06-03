@@ -1,5 +1,6 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { getFilenameParts } from '../utils/file';
 
 const serviceName = "inkbunny";
 
@@ -39,7 +40,6 @@ export class InkbunnyPlugin extends BaseSitePlugin {
             siteFilename: serviceFilename,
             submissionId: id,
             extension: ext,
-            type: getFileTypeByExt(ext),
             siteName: serviceName,
             title: title,
             description: description,
