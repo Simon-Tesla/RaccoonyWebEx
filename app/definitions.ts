@@ -58,6 +58,7 @@ export interface UserActions {
     toggleFullscreen(): void;
     openOptions(): void;
     dismissOptions(): void;
+    showGlobalOptions(): void;
 }
 
 // TypeScript doesn't allow mixing string indexes with normal properties of different types in a single interface

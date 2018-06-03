@@ -129,6 +129,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                     settings={this.props.settings}
                     onDismiss={this.onDismissOptions}
                     onSaveSettings={this.onSaveOptions}
+                    onShowGlobalSettings={this.props.userActions.showGlobalOptions}
                 />
             );
         }
