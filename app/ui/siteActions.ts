@@ -2,6 +2,7 @@ import * as I from '../definitions';
 import * as logger from '../logger';
 import { MediaType, TabLoadOrder } from '../enums';
 import * as Settings from '../settings';
+import { getFileTypeByExt } from '../utils/filenames';
 
 //TODO: rename this to something like SiteDataProvider
 export default class SiteActions {
@@ -23,6 +24,9 @@ export default class SiteActions {
         return this.plugin.getMedia()
             .then(media => {
                 if (media) {
+                    if (media.extension && !media.type) {
+                        media.type = getFileTypeByExt(media.extension);
+                    }
                     media.siteName = this.siteName;
                     media.sourceUrl = window.location.href;
                     media.siteFilename = media.siteFilename || `${media.filename}.${media.extension}`;

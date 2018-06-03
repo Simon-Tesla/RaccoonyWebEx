@@ -12,6 +12,7 @@ interface SettingsUiProps {
     settings: I.Settings;
     onSaveSettings: (settings: I.Settings) => void;
     onDismiss: () => void;
+    onShowGlobalSettings: () => void;
 }
 
 interface SettingsUiState {
@@ -65,6 +66,7 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
                 />
                 <div>
                     <ActionButton onClick={this.onSave}> Save changes</ActionButton>
+                    <ActionButton className={n('cancel')} onClick={this.props.onShowGlobalSettings}>Global settings...</ActionButton>
                     <ActionButton className={n('cancel')} onClick={this.props.onDismiss}> Cancel</ActionButton>
                 </div>
             </div>

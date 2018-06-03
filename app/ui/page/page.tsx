@@ -139,6 +139,10 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         this.setState({ showOptions: false });
     }
 
+    showGlobalOptions = () => {
+        sendMessage(E.MessageAction.ShowGlobalOptions, {});
+    }
+
     onClickFullscreen = () => {
         if (this.state.isFullscreen) {
             this.setState({ isFullscreen: false });
