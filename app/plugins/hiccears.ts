@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
 
 const serviceName = "hiccears";
 
@@ -52,7 +52,6 @@ export class HiccearsPlugin extends BaseSitePlugin {
             author: username,
             filename: filename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,

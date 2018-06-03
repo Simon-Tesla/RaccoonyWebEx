@@ -21,9 +21,7 @@ import {
     default as BaseSitePlugin,
     querySelector,
     querySelectorAll,
-    getFileTypeByExt,
     getPageLinksFromAnchors,
-    getFilenameParts
 } from './base';
 import * as logger from '../logger';
 
@@ -230,7 +228,6 @@ export class EkasPlugin extends BaseSitePlugin {
             filename: cleanfilename,
             siteFilename: filenameext,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,

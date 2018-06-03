@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
 
 const serviceName = "e621";
 
@@ -57,7 +57,6 @@ export class E621Plugin extends BaseSitePlugin {
             siteFilename: serviceFilename,
             filename: filename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: null,

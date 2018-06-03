@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors} from './base';
 
 const serviceName = "deviantart";
 const mutationSelector = 'body';
@@ -93,7 +93,6 @@ export class DeviantArtPlugin extends BaseSitePlugin {
             filename: filename,
             siteFilename: serviceFilename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             title: title,
             description: description,
             tags: tags

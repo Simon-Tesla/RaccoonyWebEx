@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
 
 const serviceName = "sofurry";
 
@@ -47,7 +47,6 @@ export class SofurryPlugin extends BaseSitePlugin {
             filename: filename,
             siteFilename: siteFilename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,
