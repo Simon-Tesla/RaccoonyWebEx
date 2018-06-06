@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin } from './base';
 
 const serviceName = "e621";
 
@@ -81,3 +81,5 @@ export class E621Plugin extends BaseSitePlugin {
         return Promise.resolve(res);
     }
 }
+
+registerPlugin(E621Plugin, 'e621.net');

@@ -6,6 +6,7 @@ export enum MessageAction {
     OpenFile = "messageaction_openfile",
     CheckDownlod = "messageaction_checkdownload",
     ShowGlobalOptions = "messageaction_showoptions",
+    PageQueryMedia = "messageaction_page_querymedia",
 }
 
 export enum MediaType {

@@ -26,6 +26,10 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         return Promise.resolve(null);
     }
 
+    getMediaForSrcUrl(srcUrl: string): Promise<I.Media> {
+        throw new Error("Method not implemented.");
+    }
+
     getPageLinkList(): Promise<I.PageLinkList> {
         return Promise.resolve(null);
     }
@@ -48,6 +52,26 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         logger.log('notifying page change')
         this._pageChangeHandler && this._pageChangeHandler();
     }
+}
+
+const pluginRegistry = new Map<string, { new(): I.SitePlugin }>();
+
+export function registerPlugin(plugin: { new(): I.SitePlugin; }, hostnameToMatch: string) {
+    pluginRegistry.set(hostnameToMatch, plugin);
+}
+
+export function getSitePlugin(hostname: string): I.SitePlugin {
+    let plugin = pluginRegistry.get(hostname);
+
+    if (!plugin) {
+        for (let [key, val] of pluginRegistry) {
+            if (hostname.endsWith(key)) {
+                plugin = val;
+                break;
+            }
+        }
+    }
+    return plugin && new plugin();
 }
 
 //TODO: should probably move these somewhere else

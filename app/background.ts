@@ -35,4 +35,4 @@ browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: c
         })
 });
 
-initializeContextMenu();
+initializeContextMenu(settingsProvider);

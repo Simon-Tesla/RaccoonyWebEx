@@ -13,6 +13,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
     tabLoadSortAsc: true,
     writeMetadata: false,
     autoDownload: false,
+    contextDownloadPath: "raccoony/{siteName}/{author}/{filenameExt}",
 };
 
 const DefaultSettingsKey = 'default_settings';

@@ -37,6 +37,14 @@ export default class SiteActions {
             })
     }
 
+    getMediaForSrcUrl(srcUrl: string) {
+        return this.plugin.getMediaForSrcUrl(srcUrl)
+            .catch(err => {
+                logger.error("[getMediaForSrcUrl] error:", err);
+                return Promise.reject(err);
+            });
+    }
+
     getPageLinkList(): Promise<I.PageLinkList> {
         return this.plugin.getPageLinkList()
             .then(list => {

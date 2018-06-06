@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin } from './base';
 import { getFilenameParts } from '../utils/file';
 
 const serviceName = "furaffinity";
@@ -78,6 +78,8 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         });
     }
 }
+
+registerPlugin(FuraffinityPlugin, 'furaffinity.net');
 
 function getMediaUrls() {
     // Get the download button, if it exists

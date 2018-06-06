@@ -22,6 +22,7 @@ import {
     querySelector,
     querySelectorAll,
     getPageLinksFromAnchors,
+    registerPlugin,
 } from './base';
 import * as logger from '../logger';
 
@@ -290,3 +291,5 @@ export class EkasPlugin extends BaseSitePlugin {
 function isSubmissionPage() {
     return window.location.href.indexOf("/aryion.com/g4/view/") !== -1;
 }
+
+registerPlugin(EkasPlugin, 'aryion.com');

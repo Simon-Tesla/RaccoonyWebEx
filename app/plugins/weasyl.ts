@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin } from './base';
 import { getFilenameParts } from '../utils/file';
 
 const serviceName = "weasyl";
@@ -81,3 +81,5 @@ export class WeasylPlugin extends BaseSitePlugin {
         return Promise.resolve(pageList);
     }
 }
+
+registerPlugin(WeasylPlugin, 'weasyl.com');
