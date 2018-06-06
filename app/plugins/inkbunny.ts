@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin } from './base';
 import { getFilenameParts } from '../utils/file';
 
 const serviceName = "inkbunny";
@@ -84,6 +84,8 @@ export class InkbunnyPlugin extends BaseSitePlugin {
         return Promise.resolve(linkList);
     }
 }
+
+registerPlugin(InkbunnyPlugin, 'inkbunny.net');
 
 function isSubmissionPage() {
     return window.location.href.indexOf("submissionview.php") !== -1 || window.location.pathname.indexOf('/s/') === 0;

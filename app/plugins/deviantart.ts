@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors} from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin} from './base';
 
 const serviceName = "deviantart";
 const mutationSelector = 'body';
@@ -130,3 +130,5 @@ export class DeviantArtPlugin extends BaseSitePlugin {
         return super.hasPageLinkList();
     }
 }
+
+registerPlugin(DeviantArtPlugin, 'deviantart.com');

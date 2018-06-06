@@ -18,6 +18,7 @@ import {
     querySelector,
     querySelectorAll,
     getPageLinksFromAnchors,
+    registerPlugin,
 } from './base';
 import * as logger from '../logger';
 
@@ -369,6 +370,8 @@ export class GfxPlugin extends BaseSitePlugin {
         return Promise.resolve(pageLinks);
     }
 }
+
+registerPlugin(GfxPlugin, 'gearfetishx.com');
 
 // Detect submission pages by page URL.
 // I think /m/photos/view/ is the only path for individual submissions.

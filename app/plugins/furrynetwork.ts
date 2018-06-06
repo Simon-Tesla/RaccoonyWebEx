@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin } from './base';
 import * as logger from '../logger';
 
 const serviceName = "furrynetwork";
@@ -86,3 +86,5 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
     //    });
     //}
 }
+
+registerPlugin(FurryNetworkPlugin, 'furrynetwork.com');

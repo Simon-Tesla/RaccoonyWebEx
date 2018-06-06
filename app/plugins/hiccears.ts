@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, registerPlugin } from './base';
 
 const serviceName = "hiccears";
 
@@ -76,3 +76,5 @@ export class HiccearsPlugin extends BaseSitePlugin {
         return Promise.resolve(pageLinks);
     }
 }
+
+registerPlugin(HiccearsPlugin, 'hiccears.com');

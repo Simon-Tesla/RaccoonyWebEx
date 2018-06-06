@@ -1,29 +1,60 @@
 import { MessageAction, MediaType } from "./enums";
-import { Media } from "./definitions";
+import { Media, MessageRequest, QueryMediaResponse, QueryMediaData, QueryMediaRequest } from "./definitions";
 import { downloadFile } from "./download";
 import { getFilenameParts, getExtensionFromMimeType, isValidExtension } from "./utils/file";
 import * as logger from './logger';
+import { CachedSettings } from "./settings";
 
-export function initializeContextMenu() {
-    browser.contextMenus.onClicked.addListener((info, tab) => {
-        logger.log('downloading file from context menu', info)
-        // TODO: get downloadPath and such from settings
-        const downloadPath = "raccoony-test/{siteName}/{siteFilenameExt}";
+enum ContextMenuItems {
+    download = "download",
+}
 
-        // TODO: add a plugin hook for querying the host page for more data about the media in question
+export function initializeContextMenu(settingsProvider: CachedSettings) {
+    browser.contextMenus.onClicked.addListener(contextMenuListener);
+
+    browser.contextMenus.create({
+        id: ContextMenuItems.download,
+        title: "Download with Raccoony",
+        contexts: ['image', 'video', 'audio']
+    });
+
+    function contextMenuListener(info: browser.contextMenus.OnClickData, tab: browser.tabs.Tab) {
+        logger.log("handling context menu", info.menuItemId);
+        if (info.menuItemId === ContextMenuItems.download) {
+            return queryPageMedia(tab, info.srcUrl)
+                .then((response) => downloadMedia(info, response.media));
+        }
+    }
+
+    function queryPageMedia(tab: browser.tabs.Tab, srcUrl: string) {
+        return browser.tabs.executeScript(tab.id, { file: '/contextMenuInject.js' })
+            .then(() => {
+                // Ask the page about its media
+                const message: QueryMediaRequest = {
+                    action: MessageAction.PageQueryMedia,
+                    data: { srcUrl },
+                };
+                return browser.tabs.sendMessage(tab.id, message) as Promise<QueryMediaResponse>;
+            });
+    }
+
+    function downloadMedia(info: browser.contextMenus.OnClickData, media: Media) {
         const pageUrl = new URL(info.pageUrl);
         const itemUrl = new URL(info.srcUrl);
         const itemFile = itemUrl.pathname.split('/').pop();
         const mediaType: MediaType = info.mediaType as MediaType;
 
-        const media: Media = {
-            url: info.srcUrl,
-            sourceUrl: info.pageUrl,
+        media = Object.assign({
             siteName: pageUrl.hostname,
             filename: itemFile,
             siteFilename: itemFile,
             type: mediaType
-        }
+        } as Media, media, { url: info.srcUrl, sourceUrl: info.pageUrl });
+
+        const settings = media.siteName
+            ? settingsProvider.getCurrentSettings(media.siteName)
+            : settingsProvider.getDefaultSettings();
+        const downloadPath = settings.contextDownloadPath;
 
         const finallyDownload = () => downloadFile(media, { downloadPath });
 
@@ -53,13 +84,6 @@ export function initializeContextMenu() {
         else {
             return finallyDownload();
         }
-    });
-
-    browser.contextMenus.create({
-        id: MessageAction.Download,
-        title: "Download with Raccoony",
-        contexts: ['image', 'video', 'audio']
-    });
+    }
 }
 
-//TODO: move to utilities directory

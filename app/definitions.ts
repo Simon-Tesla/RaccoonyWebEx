@@ -5,8 +5,22 @@ export interface MessageRequest<T> {
     data?: T;
 }
 
+export interface QueryMediaRequest extends MessageRequest<QueryMediaData> {}
+
+export interface QueryMediaData {
+    srcUrl: string
+}
+
+export interface QueryMediaResponse {
+    media: Media,
+}
+
 export interface DownloadResponse {
     success: boolean;
+}
+
+export function isQueryMediaRequest(o: MessageRequest<any>): o is QueryMediaRequest {
+    return o.action === E.MessageAction.PageQueryMedia;
 }
 
 export interface Media {
@@ -43,6 +57,7 @@ export interface SitePlugin {
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
+    getMediaForSrcUrl(srcUrl: string): Promise<Media>;
 
     //TODO: implement support for these
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
@@ -90,6 +105,7 @@ export interface SiteSettings {
     tabLoadSortAsc?: boolean;
     downloadPath?: string;
     autoDownload?: boolean;
+    contextDownloadPath?: string;
 }
 
 export interface ExtensionSettings {

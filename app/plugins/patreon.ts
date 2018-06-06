@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, getLargestImageElement } from './base';
+import { default as BaseSitePlugin, querySelector, querySelectorAll, getPageLinksFromAnchors, getLargestImageElement, registerPlugin } from './base';
 import * as logger from '../logger';
 
 const serviceName = "patreon";
@@ -110,3 +110,5 @@ export class PatreonPlugin extends BaseSitePlugin {
         return Promise.resolve(pageList);
     }
 }
+
+registerPlugin(PatreonPlugin, 'patreon.com');

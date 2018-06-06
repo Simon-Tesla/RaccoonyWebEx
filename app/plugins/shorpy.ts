@@ -16,6 +16,7 @@ import {
     querySelector,
     querySelectorAll,
     getPageLinksFromAnchors,
+    registerPlugin,
 } from './base';
 import * as logger from '../logger';
 
@@ -376,6 +377,8 @@ export class ShorpyPlugin extends BaseSitePlugin {
         return Promise.resolve(pageLinks);
     }
 }
+
+registerPlugin(ShorpyPlugin, 'shorpy.com');
 
 // Detect submission pages by page URL.
 // /node/[id] should be part of the path for individual submissions.
