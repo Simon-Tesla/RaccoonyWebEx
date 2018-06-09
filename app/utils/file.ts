@@ -15,7 +15,7 @@ export function getFilenameParts(filename: string) {
 
 let fileTypes: [MediaType, string[]][] = [
     [MediaType.Image, ['jpg', 'jpeg', 'png', 'gif']],
-    [MediaType.Text, ['txt', 'rtf', 'doc', 'docx', 'odf']],
+    [MediaType.Text, ['txt', 'rtf', 'doc', 'docx', 'odf', 'pdf']],
     [MediaType.Flash, ['swf']],
     [MediaType.Video, ['mpeg', 'mpg', 'mp4', 'avi', 'divx', 'mkv', 'flv', 'mov', 'wmv']],
     [MediaType.Audio, ['wav', 'mp3', 'm4a', 'flac', 'ogg', 'wma']]

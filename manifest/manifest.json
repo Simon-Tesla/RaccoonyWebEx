@@ -30,7 +30,8 @@
         "*://*.hiccears.com/*",
         "*://*.aryion.com/*",
         "*://*.shorpy.com/*",
-        "*://*.gearfetishx.com/*"
+        "*://*.gearfetishx.com/*",
+        "*://*.hentai-foundry.com/*"
       ],
       "js": [
         "browser-polyfill.js",
