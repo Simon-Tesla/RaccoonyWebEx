@@ -1,4 +1,5 @@
 import * as E from './enums';
+import { MediaType } from './enums';
 
 export interface MessageRequest<T> {
     action: E.MessageAction;
@@ -8,7 +9,8 @@ export interface MessageRequest<T> {
 export interface QueryMediaRequest extends MessageRequest<QueryMediaData> {}
 
 export interface QueryMediaData {
-    srcUrl: string
+    srcUrl: string,
+    mediaType: MediaType,
 }
 
 export interface QueryMediaResponse {
@@ -57,7 +59,7 @@ export interface SitePlugin {
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
-    getMediaForSrcUrl(srcUrl: string): Promise<Media>;
+    getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media>;
 
     //TODO: implement support for these
     // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu

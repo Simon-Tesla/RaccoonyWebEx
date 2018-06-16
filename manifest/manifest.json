@@ -54,6 +54,7 @@
   "permissions": [
     "storage",
     "downloads",
-    "contextMenus"
+    "contextMenus",
+    "activeTab"
   ]
 }

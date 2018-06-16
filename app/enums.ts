@@ -7,6 +7,7 @@ export enum MessageAction {
     CheckDownlod = "messageaction_checkdownload",
     ShowGlobalOptions = "messageaction_showoptions",
     PageQueryMedia = "messageaction_page_querymedia",
+    PageContentScriptPresent = "messageaction_page_script_present",
 }
 
 export enum MediaType {

@@ -13,13 +13,8 @@
 // 0.1  2018-04-01  Initial version, no joke!
 
 import * as I from '../definitions';
-import {
-    default as BaseSitePlugin,
-    querySelector,
-    querySelectorAll,
-    getPageLinksFromAnchors,
-    registerPlugin,
-} from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "gfx";

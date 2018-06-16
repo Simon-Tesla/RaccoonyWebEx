@@ -26,8 +26,8 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         return Promise.resolve(null);
     }
 
-    getMediaForSrcUrl(srcUrl: string): Promise<I.Media> {
-        throw new Error("Method not implemented.");
+    getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {
+        return Promise.resolve(null);
     }
 
     getPageLinkList(): Promise<I.PageLinkList> {
@@ -72,50 +72,5 @@ export function getSitePlugin(hostname: string): I.SitePlugin {
         }
     }
     return plugin && new plugin();
-}
-
-//TODO: should probably move these somewhere else
-export function querySelectorAll<T extends HTMLElement>(selector: string, scope?: HTMLElement): T[] {
-    let list = <NodeListOf<T>>((scope || document).querySelectorAll(selector));
-    return Array.from(list);
-}
-
-export function querySelector<T extends HTMLElement>(selector: string, scope?: HTMLElement): T {
-    return <T>((scope || document).querySelector(selector));
-}
-
-const MinimumImageElementSizeThreshold = 300 * 300;
-
-export function getLargestImageElement(thresholdPx: number = MinimumImageElementSizeThreshold, selector: string | HTMLElement = document.body) {
-    let candidates: HTMLImageElement[];
-    if (typeof selector === 'string') {
-        candidates = Array.from(document.querySelectorAll(selector + ' img'));
-    }
-    else {
-        candidates = Array.from(selector.getElementsByTagName('img'));
-    }
-    let largestImg = null;
-    let imgSize = thresholdPx;
-    candidates.forEach((img) => {
-        const currSize = img.naturalWidth * img.naturalHeight;
-        if (currSize > imgSize) {
-            largestImg = img;
-            imgSize = currSize
-        }
-    });
-    return largestImg;
-}
-
-export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string) => string): I.PageLink[] {
-    return links.map(linkElt => {
-        let href = linkElt.href;
-        let id = getIdFromSubmissionUrl(href);
-
-        let link: I.PageLink = {
-            url: href,
-            submissionId: id,
-        };
-        return link;
-    });
 }
 
