@@ -11,13 +11,8 @@
 // 0.2  2018-03-26  Modified for Raccoony 1.1.1
 
 import * as I from '../definitions';
-import {
-    default as BaseSitePlugin,
-    querySelector,
-    querySelectorAll,
-    getPageLinksFromAnchors,
-    registerPlugin,
-} from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "shorpy";

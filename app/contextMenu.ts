@@ -9,6 +9,23 @@ enum ContextMenuItems {
     download = "download",
 }
 
+async function loadContentScripts(tab: browser.tabs.Tab): Promise<void> {
+    // Check to see if we've already injected the content scripts before injecting them.
+    const message: MessageRequest<void> = {
+        action: MessageAction.PageContentScriptPresent
+    }
+    let loaded = false;
+    try {
+        let response = await browser.tabs.sendMessage(tab.id, message) as { loaded: boolean };
+        loaded = response && response.loaded;
+    } catch (e) { /*swallow errors*/ }
+
+    if (!loaded) {
+        await browser.tabs.executeScript(tab.id, { file: '/browser-polyfill.js' });
+        await browser.tabs.executeScript(tab.id, { file: '/contextMenuInject.js' });
+    }
+}
+
 export function initializeContextMenu(settingsProvider: CachedSettings) {
     browser.contextMenus.onClicked.addListener(contextMenuListener);
 
@@ -21,18 +38,21 @@ export function initializeContextMenu(settingsProvider: CachedSettings) {
     function contextMenuListener(info: browser.contextMenus.OnClickData, tab: browser.tabs.Tab) {
         logger.log("handling context menu", info.menuItemId);
         if (info.menuItemId === ContextMenuItems.download) {
-            return queryPageMedia(tab, info.srcUrl)
+            return queryPageMedia(tab, info.srcUrl, info.mediaType as MediaType)
                 .then((response) => downloadMedia(info, response.media));
         }
     }
 
-    function queryPageMedia(tab: browser.tabs.Tab, srcUrl: string) {
-        return browser.tabs.executeScript(tab.id, { file: '/contextMenuInject.js' })
+    function queryPageMedia(tab: browser.tabs.Tab, srcUrl: string, mediaType: MediaType) {
+        return loadContentScripts(tab)
             .then(() => {
                 // Ask the page about its media
                 const message: QueryMediaRequest = {
                     action: MessageAction.PageQueryMedia,
-                    data: { srcUrl },
+                    data: {
+                        srcUrl,
+                        mediaType
+                    },
                 };
                 return browser.tabs.sendMessage(tab.id, message) as Promise<QueryMediaResponse>;
             });
@@ -48,8 +68,10 @@ export function initializeContextMenu(settingsProvider: CachedSettings) {
             siteName: pageUrl.hostname,
             filename: itemFile,
             siteFilename: itemFile,
-            type: mediaType
-        } as Media, media, { url: info.srcUrl, sourceUrl: info.pageUrl });
+            type: mediaType,
+            url: info.srcUrl,
+            sourceUrl: info.pageUrl 
+        } as Media, media);
 
         const settings = media.siteName
             ? settingsProvider.getCurrentSettings(media.siteName)

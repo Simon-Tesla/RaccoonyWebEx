@@ -10,6 +10,7 @@ import './inkbunny';
 import './patreon';
 import './shorpy';
 import './sofurry';
+import './tumblr';
 import './weasyl';
 
 export { getSitePlugin } from './base';

@@ -3,6 +3,7 @@ import * as logger from '../logger';
 import { MediaType, TabLoadOrder } from '../enums';
 import * as Settings from '../settings';
 import { getFileTypeByExt } from '../utils/filenames';
+import { Media } from '../definitions';
 
 //TODO: rename this to something like SiteDataProvider
 export default class SiteActions {
@@ -37,12 +38,26 @@ export default class SiteActions {
             })
     }
 
-    getMediaForSrcUrl(srcUrl: string) {
-        return this.plugin.getMediaForSrcUrl(srcUrl)
-            .catch(err => {
-                logger.error("[getMediaForSrcUrl] error:", err);
-                return Promise.reject(err);
-            });
+    async getMediaForSrcUrl(srcUrl: string, mediaType: MediaType) {
+        const defaultMedia: Media = {
+            url: srcUrl,
+            // If we can't figure anything out, at least normalize the site name.
+            siteName: this.plugin.siteName,
+        };
+        try {
+            let media = await this.plugin.getMediaForSrcUrl(srcUrl, mediaType);
+            if (!media) {
+                // If we didn't get anything when specifying an explicit source URL,
+                // try the normal getMedia call and use it if its url matches srcUrl.
+                media = await this.plugin.getMedia();
+                return media && media.url === srcUrl ? media : defaultMedia;
+            }
+            return media;
+        }
+        catch (err) {
+            logger.error("[getMediaForSrcUrl] error:", err);
+            return defaultMedia;
+        }
     }
 
     getPageLinkList(): Promise<I.PageLinkList> {

@@ -24,5 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(rootElt);
 
     ReactDOM.render(<Page siteActions={actions} />, rootElt);
-    console.log("finished page_inject")
+    console.log("finished page_inject");
+
+    // TODO: add listener for context menu
 })
