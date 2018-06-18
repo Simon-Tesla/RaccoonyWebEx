@@ -25,7 +25,7 @@ browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: c
                     return download.openFile(request.data);
                 case MessageAction.ShowFile:
                     return download.showFile(request.data);
-                case MessageAction.CheckDownlod:
+                case MessageAction.CheckDownload:
                     return download.isDownloaded(request.data);
                 case MessageAction.ShowGlobalOptions:
                     return browser.runtime.openOptionsPage();

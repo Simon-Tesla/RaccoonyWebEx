@@ -6,23 +6,20 @@ export interface MessageRequest<T> {
     data?: T;
 }
 
-export interface QueryMediaRequest extends MessageRequest<QueryMediaData> {}
+export interface ContextDownloadRequest extends MessageRequest<ContextDownloadData> {}
 
-export interface QueryMediaData {
+export interface ContextDownloadData {
     srcUrl: string,
     mediaType: MediaType,
 }
 
-export interface QueryMediaResponse {
-    media: Media,
-}
 
 export interface DownloadResponse {
     success: boolean;
 }
 
-export function isQueryMediaRequest(o: MessageRequest<any>): o is QueryMediaRequest {
-    return o.action === E.MessageAction.PageQueryMedia;
+export function isContextDownloadRequest(o: MessageRequest<any>): o is ContextDownloadRequest {
+    return o.action === E.MessageAction.PageContextDownload;
 }
 
 export interface Media {
@@ -39,6 +36,7 @@ export interface Media {
     description?: string;
     tags?: string[];
     sourceUrl?: string;
+    downloadDestination?: E.DownloadDestination;
 }
 
 export interface PageLink {
@@ -62,7 +60,6 @@ export interface SitePlugin {
     getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media>;
 
     //TODO: implement support for these
-    // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
     // previous
     // next
     // favorite

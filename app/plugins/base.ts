@@ -54,6 +54,14 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
     }
 }
 
+// The default plugin handles any site that doesn't have an explicit plugin written for it.
+// Most of the actual logic for handling unknown pages will be delegated to the SiteActions class.
+class DefaultPlugin extends BaseSitePlugin {
+    constructor() {
+        super(window.location.hostname);
+    }
+}
+
 const pluginRegistry = new Map<string, { new(): I.SitePlugin }>();
 
 export function registerPlugin(plugin: { new(): I.SitePlugin; }, hostnameToMatch: string) {
@@ -71,6 +79,6 @@ export function getSitePlugin(hostname: string): I.SitePlugin {
             }
         }
     }
-    return plugin && new plugin();
+    return plugin ? new plugin() : new DefaultPlugin();
 }
 

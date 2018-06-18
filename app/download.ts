@@ -1,18 +1,15 @@
 import * as I from './definitions';
 import * as logger from './logger';
 import IntlMessageFormat from 'intl-messageformat';
+import { DownloadDestination } from './enums';
 
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
 
 const defaultPath = "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{author}.{extension}";
+const defaultContextPath = "raccoony/{siteName}/{author}/{filenameExt}";
 
-export interface DownloadSettings {
-    writeMetadata?: boolean;
-    downloadPath?: string;
-}
-
-export function downloadFile(media: I.Media, settings: DownloadSettings): Promise<I.DownloadResponse> {
+export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
     // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/downloads/FilenameConflictAction
     let conflictAction = "overwrite";
@@ -40,9 +37,11 @@ export function downloadFile(media: I.Media, settings: DownloadSettings): Promis
         });
 }
 
-function makeDownloadFilePath(media: I.Media, settings: DownloadSettings) {
+function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
     let path: string[]
-    let downloadPath = settings.downloadPath || defaultPath;
+    let downloadPath = media.downloadDestination === DownloadDestination.ContextMenuDefault
+        ? settings.contextDownloadPath || defaultContextPath
+        : settings.downloadPath || defaultPath;
     path = replacePathPlaceholders(downloadPath, media)
         .split('/')
         .filter(pathPart => !!(pathPart.trim()));
