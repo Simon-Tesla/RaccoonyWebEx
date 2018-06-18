@@ -1,25 +1,14 @@
-import { MessageRequest, QueryMediaResponse, QueryMediaRequest, isQueryMediaRequest } from "./definitions";
-import { MessageAction } from "./enums";
 import SiteActions from "./ui/siteActions";
 import { getSitePlugin } from "./plugins";
 import * as logger from './logger'
+import { initPageListeners } from "./ui/pageListeners";
 
-browser.runtime.onMessage.addListener((request: MessageRequest<any>, sender: browser.runtime.MessageSender) => {
-    if (isQueryMediaRequest(request)) {
-        const { srcUrl, mediaType } = request.data;
-        const sitePlugin = getSitePlugin(window.location.hostname);
-        if (sitePlugin) {
-            const actions = new SiteActions(sitePlugin);
+// Only need to set up the message listeners when handling context menu actions,
+// no need to show the overlay UI.
+const sitePlugin = getSitePlugin(window.location.hostname);
+let actions: SiteActions = null;
+if (sitePlugin) {
+    actions = new SiteActions(sitePlugin);
+}
 
-            return actions.getMediaForSrcUrl(srcUrl, mediaType)
-                .then(media => {
-                    logger.log('got media', media);
-                    return { media } as QueryMediaResponse
-                });
-        }
-        return Promise.resolve(null);
-    }
-    else if (request.action === MessageAction.PageContentScriptPresent) {
-        return Promise.resolve({ loaded: true });
-    }
-});
+initPageListeners(actions);
