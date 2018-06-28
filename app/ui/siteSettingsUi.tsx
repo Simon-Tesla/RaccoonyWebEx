@@ -129,6 +129,13 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                                 enabled={this.isEnabled('downloadPath')}
                             />
                         </SettingsRow>
+                        <SettingsRow  {...getRowProps('contextDownloadPath', "Right-click menu download path")}>
+                            <DownloadPath
+                                value={this.getSettingOrDefault('contextDownloadPath')}
+                                onChanged={(value) => this.setSetting('contextDownloadPath', value)}
+                                enabled={this.isEnabled('contextDownloadPath')}
+                            />
+                        </SettingsRow>
                         <SettingsRow  {...getRowProps('writeMetadata', "Save metadata file") }>
                             <Switch {...getSwitchProps('writeMetadata') } />
                         </SettingsRow>

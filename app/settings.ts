@@ -16,6 +16,10 @@ export const DefaultSiteSettings: I.SiteSettings = {
     contextDownloadPath: "raccoony/{siteName}/{author}/{filenameExt}",
 };
 
+export const DefaultExtensionSettings: I.ExtensionSettings = {
+    showContextMenu: true,
+};
+
 const DefaultSettingsKey = 'default_settings';
 
 const settingsVersion = 2;
@@ -90,7 +94,14 @@ export function saveDefaultSettings(defaultSettings: I.SiteSettings): Promise<vo
     return saveAllSettings(settings);
 }
 
-export function saveAllSettings(settings: Partial<I.AllSettings>): Promise<void> {
+export function saveExtensionSettings(extensionSettings: I.ExtensionSettings) {
+    const settings: Partial<I.PrimarySettings> = {
+        extension: extensionSettings,
+    }
+    return saveAllSettings(settings);
+}
+
+export function saveAllSettings(settings: Partial<I.AllSettings> | Partial<I.PrimarySettings>): Promise<void> {
     return browser.storage.local.set(settings as any)
         .then(() => logger.log("settings saved", settings))
         .catch((e) => {
@@ -152,6 +163,10 @@ export class CachedSettings {
 
     get ready() {
         return this.settingsPromise;
+    }
+
+    getExtensionSettings(): I.ExtensionSettings {
+        return Object.assign({}, DefaultExtensionSettings, this.settings.extension);
     }
 
     getSettings(siteKey: string) {
