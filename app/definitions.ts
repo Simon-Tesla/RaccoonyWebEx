@@ -81,6 +81,7 @@ export type AllSettings = PrimarySettings & PerSiteSettings;
 
 export interface PrimarySettings {
     version: Number;
+    extension: ExtensionSettings;
     default_settings: SiteSettings;
 }
 
@@ -108,7 +109,7 @@ export interface SiteSettings {
 }
 
 export interface ExtensionSettings {
-    firstRunVersion: string;
+    showContextMenu: boolean;
 }
 
 export interface AppState {

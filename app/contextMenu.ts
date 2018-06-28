@@ -9,6 +9,65 @@ enum ContextMenuItems {
     download = "download",
 }
 
+let contextMenuId: number | string = null;
+export async function initializeContextMenu(settingsProvider: CachedSettings) {
+    await settingsProvider.ready;
+    const extensionSettings = settingsProvider.getExtensionSettings();
+
+    browser.contextMenus.onClicked.addListener(contextMenuListener);
+
+    if (extensionSettings.showContextMenu) {
+        createMenu();
+    }
+
+    settingsProvider.addListener(settingsProvider => {
+        // Respond to changes in the settings to hide and show the menu
+        const hasMenu = !!contextMenuId;
+        const showContextMenu = settingsProvider.getExtensionSettings().showContextMenu;
+        if (hasMenu !== showContextMenu) {
+            if (showContextMenu) {
+                createMenu();
+            }
+            else {
+                removeMenu();
+            }
+        }
+    });
+
+    function contextMenuListener(info: browser.contextMenus.OnClickData, tab: browser.tabs.Tab) {
+        logger.log("handling context menu", info.menuItemId);
+        if (info.menuItemId === ContextMenuItems.download) {
+            return initiateContextDownload(tab, info.srcUrl, info.mediaType as MediaType)
+        }
+    }
+
+    async function initiateContextDownload(tab: browser.tabs.Tab, srcUrl: string, mediaType: MediaType) {
+        await loadContentScripts(tab);
+        // Ask the page about its media
+        const message: ContextDownloadRequest = {
+            action: MessageAction.PageContextDownload,
+            data: {
+                srcUrl,
+                mediaType
+            },
+        };
+        return browser.tabs.sendMessage(tab.id, message);
+    }
+
+    function createMenu() {
+        contextMenuId = browser.contextMenus.create({
+            id: ContextMenuItems.download,
+            title: "Download with Raccoony",
+            contexts: ['image', 'video', 'audio']
+        });
+    }
+
+    function removeMenu() {
+        browser.contextMenus.removeAll();
+        contextMenuId = null;
+    }
+}
+
 async function loadContentScripts(tab: browser.tabs.Tab): Promise<void> {
     // Check to see if we've already injected the content scripts before injecting them.
     const message: MessageRequest<void> = {
@@ -25,36 +84,3 @@ async function loadContentScripts(tab: browser.tabs.Tab): Promise<void> {
         await browser.tabs.executeScript(tab.id, { file: '/contextMenuInject.js' });
     }
 }
-
-export function initializeContextMenu(settingsProvider: CachedSettings) {
-    browser.contextMenus.onClicked.addListener(contextMenuListener);
-
-    browser.contextMenus.create({
-        id: ContextMenuItems.download,
-        title: "Download with Raccoony",
-        contexts: ['image', 'video', 'audio']
-    });
-
-    function contextMenuListener(info: browser.contextMenus.OnClickData, tab: browser.tabs.Tab) {
-        logger.log("handling context menu", info.menuItemId);
-        if (info.menuItemId === ContextMenuItems.download) {
-            return initiateContextDownload(tab, info.srcUrl, info.mediaType as MediaType)
-        }
-    }
-
-    function initiateContextDownload(tab: browser.tabs.Tab, srcUrl: string, mediaType: MediaType) {
-        return loadContentScripts(tab)
-            .then(() => {
-                // Ask the page about its media
-                const message: ContextDownloadRequest = {
-                    action: MessageAction.PageContextDownload,
-                    data: {
-                        srcUrl,
-                        mediaType
-                    },
-                };
-                return browser.tabs.sendMessage(tab.id, message);
-            });
-    }
-}
-

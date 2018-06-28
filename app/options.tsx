@@ -2,9 +2,10 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import * as I from './definitions';
 import SiteSettingsUi from './ui/siteSettingsUi';
-import { CachedSettings, DefaultSiteSettings, saveDefaultSettings, clearDefaultSettings, clearAllSettings, saveAllSettings } from './settings';
+import { CachedSettings, DefaultSiteSettings, saveDefaultSettings, clearDefaultSettings, clearAllSettings, saveAllSettings, saveExtensionSettings } from './settings';
 import ActionButton from './ui/page/actionButton';
 import { n } from './ui/page/common';
+import { MouseEvent } from 'react';
 
 document.addEventListener("DOMContentLoaded", () => {
     let rootElt = document.getElementById('app');
@@ -15,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 interface OptionsPageState {
     ready: boolean;
+    extensionSettings: I.ExtensionSettings;
     defaultSettings: I.SiteSettings;
     showReset: boolean;
 }
@@ -27,6 +29,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
         super(props, context);
         this.state = {
             ready: false,
+            extensionSettings: null,
             defaultSettings: null,
             showReset: false
         };
@@ -37,10 +40,12 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
     }
 
     onSettingsStoreUpdate = () => {
-        const settings = this.settings.getDefaultSettings();
+        const defaultSettings = this.settings.getDefaultSettings();
+        const extensionSettings = this.settings.getExtensionSettings();
         this.setState({
             ready: true,
-            defaultSettings: settings,
+            extensionSettings,
+            defaultSettings,
         })
     }
 
@@ -52,6 +57,16 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
         });
         saveDefaultSettings(settings)
             .catch(this.onSettingsStoreUpdate);
+    }
+
+    onClickShowContextMenu = (event: React.MouseEvent<HTMLInputElement>) => {
+        const value = event.currentTarget.checked;
+        this.setState(state => {
+            state.extensionSettings.showContextMenu = value;
+            saveExtensionSettings(state.extensionSettings)
+                .catch(this.onSettingsStoreUpdate);
+            return state;
+        });
     }
 
     onClickExport = () => {
@@ -122,6 +137,17 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                 <fieldset>
                     <legend>Advanced</legend>
                     <div>
+                        <div>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={this.state.extensionSettings.showContextMenu}
+                                    onClick={this.onClickShowContextMenu}
+                                />
+                                {" Show Raccoony in right-click menu"}
+                            </label>
+                        </div>
+
                         <ActionButton onClick={this.onClickImport}>
                             Import settings
                         </ActionButton>
