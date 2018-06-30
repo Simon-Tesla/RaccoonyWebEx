@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 (2018-07-@@)
+- Added support for downloading via right-click context menu from any website. The right-click menu option can be disabled in the global settings. Plugins can be written to enhance the support and allow for better metadata when saving.
+- Added tumblr context menu download metadata support [(issue #17)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/17).
+- Added support for Hentai Foundry [(issue #15)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/15)
+- Added button to open the global settings from the site settings panel in the overlay.
+- Added initial architecture support for multiple download destinations; currently this is only used to provide a different default path for right-click downloads, but may be expanded in the future.
+
 ## 1.1.5 (2018-05-20)
 - Fixed: leading dots allowed in filenames again [(issue #13)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/13)
 - Fixed: some site plugins didn't provide a siteFilename under all circumstances [(issue #14)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/14)
