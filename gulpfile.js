@@ -45,7 +45,8 @@ function autopack(filename) {
 gulp.task("pack_ext:inject", ["typescript:compile"], () => autopack("page_inject.js"));
 gulp.task("pack_ext:background", ["typescript:compile"], () => autopack("background.js"));
 gulp.task("pack_ext:options", ["typescript:compile"], () => autopack("options.js"));
-gulp.task("pack_ext", ["pack_ext:inject", "pack_ext:background", "pack_ext:options"]);
+gulp.task("pack_ext:context_inject", ["typescript:compile"], () => autopack("contextMenuInject.js"));
+gulp.task("pack_ext", ["pack_ext:inject", "pack_ext:background", "pack_ext:options", "pack_ext:context_inject"]);
 
 
 function createTasksForPlatform(platform) {

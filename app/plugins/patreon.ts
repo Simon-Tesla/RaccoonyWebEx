@@ -1,5 +1,6 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts, getLargestImageElement } from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors, getLargestImageElement } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "patreon";
@@ -63,7 +64,6 @@ export class PatreonPlugin extends BaseSitePlugin {
                     author: username,
                     filename: filename,
                     extension: ext,
-                    type: getFileTypeByExt(ext),
                     submissionId: id,
                     siteName: serviceName,
                     title: title,
@@ -111,3 +111,5 @@ export class PatreonPlugin extends BaseSitePlugin {
         return Promise.resolve(pageList);
     }
 }
+
+registerPlugin(PatreonPlugin, 'patreon.com');

@@ -1,11 +1,13 @@
 import * as I from './definitions';
 import * as logger from './logger';
 import IntlMessageFormat from 'intl-messageformat';
+import { DownloadDestination } from './enums';
 
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
 
 const defaultPath = "raccoony/{siteName}/{author}/{submissionId}_{filename}_by_{author}.{extension}";
+const defaultContextPath = "raccoony/{siteName}/{author}/{filenameExt}";
 
 export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<I.DownloadResponse> {
     // Prompt conflictAction not supported in Firefox:
@@ -37,7 +39,9 @@ export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<
 
 function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
     let path: string[]
-    let downloadPath = settings.downloadPath || defaultPath;
+    let downloadPath = media.downloadDestination === DownloadDestination.ContextMenuDefault
+        ? settings.contextDownloadPath || defaultContextPath
+        : settings.downloadPath || defaultPath;
     path = replacePathPlaceholders(downloadPath, media)
         .split('/')
         .filter(pathPart => !!(pathPart.trim()));
@@ -132,11 +136,18 @@ function replacePathPlaceholders(path: string, media: I.Media) {
     }
 
     let url = new URL(media.url);
+
+    const siteFilenameExt = (!media.extension || media.siteFilename.endsWith(media.extension))
+        ? media.siteFilename
+        : `${media.siteFilename}.${media.extension}`
+
     return cachedMsg.format({
         siteName: media.siteName,
         submissionId: media.submissionId,
         author: media.author,
         filename: media.filename,
+        filenameExt: media.extension ? `${media.filename}.${media.extension}` : media.filename,
+        siteFilenameExt: siteFilenameExt,
         siteFilename: media.siteFilename,
         extension: media.extension,
         type: media.type,

@@ -1,5 +1,7 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
+import { getFilenameParts } from '../utils/file';
 
 const serviceName = "inkbunny";
 
@@ -39,7 +41,6 @@ export class InkbunnyPlugin extends BaseSitePlugin {
             siteFilename: serviceFilename,
             submissionId: id,
             extension: ext,
-            type: getFileTypeByExt(ext),
             siteName: serviceName,
             title: title,
             description: description,
@@ -84,6 +85,8 @@ export class InkbunnyPlugin extends BaseSitePlugin {
         return Promise.resolve(linkList);
     }
 }
+
+registerPlugin(InkbunnyPlugin, 'inkbunny.net');
 
 function isSubmissionPage() {
     return window.location.href.indexOf("submissionview.php") !== -1 || window.location.pathname.indexOf('/s/') === 0;

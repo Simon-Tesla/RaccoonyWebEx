@@ -11,14 +11,8 @@
 // 0.2  2018-03-26  Modified for Raccoony 1.1.1
 
 import * as I from '../definitions';
-import {
-    default as BaseSitePlugin,
-    querySelector,
-    querySelectorAll,
-    getFileTypeByExt,
-    getPageLinksFromAnchors,
-    getFilenameParts
-} from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "shorpy";
@@ -320,7 +314,6 @@ export class ShorpyPlugin extends BaseSitePlugin {
             filename: cleanfilename,
             siteFilename: filenameext,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,
@@ -379,6 +372,8 @@ export class ShorpyPlugin extends BaseSitePlugin {
         return Promise.resolve(pageLinks);
     }
 }
+
+registerPlugin(ShorpyPlugin, 'shorpy.com');
 
 // Detect submission pages by page URL.
 // /node/[id] should be part of the path for individual submissions.

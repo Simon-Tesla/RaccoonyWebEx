@@ -13,14 +13,8 @@
 // 0.1  2018-04-01  Initial version, no joke!
 
 import * as I from '../definitions';
-import {
-    default as BaseSitePlugin,
-    querySelector,
-    querySelectorAll,
-    getFileTypeByExt,
-    getPageLinksFromAnchors,
-    getFilenameParts
-} from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "gfx";
@@ -275,7 +269,6 @@ export class GfxPlugin extends BaseSitePlugin {
             filename: cleanfilename,
             siteFilename: filenameext,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,
@@ -372,6 +365,8 @@ export class GfxPlugin extends BaseSitePlugin {
         return Promise.resolve(pageLinks);
     }
 }
+
+registerPlugin(GfxPlugin, 'gearfetishx.com');
 
 // Detect submission pages by page URL.
 // I think /m/photos/view/ is the only path for individual submissions.

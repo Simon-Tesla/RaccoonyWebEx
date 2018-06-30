@@ -1,12 +1,25 @@
 import * as E from './enums';
+import { MediaType } from './enums';
 
 export interface MessageRequest<T> {
     action: E.MessageAction;
     data?: T;
 }
 
+export interface ContextDownloadRequest extends MessageRequest<ContextDownloadData> {}
+
+export interface ContextDownloadData {
+    srcUrl: string,
+    mediaType: MediaType,
+}
+
+
 export interface DownloadResponse {
     success: boolean;
+}
+
+export function isContextDownloadRequest(o: MessageRequest<any>): o is ContextDownloadRequest {
+    return o.action === E.MessageAction.PageContextDownload;
 }
 
 export interface Media {
@@ -23,6 +36,7 @@ export interface Media {
     description?: string;
     tags?: string[];
     sourceUrl?: string;
+    downloadDestination?: E.DownloadDestination;
 }
 
 export interface PageLink {
@@ -43,9 +57,9 @@ export interface SitePlugin {
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
+    getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media>;
 
     //TODO: implement support for these
-    // downloadThisImage -- TODO: plugin API for handling tumblr/twitter, would pass dom element from context menu
     // previous
     // next
     // favorite
@@ -58,6 +72,7 @@ export interface UserActions {
     toggleFullscreen(): void;
     openOptions(): void;
     dismissOptions(): void;
+    showGlobalOptions(): void;
 }
 
 // TypeScript doesn't allow mixing string indexes with normal properties of different types in a single interface
@@ -66,6 +81,7 @@ export type AllSettings = PrimarySettings & PerSiteSettings;
 
 export interface PrimarySettings {
     version: Number;
+    extension: ExtensionSettings;
     default_settings: SiteSettings;
 }
 
@@ -89,10 +105,11 @@ export interface SiteSettings {
     tabLoadSortAsc?: boolean;
     downloadPath?: string;
     autoDownload?: boolean;
+    contextDownloadPath?: string;
 }
 
 export interface ExtensionSettings {
-    firstRunVersion: string;
+    showContextMenu: boolean;
 }
 
 export interface AppState {

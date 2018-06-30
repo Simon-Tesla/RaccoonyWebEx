@@ -1,5 +1,7 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
+import { getFilenameParts } from '../utils/file';
 
 const serviceName = "weasyl";
 
@@ -53,7 +55,6 @@ export class WeasylPlugin extends BaseSitePlugin {
             filename: filename,
             siteFilename: serviceFilename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,
@@ -81,3 +82,5 @@ export class WeasylPlugin extends BaseSitePlugin {
         return Promise.resolve(pageList);
     }
 }
+
+registerPlugin(WeasylPlugin, 'weasyl.com');

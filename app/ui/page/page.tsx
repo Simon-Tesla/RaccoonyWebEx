@@ -9,6 +9,7 @@ import SiteActions from '../siteActions'
 import { initializeHotkeys } from './hotkeys';
 import debounce from 'debounce';
 import { CachedSettings } from '../../settings';
+import { sendMessage, sendDownloadMediaMessage } from '../../utils/messaging';
 
 interface PageProps {
     siteActions: SiteActions;
@@ -105,7 +106,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
             }
 
             this.setState({ downloadState: E.DownloadState.InProgress });
-            sendMessage(E.MessageAction.Download, media)
+            sendDownloadMediaMessage(media)
                 .then((download: I.DownloadResponse) => {
                     // The download promise resolves when the download starts, not when it finishes.
                     // May want to figure out how to get the download end event.
@@ -137,6 +138,10 @@ export default class Page extends React.Component<PageProps, PageState> implemen
 
     dismissOptions = () => {
         this.setState({ showOptions: false });
+    }
+
+    showGlobalOptions = () => {
+        sendMessage(E.MessageAction.ShowGlobalOptions, {});
     }
 
     onClickFullscreen = () => {
@@ -215,7 +220,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     if (media && media.type === E.MediaType.Image) {
                         this.setState({ canFullscreen: true });
                     }
-                    sendMessage(E.MessageAction.CheckDownlod, media).then((isDownloaded: boolean) => {
+                    sendMessage(E.MessageAction.CheckDownload, media).then((isDownloaded: boolean) => {
                         if (isDownloaded) {
                             this.setState({ downloadState: E.DownloadState.Exists });
                         }
@@ -272,13 +277,4 @@ export default class Page extends React.Component<PageProps, PageState> implemen
     private handlePageChange = () => {
         this.initialize();
     }
-}
-
-function sendMessage<T>(action: E.MessageAction, data: T) {
-    let message: I.MessageRequest<T> = {
-        action,
-        data,
-    }
-    logger.log("sending message", message);
-    return browser.runtime.sendMessage(message);
 }

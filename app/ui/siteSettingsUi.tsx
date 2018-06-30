@@ -129,6 +129,13 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                                 enabled={this.isEnabled('downloadPath')}
                             />
                         </SettingsRow>
+                        <SettingsRow  {...getRowProps('contextDownloadPath', "Right-click menu download path")}>
+                            <DownloadPath
+                                value={this.getSettingOrDefault('contextDownloadPath')}
+                                onChanged={(value) => this.setSetting('contextDownloadPath', value)}
+                                enabled={this.isEnabled('contextDownloadPath')}
+                            />
+                        </SettingsRow>
                         <SettingsRow  {...getRowProps('writeMetadata', "Save metadata file") }>
                             <Switch {...getSwitchProps('writeMetadata') } />
                         </SettingsRow>
@@ -203,7 +210,9 @@ const placeholderList: [string, string][] = [
     ["submissionId", "the ID of the submission; site-dependent"],
     ["author", "the author/creator/artist of the submission"],
     ["filename", "the filename (without extension) of the submission; may be generated"],
-    ["siteFilename", "the original filename, including extension, if available"],
+    ["filenameExt", "the filename (including extension) of the submission; may be generated"],
+    ["siteFilename", "the original filename if available (may or may not include extension), or {filenameExt} if not"],
+    ["siteFilenameExt", "the original filename, always including extension, if available, or {filenameExt} if not"],
     ["extension", "the file extension (e.g. jpg, png)"],
     ["type", "the type of file; can be one of 'image', 'text', 'flash', 'video', 'audio' or 'unknown'"],
     ["title", "the title of the submission, if available"],

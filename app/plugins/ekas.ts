@@ -17,14 +17,8 @@
 //                  for the new plugin API.
 
 import * as I from '../definitions';
-import {
-    default as BaseSitePlugin,
-    querySelector,
-    querySelectorAll,
-    getFileTypeByExt,
-    getPageLinksFromAnchors,
-    getFilenameParts
-} from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "ekas";
@@ -230,7 +224,6 @@ export class EkasPlugin extends BaseSitePlugin {
             filename: cleanfilename,
             siteFilename: filenameext,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,
@@ -293,3 +286,5 @@ export class EkasPlugin extends BaseSitePlugin {
 function isSubmissionPage() {
     return window.location.href.indexOf("/aryion.com/g4/view/") !== -1;
 }
+
+registerPlugin(EkasPlugin, 'aryion.com');

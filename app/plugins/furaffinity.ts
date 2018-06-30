@@ -1,5 +1,7 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
+import { getFilenameParts } from '../utils/file';
 
 const serviceName = "furaffinity";
 
@@ -53,7 +55,6 @@ export class FuraffinityPlugin extends BaseSitePlugin {
             filename: filename,
             siteFilename: serviceFilename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             title: title,
             description: description,
             tags: tags
@@ -78,6 +79,8 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         });
     }
 }
+
+registerPlugin(FuraffinityPlugin, 'furaffinity.net');
 
 function getMediaUrls() {
     // Get the download button, if it exists

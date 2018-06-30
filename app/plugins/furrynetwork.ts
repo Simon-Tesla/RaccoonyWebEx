@@ -1,5 +1,6 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
 
 const serviceName = "furrynetwork";
@@ -59,7 +60,6 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
                         siteFilename: dlFilename,
                         filename: filename,
                         extension: ext,
-                        type: getFileTypeByExt(ext),
                         submissionId: id,
                         siteName: serviceName,
                         title: title,
@@ -87,3 +87,5 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
     //    });
     //}
 }
+
+registerPlugin(FurryNetworkPlugin, 'furrynetwork.com');

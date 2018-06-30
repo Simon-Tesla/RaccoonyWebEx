@@ -4,7 +4,10 @@ export enum MessageAction {
     OpenTabs = "messageaction_opentabs",
     ShowFile = "messageaction_showfile",
     OpenFile = "messageaction_openfile",
-    CheckDownlod = "messageaction_checkdownload",
+    CheckDownload = "messageaction_checkdownload",
+    ShowGlobalOptions = "messageaction_showoptions",
+    PageContextDownload = "messageaction_page_contextdownload",
+    PageContentScriptPresent = "messageaction_page_script_present",
 }
 
 export enum MediaType {
@@ -39,4 +42,10 @@ export enum DownloadState {
     Done,
     Exists,
     Error,
+}
+
+export enum DownloadDestination {
+    Default = 0,
+    ContextMenuDefault,
+    // TODO: add support for custom download destinations
 }

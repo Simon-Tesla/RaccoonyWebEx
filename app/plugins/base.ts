@@ -26,6 +26,10 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         return Promise.resolve(null);
     }
 
+    getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {
+        return Promise.resolve(null);
+    }
+
     getPageLinkList(): Promise<I.PageLinkList> {
         return Promise.resolve(null);
     }
@@ -50,85 +54,31 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
     }
 }
 
-//TODO: should probably move these somewhere else
-export function querySelectorAll<T extends HTMLElement>(selector: string, scope?: HTMLElement): T[] {
-    let list = <NodeListOf<T>>((scope || document).querySelectorAll(selector));
-    return Array.from(list);
+// The default plugin handles any site that doesn't have an explicit plugin written for it.
+// Most of the actual logic for handling unknown pages will be delegated to the SiteActions class.
+class DefaultPlugin extends BaseSitePlugin {
+    constructor() {
+        super(window.location.hostname);
+    }
 }
 
-export function querySelector<T extends HTMLElement>(selector: string, scope?: HTMLElement): T {
-    return <T>((scope || document).querySelector(selector));
+const pluginRegistry = new Map<string, { new(): I.SitePlugin }>();
+
+export function registerPlugin(plugin: { new(): I.SitePlugin; }, hostnameToMatch: string) {
+    pluginRegistry.set(hostnameToMatch, plugin);
 }
 
-const MinimumImageElementSizeThreshold = 300 * 300;
+export function getSitePlugin(hostname: string): I.SitePlugin {
+    let plugin = pluginRegistry.get(hostname);
 
-export function getLargestImageElement(thresholdPx: number = MinimumImageElementSizeThreshold, selector: string | HTMLElement = document.body) {
-    let candidates: HTMLImageElement[];
-    if (typeof selector === 'string') {
-        candidates = Array.from(document.querySelectorAll(selector + ' img'));
-    }
-    else {
-        candidates = Array.from(selector.getElementsByTagName('img'));
-    }
-    let largestImg = null;
-    let imgSize = thresholdPx;
-    candidates.forEach((img) => {
-        const currSize = img.naturalWidth * img.naturalHeight;
-        if (currSize > imgSize) {
-            largestImg = img;
-            imgSize = currSize
+    if (!plugin) {
+        for (let [key, val] of pluginRegistry) {
+            if (hostname.endsWith(key)) {
+                plugin = val;
+                break;
+            }
         }
-    });
-    return largestImg;
-}
-
-export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string) => string): I.PageLink[] {
-    return links.map(linkElt => {
-        let href = linkElt.href;
-        let id = getIdFromSubmissionUrl(href);
-
-        let link: I.PageLink = {
-            url: href,
-            submissionId: id,
-        };
-        return link;
-    });
-}
-
-export function getFilenameParts(filename: string) {
-    const extIndex = filename.lastIndexOf(".");
-    let ext = '';
-    if (extIndex !== -1) {
-        ext = filename.substring(extIndex + 1);
-        filename = filename.substring(0, extIndex);
-
     }
-    return {
-        ext,
-        filename,
-    }
+    return plugin ? new plugin() : new DefaultPlugin();
 }
 
-let fileTypes: [MediaType, string[]][] = [
-    [MediaType.Image, ['jpg', 'jpeg', 'png', 'gif']],
-    [MediaType.Text, ['txt', 'rtf', 'doc', 'docx', 'odf']],
-    [MediaType.Flash, ['swf']],
-    [MediaType.Video, ['mpeg', 'mpg', 'mp4', 'avi', 'divx', 'mkv', 'flv', 'mov', 'wmv']],
-    [MediaType.Audio, ['wav', 'mp3', 'm4a', 'flac', 'ogg', 'wma']]
-];
-
-// Create extension to type mapping
-let extensionToTypeMap = (() => {
-    let extMap: { [ext: string]: MediaType } = {};
-    fileTypes.forEach(typeTuple => {
-        const [type, extensions] = typeTuple;
-        extensions.forEach(ext => {
-            extMap[ext] = type;
-        })
-    })
-    return extMap;
-})();
-
-export function getFileTypeByExt(ext: string): MediaType {
-    return extensionToTypeMap[ext] || MediaType.Unknown;
-}

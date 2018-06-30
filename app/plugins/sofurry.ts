@@ -1,5 +1,6 @@
 import * as I from '../definitions';
-import { default as BaseSitePlugin, querySelector, querySelectorAll, getFileTypeByExt, getPageLinksFromAnchors, getFilenameParts } from './base';
+import { default as BaseSitePlugin, registerPlugin } from './base';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 
 const serviceName = "sofurry";
 
@@ -47,7 +48,6 @@ export class SofurryPlugin extends BaseSitePlugin {
             filename: filename,
             siteFilename: siteFilename,
             extension: ext,
-            type: getFileTypeByExt(ext),
             submissionId: id,
             siteName: serviceName,
             title: title,
@@ -78,3 +78,5 @@ export class SofurryPlugin extends BaseSitePlugin {
         return Promise.resolve(pageLinks);
     }
 }
+
+registerPlugin(SofurryPlugin, 'sofurry.com');
