@@ -72,10 +72,15 @@ const ValidExtensions: { [type: string]: string[] } = {
     ]
 }
 
-export function isValidExtension(extension: string, mediaType: MediaType) {
+export function isValidExtensionForType(extension: string, mediaType: MediaType) {
     extension = extension.toLowerCase();
     const validExts = ValidExtensions[mediaType] || [];
     return validExts.some(e => e === extension);
+}
+
+export function isValidExtension(extension: string) {
+    return Object.getOwnPropertyNames(ValidExtensions)
+        .some(type => isValidExtensionForType(extension, type as MediaType))
 }
 
 const MimeTypeExtensionMap = {

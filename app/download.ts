@@ -141,7 +141,7 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         ? media.siteFilename
         : `${media.siteFilename}.${media.extension}`
 
-    return cachedMsg.format({
+    const vars = {
         siteName: media.siteName,
         submissionId: media.submissionId,
         author: media.author,
@@ -153,5 +153,12 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         type: media.type,
         title: media.title,
         domain: url.hostname,
+    };
+
+    Object.getOwnPropertyNames(vars).forEach(k => {
+        // Sanitize any significant path characters from the variables to substitute.
+        vars[k] = sanitizePath(`${vars[k]}`);
     });
+
+    return cachedMsg.format(vars);
 }
