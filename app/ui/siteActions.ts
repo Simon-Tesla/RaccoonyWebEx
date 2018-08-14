@@ -4,7 +4,7 @@ import { MediaType, TabLoadOrder, DownloadDestination } from '../enums';
 import * as Settings from '../settings';
 import { getFileTypeByExt } from '../utils/filenames';
 import { Media } from '../definitions';
-import { getFilenameParts, isValidExtension, getExtensionFromMimeType } from '../utils/file';
+import { getFilenameParts, isValidExtensionForType, getExtensionFromMimeType, isValidExtension } from '../utils/file';
 
 //TODO: rename this to something like SiteDataProvider
 export default class SiteActions {
@@ -22,21 +22,22 @@ export default class SiteActions {
         return `${this.siteName}_settings`;
     }
 
-    getMedia(): Promise<I.Media> {
-        return this.plugin.getMedia()
-            .then(media => {
-                if (media) {
-                    if (media.extension && !media.type) {
-                        media.type = getFileTypeByExt(media.extension);
-                    }
-                    media.siteName = this.siteName;
-                    media.sourceUrl = window.location.href;
-                    media.siteFilename = media.siteFilename || `${media.filename}.${media.extension}`;
-                    media.previewUrl = media.previewUrl || media.url;
-                    media.author = media.author || "unknown";
-                }
-                return media;
-            })
+    async getMedia(): Promise<I.Media> {
+        let media = await this.plugin.getMedia();
+        if (media) {
+            const hasSiteFilename = !!media.siteFilename;
+            media = await ensureMediaHasFilenameAndExtension(media);
+            media.siteName = this.siteName;
+            media.sourceUrl = window.location.href;
+            if (!hasSiteFilename) {
+                // To avoid breaking compatibility with old filename behavior, we override the siteFilename returned 
+                // by ensureMediaHasFilenameAndExtension() if one wasn't returned by the site plugin.
+                media.siteFilename = `${media.filename}.${media.extension}`;
+            }
+            media.previewUrl = media.previewUrl || media.url;
+            media.author = media.author || "unknown";
+            return media;
+        }
     }
 
     async getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {
@@ -111,19 +112,21 @@ export default class SiteActions {
 
 
 async function ensureMediaHasFilenameAndExtension(media: Media) {
-    const itemUrl = new URL(media.url);
-    const itemFile = itemUrl.pathname.split('/').pop();
-
-    media = Object.assign({
-        siteFilename: itemFile
-    }, media);
+    if (!media.siteFilename) {
+        // Construct the siteFilename from the image URL if it isn't specified
+        const itemUrl = new URL(media.url);
+        media.siteFilename = itemUrl.pathname.split('/').pop();
+    }
 
     const { filename, ext } = getFilenameParts(media.siteFilename);
-    media.filename = media.filename || filename;
+    if (!media.filename) {
+        // Set the filename if needed
+        media.filename = filename;
+    }
 
     if (!media.extension) {
         // Try to figure out the file's proper extension
-        if (isValidExtension(ext, media.type)) {
+        if (ext && (media.type ? isValidExtensionForType(ext, media.type) : isValidExtension(ext))) {
             // Try to use the extension in the filename if it is present.
             media.extension = ext;
         }
@@ -141,6 +144,10 @@ async function ensureMediaHasFilenameAndExtension(media: Media) {
                 // swallow exceptions
             }
         }
+    }
+    if (!media.type && media.extension) {
+        // Ensure that we populate the media type
+        media.type = getFileTypeByExt(media.extension);
     }
     return media;
 }

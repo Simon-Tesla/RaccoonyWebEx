@@ -2,6 +2,7 @@ import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
 import { querySelectorAll, querySelector, getPageLinksFromAnchors, getLargestImageElement } from '../utils/dom';
 import * as logger from '../logger';
+import { isValidExtensionForType, isValidExtension } from '../utils/file';
 
 const serviceName = "patreon";
 
@@ -30,10 +31,14 @@ export class PatreonPlugin extends BaseSitePlugin {
                 }
                 let url = new URL(image.src);
 
-                // Patreon image URLs look like so:
+                // Patreon image URLs usually look like so:
                 // https://cdn3.patreon.com/1/patreon.posts/#####.jpg?v=####                    
                 let extIndex = url.pathname.lastIndexOf(".");
                 let ext = url.pathname.substring(extIndex + 1);
+                // Some newer patreon URLs don't contain extensions in them; leave it null if it doesn't
+                if (ext && (extIndex > -1 || !isValidExtension(ext))) {
+                    ext = null;
+                }
 
                 // Get the filename
                 // Patreon page URLs look like so:

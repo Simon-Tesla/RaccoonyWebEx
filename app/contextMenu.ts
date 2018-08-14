@@ -1,7 +1,7 @@
 import { MessageAction, MediaType } from "./enums";
 import { Media, MessageRequest, ContextDownloadData, ContextDownloadRequest } from "./definitions";
 import { downloadFile } from "./download";
-import { getFilenameParts, getExtensionFromMimeType, isValidExtension } from "./utils/file";
+import { getFilenameParts, getExtensionFromMimeType } from "./utils/file";
 import * as logger from './logger';
 import { CachedSettings } from "./settings";
 
