@@ -5,12 +5,13 @@ const del = require("del");
 const exists = require("path-exists").sync;
 const merge = require("gulp-merge-json");
 const ts = require("gulp-typescript");
+const webExt = require("web-ext").default;
 
 const outputDir = 'dist';
 const packageName = 'raccoony';
 
 gulp.task("clean", () => {
-    return del([outputDir]);
+    return del([`${outputDir}/ext/`].concat(['chrome', 'firefox'].map(d => `${outputDir}/ext_${d}`)));
 });
 
 
@@ -77,7 +78,25 @@ createTasksForPlatform("chrome");
 createTasksForPlatform("firefox");
 gulp.task("build", ["build:chrome", "build:firefox"]);
 
+gulp.task("sign", ["build"], () => {
+    webExt.cmd.sign(
+        {
+            sourceDir: `${outputDir}/ext_firefox`,
+            artifactsDir: `${outputDir}`,
+            apiKey: process.env.AMO_USER,
+            apiSecret: process.env.AMO_SECRET,
+        },
+        {
+            shouldExitProgram: false
+        })
+        .then((extensionRunner) => {
+            console.log(extensionRunner);
+        }).catch((error) => {
+            throw error;
+        });
+});
 
 // Default task
 
 gulp.task("default", ["build"]);
+
