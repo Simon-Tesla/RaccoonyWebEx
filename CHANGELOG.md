@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 (2019-02-17)
+- Fixed deviantArt plugin [(issue #27)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/27).
+- Fixed path sanitization to only sanitize parts of a path that contain a non-empty string.
+- Added an alternate (experimental) Open in Tabs mode that opens tabs one at a time. This should help keep Firefox responsive when using Open in Tabs on a page with a lot of media links. Known issue: no way to stop tabs from loading except by exiting the browser completely.
+
 ## 1.2.1 (2018-08-25)
 - Added support for downloading via right-click context menu from any website. The right-click menu option can be disabled in the global settings. Plugins can be written to enhance the support and allow for better metadata when saving.
 - Added tumblr context menu download metadata support [(issue #17)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/17).
