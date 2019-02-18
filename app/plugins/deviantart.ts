@@ -27,6 +27,8 @@ export class DeviantArtPlugin extends BaseSitePlugin {
         // http://img12.deviantart.net/64ca/i/2015/273/f/9/[filename]_by_[user]-d9bi7fp.jpg
         // Or it can also look like this:
         // http://orig15.deviantart.net/412a/f/2015/277/4/1/41dc9b8a50185effd6956ef62b506458-d9bxb8s.png
+        // Or this:
+        // https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/intermediary/f/0d9851f9-7e0b-4b32-aa93-5a999e8bdd04/dcqr0g8-c5443142-1dd0-4f0a-8810-6635620e5398.jpg/v1/fill/w_1024,h_1366,q_70,strp/rose_monster_hunter_oc_by_inkit89_dcqr0g8-fullview.jpg
 
         let img: HTMLImageElement = querySelector("img.dev-content-full") || querySelector("img.dev-content-normal");
         let previewUrl = img && img.src;
@@ -38,24 +40,32 @@ export class DeviantArtPlugin extends BaseSitePlugin {
             // Get the download button URL
             // dA URLs look like so:
             // http://www.deviantart.com/download/[id]/[filename]_by_[username].[ext]?token=XX&ts=XX
+            // or this:
+            // https://www.deviantart.com/download/770524424/dcqr0g8-c5443142-1dd0-4f0a-8810-6635620e5398?token=14ab17518a8bd0b9254fd889bd572190afb4ec73&ts=1550460389
             url = button.getAttribute("href");
+
             //console.log("submission url", url);
             // Get the filename
             let urlObj = new URL(url);
             let path = urlObj.pathname.split("/");
-            serviceFilename = filename = path.pop();
-            //console.log("submission filename 1", filename);
 
-            // De-munge the filename
-            ext = filename.split(".").pop();
-            let byIdx = filename.lastIndexOf("_by_");
-            filename = filename.substring(0, byIdx);
-            //console.log("submission filename 2", filename, byIdx);
+            if (path[3].includes("_by_")) {
+                // Parse the old-style dA download URL
+                serviceFilename = filename = path.pop();
+                //console.log("submission filename 1", filename);
 
-            id = path.pop();
+                // De-munge the filename
+                ext = filename.split(".").pop();
+                let byIdx = filename.lastIndexOf("_by_");
+                filename = filename.substring(0, byIdx);
+                //console.log("submission filename 2", filename, byIdx);
 
-        } else if (previewUrl) {
-            // The deviant disabled the download button, so let's just grab the url from the image.
+                id = path.pop();
+            }
+        }
+
+        if (!serviceFilename && previewUrl) {
+            // The deviant disabled the download button or it's a newer style of download URL, so let's just grab the url from the image.
             url = previewUrl;
 
             // De-munge the filename.
@@ -64,7 +74,6 @@ export class DeviantArtPlugin extends BaseSitePlugin {
             let byIdx = filename.lastIndexOf("_by_");
             //console.log("submission filename 1", filename, byIdx);
             filename = filename.substring(0, byIdx);
-
 
             if (!filename) {
                 // This didn't work, so we probably have the second form of URL.
