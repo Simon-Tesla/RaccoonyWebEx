@@ -24,6 +24,11 @@ export enum TabLoadOrder {
     Page = "page",
 }
 
+export enum TabLoadType {
+    Placeholder = "Placeholder",
+    Timer = "Timer"
+}
+
 export enum IconGlyph {
     Download = "\u{25BC}",
     Exists = "\u{2713}",
