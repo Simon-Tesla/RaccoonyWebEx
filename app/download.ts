@@ -157,7 +157,7 @@ function replacePathPlaceholders(path: string, media: I.Media) {
 
     Object.getOwnPropertyNames(vars).forEach(k => {
         // Sanitize any significant path characters from the variables to substitute.
-        vars[k] = sanitizePath(`${vars[k]}`);
+        vars[k] = vars[k] && sanitizePath(`${vars[k]}`);
     });
 
     return cachedMsg.format(vars);
