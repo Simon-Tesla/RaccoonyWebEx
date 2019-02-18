@@ -103,6 +103,7 @@ export interface SiteSettings {
     tabLoadDelay?: number;
     tabLoadSortBy?: E.TabLoadOrder;
     tabLoadSortAsc?: boolean;
+    tabLoadType?: E.TabLoadType;
     downloadPath?: string;
     autoDownload?: boolean;
     contextDownloadPath?: string;
