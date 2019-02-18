@@ -1,6 +1,6 @@
 {
   "name": "raccoony-webextension",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "A WebExtension for adding shiny features to art websites",
   "repository": {
     "type": "git",
@@ -11,6 +11,7 @@
   },
   "author": "Simon-Tesla <simon.tesla@thornvalley.com>",
   "license": "MIT",
+  "private": true,
   "dependencies": {
     "classnames": "^2.2.6",
     "debounce": "^1.2.0",
