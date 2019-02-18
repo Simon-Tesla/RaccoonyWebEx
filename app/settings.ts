@@ -1,6 +1,6 @@
 import * as I from './definitions';
 import * as logger from './logger';
-import { MediaType, TabLoadOrder } from './enums';
+import { MediaType, TabLoadOrder, TabLoadType } from './enums';
 
 // Do not introduce settings unless they are used, in order to avoid introducing bad default settings.
 export const DefaultSiteSettings: I.SiteSettings = {
@@ -11,6 +11,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
     tabLoadDelay: 1,
     tabLoadSortBy: TabLoadOrder.Date,
     tabLoadSortAsc: true,
+    tabLoadType: TabLoadType.Placeholder,
     writeMetadata: false,
     autoDownload: false,
     contextDownloadPath: "raccoony/{siteName}/{author}/{filenameExt}",
@@ -22,7 +23,7 @@ export const DefaultExtensionSettings: I.ExtensionSettings = {
 
 const DefaultSettingsKey = 'default_settings';
 
-const settingsVersion = 2;
+const settingsVersion = 3;
 
 export function getSiteKeyFromName(siteName: string) {
     return siteName.endsWith('_settings') ? siteName : `${siteName}_settings`;

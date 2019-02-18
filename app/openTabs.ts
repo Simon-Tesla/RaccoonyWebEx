@@ -14,11 +14,17 @@ export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSet
 
     const delaySecs = settings.tabLoadDelay || defaultDelaySecs;
     list.forEach((page, idx) => {
-        openMediaInTab(page, idx * delaySecs);
+        if (settings.tabLoadType === E.TabLoadType.Timer) {
+            openMediaInTabAfterDelay(page, (idx * delaySecs));
+        }
+        else {
+            openMediaInPlaceholderTab(page, (idx * delaySecs));
+        }
     });
 }
 
-function openMediaInTab(media: I.PageLink, delay: number) {
+function openMediaInPlaceholderTab(media: I.PageLink, delay: number) {
+    // If the delay is > 0, opens a placeholder tab that will eventually load the real page.
     let url = delay === 0
         ? media.url
         : `${browser.extension.getURL("delayload.html")}?url=${encodeURIComponent(media.url)}&delay=${delay}`;
@@ -26,4 +32,15 @@ function openMediaInTab(media: I.PageLink, delay: number) {
         url: url,
         active: false,
     })
+}
+
+function openMediaInTabAfterDelay(media: I.PageLink, delay: number) {
+    // Opens the page in the current active window after the specified delay.
+    // TODO: Need to check whether the requesting has been closed, or have a page or UI that can pause/stop the process
+    setTimeout(() => {
+        browser.tabs.create({
+            url: media.url,
+            active: false,
+        })
+    }, delay * 1000);
 }
