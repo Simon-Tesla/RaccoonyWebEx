@@ -15,6 +15,8 @@
 //                  less hand-parsing of HTML.
 // 0.3  2017-11-24  (SimonTesla) Added Typescript typings and adapted
 //                  for the new plugin API.
+// 0.4  2019-10-27  Modified to handle new thumbnail box that displays
+//                  on some submission pages.
 
 import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
@@ -134,7 +136,7 @@ export class EkasPlugin extends BaseSitePlugin {
         }
         logger.log("ekas: filename+ext", filenameext);
         if (!filenameext) {
-            // If we've gotten to the point that we don't have a filename, 
+            // If we've gotten to the point that we don't have a filename,
             // then this must not be a regular submission page.
             return Promise.resolve(null);
         }
@@ -201,20 +203,46 @@ export class EkasPlugin extends BaseSitePlugin {
         //
 
         // Lives inside otherwise unnamed <p></p> tags, insde a
-        // <div class="g-box-contents">.  However, there are three
-        // divs of that class - the first one with id="sized note",
-        // the second one with no id (the one we want), and the
-        // third one with id="comment-box".
-        // Probably we should check the IDs, but just grab the
-        // second one.
+        // <div class="g-box-contents">.  However, there are multiple
+        // divs of that class.  The first one always has id="sized-note".
+        //
+        // If the page *has* the thumbnail box under the main image, the
+        // second div, with no id, will be for the thumbnail box, and the
+        // third div, with no id, will be the one we want.  Both the
+        // second and third divs may have <p> tags in them.
+        //
+        // If the page *does not have* the thumbnail box, the second div,
+        // with no id, will be the one we want.
+        //
+        // There may be additional divs of that class below that,
+        // depending on if there are any comments on the submission.
+        //
+        // Grab the second div of that class.  Get all the <p>s, but
+        // also check for an <ol> in it.
         let gbox = document.getElementsByClassName('g-box-contents')[1];
-        logger.log("ekas: description gbox:", gbox.innerHTML);
-
-        // The description "should" always be the very last <p> in
-        // the div, so get them all and then take the last one.
         let plist = gbox.querySelectorAll("p");
-        let plen = plist.length;
-        let description = plist[plen - 1].textContent;
+        let ollist = gbox.querySelectorAll("ol");
+        logger.log("ekas: trying first gbox");
+
+        // If there is an <ol>, this is the thumbnail box, move on to
+        // the third div.  (This assumes that the description can't ever
+        // have an <ol> in it.)
+        if(ollist.length > 0) {
+            gbox = document.getElementsByClassName('g-box-contents')[2];
+            plist = gbox.querySelectorAll("p");
+            logger.log("ekas: trying second gbox");
+        }
+
+        // If we get here and haven't found any <p>, give up.
+        if(plist.length == 0)  {
+            logger.log("ekas: couldn't find description");
+            return Promise.resolve(null);
+        }
+
+        // If we get here, there should be at least one <p> in plist.
+        // The description "should" always be the very last <p> in
+        // the div, so take the last one.
+        let description = plist[plist.length - 1].textContent;
         logger.log("ekas: description:", description);
 
         let media: I.Media = {
