@@ -9,6 +9,7 @@
 // History of this plugin:
 // 0.1  2018-03-26  Initial version for Raccoony 1.0.1
 // 0.2  2018-03-26  Modified for Raccoony 1.1.1
+// 0.3  2019-06-29  Modified for Shorpy.com redesign in spring 2019
 
 import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
@@ -130,8 +131,11 @@ export class ShorpyPlugin extends BaseSitePlugin {
         // Title is available in the title tag.
         // Title varies, though, between full-size pages
         // <title>Shorpy Historic Picture Archive :: [title]: [year] high-resolution photo</title>
-        // and preview pages
+        // and preview pages.  Before spring 2019, the preview page titles
+        // looked like
         // <title>[title]: [year] | Shorpy | #1 Old Photos</title>
+        // , but since then, they look like
+        // <title>[title]: [year] | Shorpy Old Photos | Vintage Photography</title>
 
         let titlewithyear = '';
         let doctitle = document.title;
@@ -151,7 +155,7 @@ export class ShorpyPlugin extends BaseSitePlugin {
             // Preview page
 
             // Cut off the constant text at the end.
-            titlewithyear = doctitle.replace(" | Shorpy | #1 Old Photos", "");
+            titlewithyear = doctitle.replace(" | Shorpy Old Photos | Vintage Photography", "");
             logger.log("shorpy: title with year", titlewithyear);
         }
 
