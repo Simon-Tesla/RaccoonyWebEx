@@ -3,7 +3,11 @@ import * as E from './enums';
 
 const defaultDelaySecs = 1;
 
-export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSettings) {
+type OpenInTabsOptions = {
+    windowId: number,
+}
+
+export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSettings, options: OpenInTabsOptions) {
     let list = pageList.list;
     if (pageList.sortable && settings.tabLoadSortBy === E.TabLoadOrder.Date) {
         list.sort((a, b) => parseInt(a.submissionId) - parseInt(b.submissionId));
@@ -15,7 +19,7 @@ export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSet
     const delaySecs = settings.tabLoadDelay || defaultDelaySecs;
     list.forEach((page, idx) => {
         if (settings.tabLoadType === E.TabLoadType.Timer) {
-            openMediaInTabAfterDelay(page, (idx * delaySecs));
+            openMediaInTabAfterDelay(page, (idx * delaySecs), options);
         }
         else {
             openMediaInPlaceholderTab(page, (idx * delaySecs));
@@ -34,13 +38,14 @@ function openMediaInPlaceholderTab(media: I.PageLink, delay: number) {
     })
 }
 
-function openMediaInTabAfterDelay(media: I.PageLink, delay: number) {
+function openMediaInTabAfterDelay(media: I.PageLink, delay: number, options: OpenInTabsOptions) {
     // Opens the page in the current active window after the specified delay.
-    // TODO: Need to check whether the requesting has been closed, or have a page or UI that can pause/stop the process
+    // TODO: Do we need to check if the window that started the process is still there before specifying windowId?
     setTimeout(() => {
         browser.tabs.create({
             url: media.url,
             active: false,
+            windowId: options.windowId,
         })
     }, delay * 1000);
 }
