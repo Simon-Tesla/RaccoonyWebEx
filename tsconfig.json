@@ -13,6 +13,7 @@
     "rootDir": ".",
     "noEmitOnError": false,
     "noImplicitThis": true,
+    "outDir": "build",
     "jsx": "react",
     "typeRoots": [
       "node_modules/@types",

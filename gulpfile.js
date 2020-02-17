@@ -7,13 +7,20 @@ const merge = require("gulp-merge-json");
 const ts = require("gulp-typescript");
 const webExt = require("web-ext").default;
 
+const extSourceDir = 'app'; //TODO: move under src or something to be consistent
+const jsOutDir = 'build';
 const outputDir = 'dist';
 const packageName = 'raccoony';
 
-gulp.task("clean", () => {
+gulp.task("clean", ["clean:source", "clean:dist"]);
+
+gulp.task("clean:dist", () => {
     return del([`${outputDir}/ext/`].concat(['chrome', 'firefox'].map(d => `${outputDir}/ext_${d}`)));
 });
 
+gulp.task("clean:source", () => {
+    return del([jsOutDir])
+})
 
 gulp.task("copy_ext", ["clean"], () => {
     // TODO: figure out how to get the typings to work when including browser-polyfill as a module
@@ -27,16 +34,16 @@ gulp.task("typescript:compile", ["clean"], () => {
     // https://github.com/ivogabe/gulp-typescript
     var failed = false;
     var tsProject = ts.createProject('tsconfig.json');
-    var tsResult = gulp.src(['app/**/*.ts', 'app/**/*.tsx'])
+    var tsResult = gulp.src([`${extSourceDir}/**/*.ts`, `${extSourceDir}/**/*.tsx`])
         .pipe(tsProject())
         .on("error", function () { failed = true; })
         .on("finish", function () { failed && process.exit(1); });
 
-    return tsResult.js.pipe(gulp.dest(`app/`));
+    return tsResult.js.pipe(gulp.dest(`${jsOutDir}/`));
 })
 
 function autopack(filename) {
-    return gulp.src([`app/${filename}`])
+    return gulp.src([`${jsOutDir}/${filename}`])
         .pipe(webpack({
             "output": { filename }
         }))

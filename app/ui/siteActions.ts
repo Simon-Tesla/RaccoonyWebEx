@@ -2,7 +2,7 @@ import * as I from '../definitions';
 import * as logger from '../logger';
 import { MediaType, TabLoadOrder, DownloadDestination } from '../enums';
 import * as Settings from '../settings';
-import { getFileTypeByExt } from '../utils/filenames';
+import { getFileTypeByExt } from '../utils/file';
 import { Media } from '../definitions';
 import { getFilenameParts, isValidExtensionForType, getExtensionFromMimeType, isValidExtension } from '../utils/file';
 
