@@ -7,6 +7,8 @@
 
 As you've undoubtably noticed, Raccoony updates have been fairly sparse lately. If you're familiar with Javascript/Typescript and have an interest in browser extension development, I welcome contributions.
 
+The [wiki](https://github.com/Simon-Tesla/RaccoonyWebEx/wiki) contains additional documentation that you may find helpful.
+
 [TODO: add overview of Raccoony's architecture, links to documentation]
 
 ## Don't have an idea?
