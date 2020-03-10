@@ -2,6 +2,7 @@ import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
 import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import { getFilenameParts } from '../utils/file';
+import * as logger from '../logger';
 
 const serviceName = "furaffinity";
 
@@ -18,22 +19,53 @@ export class FuraffinityPlugin extends BaseSitePlugin {
             return Promise.resolve(null);
         }
 
-        // FA download URLs look like so:
-        // http://d.facdn.net/art/[username]/[id]/[id].[username]_[origfilename].[ext]	
-        // Preivew URLs look like so:
+        // FA download URLs vary a bit depending on the submission type:
+        //
+        // art   https://d.facdn.net/art/[username]/[id1]/[id2].[username]_[origfilename].[ext]
+        // music https://d.facdn.net/art/[username]/music/[id1]/[id2].[username]_[origfilename].[ext]
+        // story https://d.facdn.net/art/[username]/stories/[id1]/[id2].[username]_[origfilename].[ext]
+        //
+        // id1 and id2 can be slightly different numbers.  In limited
+        // testing, I (Eupeptic) think id1 and id2 are equal if the artist
+        // uploaded the submission and then never updated it.  If the
+        // artist does update the sumbission, id2 stays the same, but id1
+        // changes to a larger number.  I've seen id1 be as much as 475
+        // and as little as 1 larger than id2.  I'm not sure if id1 can
+        // be smaller than id2, but I think this is unlikely.  I have seen
+        // them differ on files uploaded before the new FA UI on
+        // 2019-12-31, so I don't think it's related to the UI change.
+
+        // Preview URLs look like this:
         // //t.facdn.net/22795737@400-[id].[ext]
+        // Yes, the protocol is missing.
+        // They don't seem to vary by submission type.
+        // The 400- can also be 200- or 800- , which probably sets the
+        // thumbnail size.
+
         let urlParts = url.split("/");
         let serviceFilename = urlParts[urlParts.length - 1];
         let { filename, ext } = getFilenameParts(serviceFilename);
+        // Take id2 here.  Since it's part of the filename on FA,
+        // hopefully that's the right choice.
         let id = urlParts[urlParts.length - 2];
-        let username = urlParts[urlParts.length - 3];
+        // let username = urlParts[urlParts.length - 3];
+
+        // 0      1      2           3   4
+        // https: (null) d.facdn.net art [username]
+        let username = urlParts[4];
+        logger.log("fa: urlParts and length ", urlParts, urlParts.length);
+        logger.log("fa: username ", username);
 
         // Strip off the ID from the filename, so that it doesn't get repeated when saved.
         filename = getOriginalFilename(filename, username);
 
         if (!ext) {
-            // In rare cases, we don't even end up with an extension. 
+            // In rare cases, we don't even end up with an extension.
             // We'll use the preview image extension and default to jpg if all else fails.
+            // FIXME: This will fail on non-image submissions; previewUrl
+            // will point to the thumbnail image, so we'll get jpg, png,
+            // or gif as an extension, but we should have mp3, txt, pdf,
+            // or similar.
             ext = getFilenameParts(previewUrl).ext || 'jpg';
         }
 
@@ -72,7 +104,7 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         let links: HTMLAnchorElement[] = querySelectorAll("figure figcaption a[href*='/view/']");
 
         list = getPageLinksFromAnchors(links, getIdFromSubmissionUrl);
-        
+
         return Promise.resolve({
             list: list,
             sortable: sortable
@@ -85,11 +117,17 @@ registerPlugin(FuraffinityPlugin, 'furaffinity.net');
 function getMediaUrls() {
     // Get the download button, if it exists
     let button: HTMLAnchorElement = querySelector(".actions a[href^='//d.facdn.net/art/']") ||
-        querySelector('.sidebar-section a.button.download-logged-in'); //Beta UI
+        querySelector('.submission-sidebar .buttons .download a'); // New UI (as of 2019-12-31)
+    logger.log("fa: button ", button);
+
     let url = button && button.href;
+    logger.log("fa: url ", url);
 
     let img = <HTMLImageElement>document.getElementById('submissionImg');
+    logger.log("fa: img ", img);
+
     let previewUrl = img && img.getAttribute('data-preview-src');
+    logger.log("fa: previewURL ", previewUrl);
 
     if (!url && img) {
         // If all else fails, get the submission image source URL
@@ -97,6 +135,7 @@ function getMediaUrls() {
         if (url.indexOf('http:') !== 0 || url.indexOf('https:') !== 0) {
             // Add the protocol scheme to the URL if it's missing
             url = window.location.protocol + url;
+        logger.log("fa: constructed URL ", url);
         }
     }
 
