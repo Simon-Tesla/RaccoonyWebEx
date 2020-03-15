@@ -54,23 +54,22 @@ export class WeasylPlugin extends BaseSitePlugin {
         let pathParts = canonicalObj.pathname.split('/');
 
         let username = "";
-        let submissionIDIndex = 0;
-        let filenameIndex = 0;
+        let submissionId = "";
+        let filename = ""
 
-        if(canonicalLink.indexOf("/submissions/") > -1) {
+        if (canonicalLink.indexOf("/submissions/") > -1) {
             // regular submission
             logger.log("weasyl: regular submission");
 
-            // Get the username and kill leading '%7E'
+            // Get the username and url-decode it so that %7e becomes '~' if it's present
             username = pathParts[1] || "";
-            username = username.slice(3);
-            logger.log("weasyl: username ", username);
+            username = decodeURIComponent(username)
 
-            // Record locations of these pieces for later
-            submissionIDIndex = 3;
-            filenameIndex = 4;
+            // Record submission ID and filename
+            submissionId = pathParts[3]
+            filename = pathParts[4];
         }
-        else if(canonicalLink.indexOf("/character/") > -1) {
+        else if (canonicalLink.indexOf("/character/") > -1) {
             // character submission
             logger.log("weasyl: character submission");
 
@@ -81,27 +80,26 @@ export class WeasylPlugin extends BaseSitePlugin {
             let usernameLink = document.querySelector('#detail-title a.username');
             username = usernameLink.getAttribute("href");
 
-            // Kill leading '/~'
-            username = username.slice(2);
-            logger.log("weasyl: username ", username);
-
             // Record locations of these pieces for later
-            submissionIDIndex = 2;
-            filenameIndex = 3;
+            submissionId = pathParts[2];
+            filename = pathParts[3];
         }
         else {
             // something weird - bail out
             return Promise.resolve(null);
         }
 
-        // Get the submission id
-        let id = pathParts[submissionIDIndex] || "";
-        logger.log("weasyl: submission id ", id);
+        // Strip off any leading tilde or path characters from the username
+        username = username.replace(/^\/?~/, "");
+        logger.log("weasyl: username ", username);
+
+        submissionId = submissionId || "";
+        logger.log("weasyl: submission id ", submissionId);
 
         // Use the title in the canonical link as part of the local filename
         // Canonical link is silent on the extension (jpg, png, mp3, etc),
         // so get that later
-        let filename = pathParts[filenameIndex] || "";
+        filename = filename || "";
         logger.log("weasyl: filename ", filename);
         // FIXME  what if filename is blank here?
 
@@ -119,7 +117,6 @@ export class WeasylPlugin extends BaseSitePlugin {
 
         // Use the filename from the "canonical" link, plus the extension from
         // the download button, as serviceFilename
-        // FIXME what does serviceFilename actually do?
         let serviceFilename = filename + '.' + ext;
         logger.log("weasyl: serviceFilename ", serviceFilename);
 
@@ -143,7 +140,7 @@ export class WeasylPlugin extends BaseSitePlugin {
             filename: filename,
             siteFilename: serviceFilename,
             extension: ext,
-            submissionId: id,
+            submissionId: submissionId,
             siteName: serviceName,
             title: title,
             description: description,

@@ -45,10 +45,10 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         let urlParts = url.split("/");
         let serviceFilename = urlParts[urlParts.length - 1];
         let { filename, ext } = getFilenameParts(serviceFilename);
-        // Take id2 here.  Since it's part of the filename on FA,
-        // hopefully that's the right choice.
-        let id = urlParts[urlParts.length - 2];
-        // let username = urlParts[urlParts.length - 3];
+
+        // Use the submission's ID number instead of any id numbers in the download URL, 
+        // as it won't change as new versions are uploaded.
+        let id = getIdFromSubmissionUrl(window.location.href);
 
         // 0      1      2           3   4
         // https: (null) d.facdn.net art [username]
