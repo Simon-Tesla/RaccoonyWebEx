@@ -78,7 +78,7 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
         const getSwitchProps = <K extends keyof I.SiteSettings>(key: K): SwitchProps => {
             return {
                 value: this.getSettingOrDefault(key) as boolean,
-                onChanged: (val) => this.setSetting(key, val),
+                onChanged: (val) => this.setSetting(key, val as any),
                 enabled: this.isEnabled(key)
             }
         }
