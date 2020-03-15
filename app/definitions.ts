@@ -25,16 +25,16 @@ export function isContextDownloadRequest(o: MessageRequest<any>): o is ContextDo
 export interface Media {
     url: string;
     siteName: string;
-    submissionId?: string;
+    submissionId: string;
     previewUrl?: string;
-    author?: string;
-    filename?: string;
+    author: string;
+    filename: string;
     siteFilename?: string;
-    extension?: string;
+    extension: string;
     type?: E.MediaType;
-    title?: string;
-    description?: string;
-    tags?: string[];
+    title: string;
+    description: string;
+    tags: string[];
     sourceUrl?: string;
     downloadDestination?: E.DownloadDestination;
 }
