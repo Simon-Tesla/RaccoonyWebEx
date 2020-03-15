@@ -29,7 +29,8 @@ export class DeviantArtPlugin extends BaseSitePlugin {
         // http://orig15.deviantart.net/412a/f/2015/277/4/1/41dc9b8a50185effd6956ef62b506458-d9bxb8s.png
         // Or this:
         // https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/intermediary/f/0d9851f9-7e0b-4b32-aa93-5a999e8bdd04/dcqr0g8-c5443142-1dd0-4f0a-8810-6635620e5398.jpg/v1/fill/w_1024,h_1366,q_70,strp/rose_monster_hunter_oc_by_inkit89_dcqr0g8-fullview.jpg
-
+        // Or this:
+        // https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/519faa52-29f2-4b16-9af3-a2ac01070b26/dxu8ts-1f5d9a76-8ab1-48e6-a084-1f6101ae1840.jpg/v1/fill/w_600,h_771,q_75,strp/found_objects_by_timothyfrisby_dxu8ts-fullview.jpg
         let img: HTMLImageElement = querySelector("img.dev-content-full") || querySelector("img.dev-content-normal");
         let previewUrl = img && img.src;
 
@@ -66,11 +67,15 @@ export class DeviantArtPlugin extends BaseSitePlugin {
 
         if (!serviceFilename && previewUrl) {
             // The deviant disabled the download button or it's a newer style of download URL, so let's just grab the url from the image.
+            // Note: the newer-style URL from the download button always fails for some reason.
             url = previewUrl;
 
             // De-munge the filename.
-            serviceFilename = filename = url.split("/").pop();
+            // This gets us to "[filename]_by_[user]_[###]-fullview.[ext]" for the serviceFilename
+            const previewUrlObj = new URL(previewUrl);
+            serviceFilename = filename = previewUrlObj.pathname.split("/").pop();
             ext = filename.split(".").pop();
+            // And then to "[filename]"
             let byIdx = filename.lastIndexOf("_by_");
             //console.log("submission filename 1", filename, byIdx);
             filename = filename.substring(0, byIdx);
