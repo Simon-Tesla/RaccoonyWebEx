@@ -103,6 +103,8 @@ gulp.task("sign", ["build"], () => {
         });
 });
 
+// TODO: add a task for calling web-ext run
+
 // Default task
 
 gulp.task("default", ["build"]);
