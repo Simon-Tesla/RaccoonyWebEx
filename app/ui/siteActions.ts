@@ -46,7 +46,14 @@ export default class SiteActions {
             type: mediaType,
             siteName: this.siteName,
             sourceUrl: window.location.href,
-            downloadDestination: DownloadDestination.ContextMenuDefault
+            downloadDestination: DownloadDestination.ContextMenuDefault,
+            author: null,
+            filename: null,
+            extension: null,
+            title: null,
+            description: null,
+            tags: null,
+            submissionId: null,
         };
         let media = Object.assign({}, defaultMedia);
 
