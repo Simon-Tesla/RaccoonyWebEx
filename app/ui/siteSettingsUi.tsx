@@ -361,7 +361,7 @@ class TabDelay extends React.Component<TabDelayProps, TabDelayState> {
         }
     }
 
-    componentWillReceiveProps(nextProps: TabDelayProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: TabDelayProps) {
         if (parseInt(this.state.value, 10) !== nextProps.value) {
             this.setState({ value: `${nextProps.value}` });
         }
