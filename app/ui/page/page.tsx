@@ -10,6 +10,7 @@ import { initializeHotkeys } from './hotkeys';
 import debounce from 'debounce';
 import { CachedSettings } from '../../settings';
 import { sendMessage, sendDownloadMediaMessage } from '../../utils/messaging';
+import { sleep } from '../../utils/sleep';
 
 interface PageProps {
     siteActions: SiteActions;
@@ -76,7 +77,6 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         else {
             this.disableHotkeys();
         }
-        
     }
 
     onSettingsStoreUpdate = () => {
@@ -207,36 +207,41 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         );
     }
 
-    private initialize() {
+    private async initialize() {
         logger.log("initializing page UI");
-        this.props.siteActions.hasMedia().then((hasMedia) => {
-            logger.log("hasMedia", hasMedia);
-            this.setState({
-                hasMedia,
-            });
-            if (hasMedia) {
-                // Check to see if the file has been downloaded
-                this.props.siteActions.getMedia().then((media) => {
-                    if (media && media.type === E.MediaType.Image) {
-                        this.setState({ canFullscreen: true });
-                    }
-                    sendMessage(E.MessageAction.CheckDownload, media).then((isDownloaded: boolean) => {
-                        if (isDownloaded) {
-                            this.setState({ downloadState: E.DownloadState.Exists });
-                        }
-                        else if (this.state.siteSettings.autoDownload) {
-                            this.downloadMedia();
-                        }
-                    });
-                });
+        const hasMedia = await this.props.siteActions.hasMedia();
+        logger.log("hasMedia", hasMedia);
+        this.setState({
+            hasMedia,
+        });
+        if (hasMedia) {
+            // Check to see if the file has been downloaded
+            const media = await this.props.siteActions.getMedia();
+            if (media && media.type === E.MediaType.Image) {
+                this.setState({ canFullscreen: true });
             }
-        })
-
-        this.props.siteActions.hasPageLinkList().then((hasPageLinks) => {
-            logger.log("hasPageLinks", hasPageLinks);
-            this.setState({
-                hasPageLinks,
-            });
+            const isDownloaded: boolean = await sendMessage(E.MessageAction.CheckDownload, media);
+            if (isDownloaded) {
+                this.setState({ downloadState: E.DownloadState.Exists });
+            }
+            else {
+                // Wait for the settings to be ready before checking for the autoDownload setting.
+                await this.settingsProvider.ready;
+                // And an extra delay for state to settle. 
+                // This is a bit hackish, as we could initialize the download sooner if we waited on the setState call
+                // somehow, but starting the auto-download isn't exactly time-critical either.
+                // Also, I'd like to refactor all of this with hooks and context at some point anyway.
+                await sleep(200);
+                if (this.state.siteSettings.autoDownload) {
+                    this.downloadMedia();
+                }
+            }   
+        }
+        
+        const hasPageLinks = await this.props.siteActions.hasPageLinkList();
+        logger.log("hasPageLinks", hasPageLinks);
+        this.setState({
+            hasPageLinks,
         });
     }
 
