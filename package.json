@@ -13,9 +13,11 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "@types/luxon": "^1.22.0",
     "classnames": "^2.2.6",
     "debounce": "^1.2.0",
     "intl-messageformat": "^2.2.0",
+    "luxon": "^1.22.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-image-lightbox": "^4.6.0",

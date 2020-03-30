@@ -14,7 +14,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
     tabLoadType: TabLoadType.Placeholder,
     writeMetadata: false,
     autoDownload: false,
-    contextDownloadPath: "raccoony/{siteName}/{author}/{filenameExt}",
+    contextDownloadPath: "raccoony/{siteName}/{author}/{isoDate}t{isoTime}{filenameExt}",
 };
 
 export const DefaultExtensionSettings: I.ExtensionSettings = {

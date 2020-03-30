@@ -2,6 +2,7 @@ import * as I from './definitions';
 import * as logger from './logger';
 import IntlMessageFormat from 'intl-messageformat';
 import { DownloadDestination } from './enums';
+import { DateTime } from 'luxon';
 
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
@@ -141,6 +142,10 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         ? media.siteFilename
         : `${media.siteFilename}.${media.extension}`
 
+    const currentDate = new Date();
+    const isoDate = DateTime.fromJSDate(currentDate).toFormat("yyyy-MM-dd");
+    const isoTime = DateTime.fromJSDate(currentDate).toFormat("HH_mm_ss");
+        
     const vars = {
         siteName: media.siteName,
         submissionId: media.submissionId,
@@ -153,6 +158,9 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         type: media.type,
         title: media.title,
         domain: url.hostname,
+        currentDate: currentDate,
+        isoDate,
+        isoTime
     };
 
     Object.getOwnPropertyNames(vars).forEach(k => {
