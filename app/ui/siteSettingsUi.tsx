@@ -225,8 +225,9 @@ const placeholderList: [string, string][] = [
     ["title", "the title of the submission, if available"],
     ["domain", "the domain name, e.g. 'example.com'"],
     ["isoDate", "the current date in YYYY-MM-DD format"],
-    ["isoTime", "the current time in HH_MM_SS format"],
-    ["currentDate", "the current date as a JS object, formattable using the MessageFormat date and time types"]
+    ["isoTime", "the current time in HHMMSS format"],
+    ["currentDate", "the current date as a JS object, formattable using the MessageFormat date and time types"],
+    ["currentTimestamp", "the current date-time as a UNIX timestamp"]
 ];
 
 class DownloadPath extends React.Component<DownloadPathProps, DownloadPathState> {

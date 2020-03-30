@@ -143,8 +143,9 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         : `${media.siteFilename}.${media.extension}`
 
     const currentDate = new Date();
+    const currentTimestamp = `${currentDate.getTime()}`;
     const isoDate = DateTime.fromJSDate(currentDate).toFormat("yyyy-MM-dd");
-    const isoTime = DateTime.fromJSDate(currentDate).toFormat("HH_mm_ss");
+    const isoTime = DateTime.fromJSDate(currentDate).toFormat("HHmmss");
         
     const vars = {
         siteName: media.siteName,
@@ -158,7 +159,8 @@ function replacePathPlaceholders(path: string, media: I.Media) {
         type: media.type,
         title: media.title,
         domain: url.hostname,
-        currentDate: currentDate,
+        currentDate,
+        currentTimestamp,
         isoDate,
         isoTime
     };
