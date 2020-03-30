@@ -29,7 +29,7 @@ export default class SettingsUi extends React.Component<SettingsUiProps, Setting
         }
     }
 
-    componentWillReceiveProps(nextProps: SettingsUiProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: SettingsUiProps) {
         // Only update the default settings in response to settings changes
         // (since we're in the editor for site settings changes)
         const defaultSettings = Object.assign({}, nextProps.settings.defaultSettings);

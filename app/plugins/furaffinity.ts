@@ -43,7 +43,7 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         // thumbnail size.
 
         let urlParts = url.split("/");
-        let serviceFilename = urlParts[urlParts.length - 1];
+        let serviceFilename = decodeURIComponent(urlParts[urlParts.length - 1]);
         let { filename, ext } = getFilenameParts(serviceFilename);
 
         // Use the submission's ID number instead of any id numbers in the download URL, 

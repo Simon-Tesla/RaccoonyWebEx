@@ -90,7 +90,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
             let reader = new FileReader();
             reader.readAsText(event.currentTarget.files[0]);
             reader.onload = () => {
-                const importedSettings: I.AllSettings = JSON.parse(reader.result);
+                const importedSettings: I.AllSettings = JSON.parse(reader.result as string);
                 console.log("Importing settings:", importedSettings);
                 clearAllSettings()
                     .then(() => saveAllSettings(importedSettings));

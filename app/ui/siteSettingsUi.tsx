@@ -78,7 +78,7 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
         const getSwitchProps = <K extends keyof I.SiteSettings>(key: K): SwitchProps => {
             return {
                 value: this.getSettingOrDefault(key) as boolean,
-                onChanged: (val) => this.setSetting(key, val),
+                onChanged: (val) => this.setSetting(key, val as any),
                 enabled: this.isEnabled(key)
             }
         }
@@ -223,7 +223,11 @@ const placeholderList: [string, string][] = [
     ["extension", "the file extension (e.g. jpg, png)"],
     ["type", "the type of file; can be one of 'image', 'text', 'flash', 'video', 'audio' or 'unknown'"],
     ["title", "the title of the submission, if available"],
-    ["domain", "the domain name, e.g. 'example.com'"]
+    ["domain", "the domain name, e.g. 'example.com'"],
+    ["isoDate", "the current date in YYYY-MM-DD format"],
+    ["isoTime", "the current time in HHMMSS format"],
+    ["currentDate", "the current date as a JS object, formattable using the MessageFormat date and time types"],
+    ["currentTimestamp", "the current date-time as a UNIX timestamp"]
 ];
 
 class DownloadPath extends React.Component<DownloadPathProps, DownloadPathState> {
@@ -254,7 +258,7 @@ class DownloadPath extends React.Component<DownloadPathProps, DownloadPathState>
                         <ul>
                             {placeholderList.map(([placeholder, description]) => (<li key={placeholder}><b>{`{${placeholder}}`}</b>{" - " + description}</li>))}
                         </ul>
-                        Format string can use any valid <a href="https://messageformat.github.io/guide/" target="_blank">ICU MessageFormat</a> syntax.
+                        Format string can use any valid <a href="https://formatjs.io/guides/message-syntax/" target="_blank">ICU MessageFormat</a> syntax.
                     </div>
                 )}
             </React.Fragment>
@@ -361,7 +365,7 @@ class TabDelay extends React.Component<TabDelayProps, TabDelayState> {
         }
     }
 
-    componentWillReceiveProps(nextProps: TabDelayProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: TabDelayProps) {
         if (parseInt(this.state.value, 10) !== nextProps.value) {
             this.setState({ value: `${nextProps.value}` });
         }
