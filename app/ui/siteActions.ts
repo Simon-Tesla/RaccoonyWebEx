@@ -28,9 +28,18 @@ export default class SiteActions {
             const hasSiteFilename = !!media.siteFilename;
             media = await ensureMediaHasFilenameAndExtension(media);
             media.siteName = this.siteName;
-            media.sourceUrl = window.location.href;
+
+            // If a plugin explicitly set sourceUrl, use that; otherwise
+            // use window.location.href.  As of 2020-03, only the e621
+            // plugin sets sourceUrl, so it can provide a URL without the
+            // search terms appended.
+            const sourceUrlNotProvided = !media.sourceUrl;
+            if (sourceUrlNotProvided) {
+                media.sourceUrl = window.location.href;
+            }
+
             if (!hasSiteFilename) {
-                // To avoid breaking compatibility with old filename behavior, we override the siteFilename returned 
+                // To avoid breaking compatibility with old filename behavior, we override the siteFilename returned
                 // by ensureMediaHasFilenameAndExtension() if one wasn't returned by the site plugin.
                 media.siteFilename = `${media.filename}.${media.extension}`;
             }
