@@ -7,18 +7,18 @@ type OpenInTabsOptions = {
     windowId: number,
 }
 
-export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSettings, options: OpenInTabsOptions) {
+export default function openInTabs(pageList: I.PageLinkList, siteSettings: I.SiteSettings, options: OpenInTabsOptions) {
     let list = pageList.list;
-    if (pageList.sortable && settings.tabLoadSortBy === E.TabLoadOrder.Date) {
+    if (pageList.sortable && siteSettings.tabLoadSortBy === E.TabLoadOrder.Date) {
         list.sort((a, b) => parseInt(a.submissionId) - parseInt(b.submissionId));
     }
-    if (!settings.tabLoadSortAsc) {
+    if (!siteSettings.tabLoadSortAsc) {
         list.reverse();
     }
 
-    const delaySecs = settings.tabLoadDelay || defaultDelaySecs;
+    const delaySecs = siteSettings.tabLoadDelay || defaultDelaySecs;
     list.forEach((page, idx) => {
-        if (settings.tabLoadType === E.TabLoadType.Timer) {
+        if (siteSettings.tabLoadType === E.TabLoadType.Timer) {
             openMediaInTabAfterDelay(page, (idx * delaySecs), options);
         }
         else {
@@ -39,8 +39,7 @@ function openMediaInPlaceholderTab(media: I.PageLink, delay: number) {
 }
 
 function openMediaInTabAfterDelay(media: I.PageLink, delay: number, options: OpenInTabsOptions) {
-    // Opens the page in the current active window after the specified delay.
-    // TODO: Do we need to check if the window that started the process is still there before specifying windowId?
+    // Opens the page in the specified window after the specified delay.
     setTimeout(() => {
         browser.tabs.create({
             url: media.url,
