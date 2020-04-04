@@ -98,8 +98,10 @@ gulp.task("build", gulp.series(
     "build:allplatforms"
 ));
 
-gulp.task("sign", gulp.series("build", () => {
-    webExt.cmd.sign(
+gulp.task("sign", gulp.series("build", "sign:firefox"));
+
+gulp.task("sign:firefox", () => {
+    return webExt.cmd.sign(
         {
             sourceDir: `${outputDir}/ext_firefox`,
             artifactsDir: `${outputDir}`,
@@ -114,7 +116,7 @@ gulp.task("sign", gulp.series("build", () => {
         }).catch((error) => {
             throw error;
         });
-}));
+});
 
 // TODO: add a task for calling web-ext run
 
