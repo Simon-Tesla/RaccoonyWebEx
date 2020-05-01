@@ -17,7 +17,11 @@ browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: c
             switch (request.action) {
                 case MessageAction.OpenTabs:
                     const list: I.PageLinkList = request.data;
-                    return openInTabs(list, settingsProvider.getCurrentSettings(list.siteName));
+                    return openInTabs(
+                        list, 
+                        settingsProvider.getCurrentSettings(list.siteName),
+                        { windowId: sender.tab.windowId }
+                    );
                 case MessageAction.Download:
                     const media: I.Media = request.data;
                     return download.downloadFile(media, settingsProvider.getCurrentSettings(media.siteName));

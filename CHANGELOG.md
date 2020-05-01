@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.2.3 (2020-04-03)
+- Experimental open all in tabs now restricts delayed tab opening to the same window that opened them.
+- Added current time and date placeholders for the download filename format
+- Fixed auto-downloading (#35)
+- Updated packages for React, WebExtension polyfill, and others
+- Fixes to deviantArt plugin, including Eclipse support (#36, #39)
+- Fixes to FurAffinity plugin (#44, #45, #46)
+- Fixes to Weasyl plugin (#48, #49)
+- Fixes to e621 plugin (#51)
+- Fixes to Eka's plugin (#41)
+- Fixes to Shorpy plugin (#37)
+Special thanks to Eupeptic, whose plugin fix contributions easily make up the bulk of this release.
+
 ## 1.2.2 (2019-02-17)
 - Fixed deviantArt plugin [(issue #27)](https://github.com/Simon-Tesla/RaccoonyWebEx/issues/27).
 - Fixed path sanitization to only sanitize parts of a path that contain a non-empty string.

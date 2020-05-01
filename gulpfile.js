@@ -7,7 +7,7 @@ const merge = require("gulp-merge-json");
 const ts = require("gulp-typescript");
 const webExt = require("web-ext").default;
 
-const extSourceDir = 'app'; //TODO: move under src or something to be consistent
+const sourceDir = 'app'; //TODO: move under src or something to be consistent
 const staticsDir = 'src'; //TODO: use statics or something
 const jsOutDir = 'build';
 const outputDir = 'dist';
@@ -35,7 +35,7 @@ gulp.task("typescript:compile", () => {
     // https://github.com/ivogabe/gulp-typescript
     var failed = false;
     var tsProject = ts.createProject('tsconfig.json');
-    var tsResult = gulp.src([`${extSourceDir}/**/*.ts`, `${extSourceDir}/**/*.tsx`])
+    var tsResult = gulp.src([`${sourceDir}/**/*.ts`, `${sourceDir}/**/*.tsx`])
         .pipe(tsProject())
         .on("error", function () { failed = true; })
         .on("finish", function () { failed && process.exit(1); });
@@ -98,8 +98,8 @@ gulp.task("build", gulp.series(
     "build:allplatforms"
 ));
 
-gulp.task("sign", gulp.series("build", () => {
-    webExt.cmd.sign(
+gulp.task("sign:firefox", () => {
+    return webExt.cmd.sign(
         {
             sourceDir: `${outputDir}/ext_firefox`,
             artifactsDir: `${outputDir}`,
@@ -114,7 +114,9 @@ gulp.task("sign", gulp.series("build", () => {
         }).catch((error) => {
             throw error;
         });
-}));
+});
+
+gulp.task("sign", gulp.series("build", "sign:firefox"));
 
 // TODO: add a task for calling web-ext run
 

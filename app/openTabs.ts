@@ -3,19 +3,23 @@ import * as E from './enums';
 
 const defaultDelaySecs = 1;
 
-export default function openInTabs(pageList: I.PageLinkList, settings: I.SiteSettings) {
+type OpenInTabsOptions = {
+    windowId: number,
+}
+
+export default function openInTabs(pageList: I.PageLinkList, siteSettings: I.SiteSettings, options: OpenInTabsOptions) {
     let list = pageList.list;
-    if (pageList.sortable && settings.tabLoadSortBy === E.TabLoadOrder.Date) {
+    if (pageList.sortable && siteSettings.tabLoadSortBy === E.TabLoadOrder.Date) {
         list.sort((a, b) => parseInt(a.submissionId) - parseInt(b.submissionId));
     }
-    if (!settings.tabLoadSortAsc) {
+    if (!siteSettings.tabLoadSortAsc) {
         list.reverse();
     }
 
-    const delaySecs = settings.tabLoadDelay || defaultDelaySecs;
+    const delaySecs = siteSettings.tabLoadDelay || defaultDelaySecs;
     list.forEach((page, idx) => {
-        if (settings.tabLoadType === E.TabLoadType.Timer) {
-            openMediaInTabAfterDelay(page, (idx * delaySecs));
+        if (siteSettings.tabLoadType === E.TabLoadType.Timer) {
+            openMediaInTabAfterDelay(page, (idx * delaySecs), options);
         }
         else {
             openMediaInPlaceholderTab(page, (idx * delaySecs));
@@ -34,13 +38,13 @@ function openMediaInPlaceholderTab(media: I.PageLink, delay: number) {
     })
 }
 
-function openMediaInTabAfterDelay(media: I.PageLink, delay: number) {
-    // Opens the page in the current active window after the specified delay.
-    // TODO: Need to check whether the requesting has been closed, or have a page or UI that can pause/stop the process
+function openMediaInTabAfterDelay(media: I.PageLink, delay: number, options: OpenInTabsOptions) {
+    // Opens the page in the specified window after the specified delay.
     setTimeout(() => {
         browser.tabs.create({
             url: media.url,
             active: false,
+            windowId: options.windowId,
         })
     }, delay * 1000);
 }
