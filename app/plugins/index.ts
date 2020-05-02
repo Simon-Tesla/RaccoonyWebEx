@@ -12,5 +12,6 @@ import './shorpy';
 import './sofurry';
 import './tumblr';
 import './weasyl';
+import './pixiv';
 
 export { getSitePlugin } from './base';

@@ -120,4 +120,6 @@ export interface AppState {
     downloadState: E.DownloadState;
     showOptions: boolean;
     isFullscreen: boolean;
+    // FIXME pixiv change
+    lastDownloadId: string; 
 }

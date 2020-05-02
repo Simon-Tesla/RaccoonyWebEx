@@ -32,7 +32,8 @@ const downloadButtonDefaultProps: { [state: number]: DownloadButtonProps } = {};
 downloadButtonDefaultProps[E.DownloadState.Done] = downloadButtonDefaultProps[E.DownloadState.Exists] = {
     icon: IconGlyph.Exists,
     label: "Downloaded",
-    disabled: true,
+// FIXME pixiv change
+//    disabled: true,
 }
 downloadButtonDefaultProps[E.DownloadState.Error] = {
     icon: IconGlyph.Download,
