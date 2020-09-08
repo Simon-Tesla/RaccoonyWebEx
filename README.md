@@ -38,18 +38,9 @@ Extension files and build output will be in `dist/`.
 
 See the [changelog](https://github.com/Simon-Tesla/RaccoonyWebEx/blob/master/CHANGELOG.md)
 
-## Roadmap
-While I don't plan on implementing every TODO for it, I want to get most of them done in anticipation of releasing this extension on the [AMO](https://addons.mozilla.org/)/[Chrome Web Store](https://chrome.google.com/webstore/category/extensions)
+## Contributing
 
-### Feature TODO list 
-- Fix downloaded status badge on overlay 
-- Add help/first run experience
-- Add functional toolbar/address bar icon
-- Fullscreen UI actions
-
-### Architecture TODO
-- Move SettingsUi as a child of Page?
-- Maybe package for Edge? 
+See the [CONTRIBUTING](https://github.com/Simon-Tesla/RaccoonyWebEx/blob/master/CONTRIBUTING.md) document. This is a free-time project for me, and I have no need for monetary donations, so I'm looking for coding help more than anything else. 
 
 ## Credits
 - The Raccoony logo ![Raccoony logo][logo] is ©[ScruffKerfluff][logoauthor], and is only licenced to be distributed as-is with unmodified Raccoony source code or binary distributions. It **MAY NOT** be distributed or modified under any other circumstances or used for profit.
