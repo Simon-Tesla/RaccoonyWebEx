@@ -71,7 +71,7 @@ export class E621Plugin extends BaseSitePlugin {
         // <meta name="twitter:title" content="#[post-id] - e621">
         // (example, nsfw: 1648500 )
         let username = "unknown artist";
-        let usernameElt = querySelector('meta[name="og:title"]');
+        let usernameElt = querySelector('meta[property="og:title"]');
         logger.log("e621: username element", usernameElt);
 
         // If "drawn by " doesn't appear in the HTML meta tag, skip parsing
