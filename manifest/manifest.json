@@ -1,6 +1,6 @@
 {
   "name": "Raccoony WebExtension",
-  "version": "1.2.3X",
+  "version": "1.2.3",
   "manifest_version": 2,
   "description": "A WebExtension for adding shiny features to art websites.",
   "icons": {
@@ -31,8 +31,7 @@
         "*://*.aryion.com/*",
         "*://*.shorpy.com/*",
         "*://*.gearfetishx.com/*",
-        "*://*.hentai-foundry.com/*",
-        "*://*.pixiv.net/*"
+        "*://*.hentai-foundry.com/*"
       ],
       "js": [
         "browser-polyfill.js",
