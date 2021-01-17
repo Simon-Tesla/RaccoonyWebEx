@@ -122,7 +122,7 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                                 enabled={this.isEnabled('tabLoadSortBy')}
                             />
                         </SettingsRow>
-                        <SettingsRow {...getRowProps('tabLoadType', "Open one tab at a time [experimental]")}>
+                        <SettingsRow {...getRowProps('tabLoadType', "Open one tab at a time")}>
                             <Switch
                                 value={this.getSettingOrDefault('tabLoadType') === E.TabLoadType.Timer}
                                 onChanged={(val) => this.setSetting('tabLoadType', val ? E.TabLoadType.Timer : E.TabLoadType.Placeholder)}
