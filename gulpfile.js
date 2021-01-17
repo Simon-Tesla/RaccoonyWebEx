@@ -46,7 +46,10 @@ gulp.task("typescript:compile", () => {
 function createBundleJsFile(filename) {
     return gulp.src([`${jsOutDir}/${filename}`])
         .pipe(webpack({
-            "output": { filename }
+            // Both "production" and "development" versions of webpack's output significantly modify the JS source. 
+            // The "none" output is most like the original JS.
+            "mode": "none",
+            "output": { filename },
         }))
         .pipe(gulp.dest(`${outputDir}/ext/`));
 }
