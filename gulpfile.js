@@ -5,7 +5,7 @@ const del = require("del");
 const exists = require("path-exists").sync;
 const merge = require("gulp-merge-json");
 const ts = require("gulp-typescript");
-const webExt = require("web-ext").default;
+const webExt = require("web-ext");
 
 const sourceDir = 'app'; //TODO: move under src or something to be consistent
 const staticsDir = 'src'; //TODO: use statics or something
