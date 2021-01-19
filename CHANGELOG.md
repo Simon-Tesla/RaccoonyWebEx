@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.4 (2021-01-18)
+- Implemented queued Open all in tabs - now Raccoony waits to open a new set of tabs until after the previous set has completed opening. (#28)
+- Changed the default Open all in tabs to the new "one tab at a time" behavior. The old behavior can still be accessed via settings.
+- Fixed e621 plugin - author extraction now works (#73)
+
 ## 1.2.3 (2020-04-03)
 - Experimental open all in tabs now restricts delayed tab opening to the same window that opened them.
 - Added current time and date placeholders for the download filename format
