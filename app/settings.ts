@@ -11,7 +11,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
     tabLoadDelay: 1,
     tabLoadSortBy: TabLoadOrder.Date,
     tabLoadSortAsc: true,
-    tabLoadType: TabLoadType.Placeholder,
+    tabLoadType: TabLoadType.Timer,
     writeMetadata: false,
     autoDownload: false,
     contextDownloadPath: "raccoony/{siteName}/{author}/{isoDate}t{isoTime}_{filenameExt}",
@@ -23,7 +23,7 @@ export const DefaultExtensionSettings: I.ExtensionSettings = {
 
 const DefaultSettingsKey = 'default_settings';
 
-const settingsVersion = 3;
+const settingsVersion = 4;
 
 export function getSiteKeyFromName(siteName: string) {
     return siteName.endsWith('_settings') ? siteName : `${siteName}_settings`;
@@ -133,20 +133,34 @@ function migrateSettingsFromSyncToLocal(): Promise<I.AllSettings> {
 
 function upgradeSettings(settings: I.AllSettings) {
     if (settings.version === 1) {
-        // Filter out any property set to null.
-        const keys = Object.getOwnPropertyNames(settings)
-            .filter(key => key.endsWith('_settings'));
-        keys.forEach(key => {
-            const siteSetting = settings[key];
-            const skeys = Object.getOwnPropertyNames(siteSetting);
-            skeys.filter(k => siteSetting[k] == null)
-                .forEach(k => {
-                    delete siteSetting[k];
-                });
-        })
+        upgradeV1Settings(settings);
+    }
+    if (settings.version < 4) {
+        upgradeSettingsToV4(settings);
     }
     settings.version = settingsVersion;
     return saveAllSettings(settings);
+}
+
+function upgradeV1Settings(settings: I.AllSettings) {
+    // Filter out any property set to null.
+    const keys = Object.getOwnPropertyNames(settings)
+        .filter(key => key.endsWith('_settings'));
+    keys.forEach(key => {
+        const siteSetting = settings[key];
+        const skeys = Object.getOwnPropertyNames(siteSetting);
+        skeys.filter(k => siteSetting[k] == null)
+            .forEach(k => {
+                delete siteSetting[k];
+            });
+    });
+}
+
+function upgradeSettingsToV4(settings: I.AllSettings) {
+    // Reset the default TabLoadType
+    if (settings.default_settings?.tabLoadType != null) {
+        settings.default_settings.tabLoadType = DefaultSiteSettings.tabLoadType;
+    }
 }
 
 type SettingsListener = (settings: CachedSettings) => void;
