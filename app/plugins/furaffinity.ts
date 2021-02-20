@@ -46,7 +46,7 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         let serviceFilename = decodeURIComponent(urlParts[urlParts.length - 1]);
         let { filename, ext } = getFilenameParts(serviceFilename);
 
-        // Use the submission's ID number instead of any id numbers in the download URL, 
+        // Use the submission's ID number instead of any id numbers in the download URL,
         // as it won't change as new versions are uploaded.
         let id = getIdFromSubmissionUrl(window.location.href);
 
@@ -148,8 +148,23 @@ function getMediaUrls() {
 function getIdFromSubmissionUrl(url: string) {
     // FA submission URLs are of the format
     // https://www.furaffinity.net/view/[ID]/
-    let match = url.match(/\/(\d+)\/?$/);
-    return match && match[1];
+    // where [ID] is all-numeric.  (It's around 40700000 as of 2/2021.)
+    //
+    // The URL can optionally have a direct link to a comment on that
+    // submission, like
+    // https://www.furaffinity.net/view/[ID]/#cid:[commentID]
+    // where [commentID] is also all-numeric.  (It's around 153900000 as
+    // of 2/2021.)
+    //
+    // Look for the part of the URL that is /view/[digits]/ .
+    let match = url.match(/\/view\/(\d+)\//);
+
+    // If we found a match, return it; if not, return "unknown".
+    if(match) {
+        return(match[1]);
+    } else {
+        return("unknown");
+    }
 }
 
 function getOriginalFilename(filename: string, username: string) {
