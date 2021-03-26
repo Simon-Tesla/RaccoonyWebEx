@@ -147,17 +147,22 @@ function getMediaUrls() {
 
 function getIdFromSubmissionUrl(url: string) {
     // FA submission URLs are of the format
-    // https://www.furaffinity.net/view/[ID]/
-    // where [ID] is all-numeric.  (It's around 40700000 as of 2/2021.)
+    // https://www.furaffinity.net/view/[ID]
+    // where [ID] is all-numeric.  (It's around 41 100 000 as of 3/2021.)
+    // The ID can optionally have a trailing slash.
     //
-    // The URL can optionally have a direct link to a comment on that
+    // There can also optionally be a direct link to a comment on that
     // submission, like
     // https://www.furaffinity.net/view/[ID]/#cid:[commentID]
-    // where [commentID] is also all-numeric.  (It's around 153900000 as
-    // of 2/2021.)
+    // or
+    // https://www.furaffinity.net/view/[ID]#cid:[commentID]
+    // where [commentID] is also all-numeric.  (It's around 154 700 000
+    // as of 3/2021.)
     //
-    // Look for the part of the URL that is /view/[digits]/ .
-    let match = url.match(/\/view\/(\d+)\//);
+    // Look for the part of the URL that is /view/[digits] .
+    // Don't depend on there being a slash after the digits, because
+    // there might not be.
+    let match = url.match(/\/view\/(\d+)/);
 
     // If we found a match, return it; if not, return "unknown".
     if(match) {
