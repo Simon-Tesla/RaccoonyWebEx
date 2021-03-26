@@ -119,6 +119,10 @@ function sanitizePath(pathPart: string) {
     pathPart = pathPart.replace(/\.+/g, ".");
     // Replace any trailing dots
     pathPart = pathPart.replace(/\.$/g, '_');
+    // Chrome bans tildes in file and directory names, so remove them
+    if(!isFirefox) {
+        pathPart = pathPart.replace(/~/g, '_');
+    }
     // Replace any significant OS characters with underscores.
     return pathPart.replace(/[*"\\\/:|?%<>]/g, "_");
 }
