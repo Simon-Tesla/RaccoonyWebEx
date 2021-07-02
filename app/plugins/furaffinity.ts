@@ -185,10 +185,18 @@ function getOriginalFilename(filename: string, username: string) {
     return filename;
 }
 
+// FA includes the author name in the title in several of the metadata
+// fields, so use one that has *just* the title.  As of 2021-06, the alt
+// of the submission image qualifies.
 function getTitle(): string {
-    let titleElt = querySelector("meta[property='og:title']");
-    return titleElt
-        ? titleElt.getAttribute('content')
+    let img = <HTMLImageElement>document.getElementById('submissionImg');
+    logger.log("fa: getTitle: img ", img);
+
+    let title = img.getAttribute('alt');
+    logger.log("fa: getTitle: alt ", title);
+
+    return title
+        ? title
         : '';
 }
 
