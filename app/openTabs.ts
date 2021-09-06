@@ -33,6 +33,9 @@ const OpenTabQueue: TabOpeningCollection[] = [];
 let CurrentOpenTab: TabOpeningCollection = null;
 
 export default function openInTabs(pageList: I.PageLinkList, siteSettings: I.SiteSettings, options: OpenInTabsOptions) {
+    // Filter out duplicates early so that the system has the correct list from the beginning
+    pageList.list = deduplicatePages(pageList.list);
+
     const collection: TabOpeningCollection = {
         pageList,
         promise: null,
@@ -91,6 +94,20 @@ function openListOfTabs(pageList: I.PageLinkList, siteSettings: I.SiteSettings, 
         }
     });
     return Promise.allSettled(promises);
+}
+
+function deduplicatePages(list: I.PageLink[]) {
+    // Filter to only unique URLs; there's no use for opening multiple tabs with the same URL.
+    const pageUrls = new Set<string>();
+    return list.filter(page => {
+        if (pageUrls.has(page.url)) {
+            return false;
+        }
+        else {
+            pageUrls.add(page.url);
+            return true;
+        }
+    });
 }
 
 function openMediaInPlaceholderTab(media: I.PageLink, delay: number): Promise<unknown> {
