@@ -38,7 +38,7 @@
     "gulp-zip": "^4.2.0",
     "path-exists": "^3.0.0",
     "typescript": "^3.7.5",
-    "web-ext": "^5.5.0",
+    "web-ext": "^6.3.0",
     "web-ext-types": "^3.2.1",
     "webpack-stream": "^6.1.1"
   }
