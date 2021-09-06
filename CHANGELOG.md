@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.5 (2021-09-06)
+- Fixed DeviantArt "Open All in Tabs" duplication bug (#103)
+- Fixed HentaiFoundary bug where some submissions wouldn't be recognized by Raccoony (#93)
+- Fixed e621 bug with recognizing the artist/author (#104)
+- Fixed filename sanitization code to replace tilde characters in Chrome (#90)
+- Fixed issues with metadata scraping in FurAffinity (#83, #85, #90)
+- Updated some library dependencies
+
+Special thanks to Eupeptic, who contributed the majority of the fixes for this release.
+
 ## 1.2.4 (2021-01-18)
 - Implemented queued Open all in tabs - now Raccoony waits to open a new set of tabs until after the previous set has completed opening. (#28)
 - Changed the default Open all in tabs to the new "one tab at a time" behavior. The old behavior can still be accessed via settings.
@@ -16,6 +26,7 @@
 - Fixes to e621 plugin (#51)
 - Fixes to Eka's plugin (#41)
 - Fixes to Shorpy plugin (#37)
+
 Special thanks to Eupeptic, whose plugin fix contributions easily make up the bulk of this release.
 
 ## 1.2.2 (2019-02-17)
