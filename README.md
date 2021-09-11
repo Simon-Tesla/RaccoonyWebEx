@@ -7,16 +7,12 @@ Inspired by the [FurAffinity Extender](https://andrewneo.github.io/faextender/) 
 
 See the [official website][website] for announcements.
 
-This README is a work in progress.
-
 ## Features
 - Download submissions from art sites
 - Open all submissions in a gallery/notifications in tabs (with a timed delay)
 - Show pictures in a "full-screen" view that covers the entire page (and optionally enter this view automatically)
 - Hotkey support for downloading, opening in tabs and fullscreen
 - Supported sites: deviantArt, e621, Eka's Portal (contributed by Eupeptic), FurAffinity, Furry Network, HicceArs, InkBunny, Patreon, Shorpy.com (contributed by Eupeptic), SoFurry, and Weasyl.
-
-See the TODO list below for more planned features.
 
 ## Download & Install
 

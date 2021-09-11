@@ -20,6 +20,8 @@ Bugfixes are *always* welcome.
 ## Have an idea for a new feature?
 Awesome! My main request is that you start by filing a feature request issue and please make sure to mention in that issue that you'd like to contribute the code for it. This allows a chance to weigh in on the feature and make sure that it's a good fit for Raccoony and help guide the implementation to something that will fit well and work well. Once your feature has been approved by a maintainer (currently just Simon) you can start working on your implementation.
 
+Obviously, you can fork and come back with written code before even talking with me, but doing it this way will make it much more likely that I'll accept the pull request. If you do submit a pull request out of the blue, expect more questions and requests for changes.
+
 ## Getting the code into Raccoony
 Due to the hassle of pretty much any other mechanism for code contributions, I only accept code contributions via Pull Requests (with the possible exception of very minor bugfixes). All pull requests must have an issue associated with them so that any discussion on the issue or PR can be easily tracked.
 

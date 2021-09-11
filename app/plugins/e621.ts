@@ -49,12 +49,12 @@ export class E621Plugin extends BaseSitePlugin {
         // If the name is known to e621, it is available in two meta tags in
         // the <head>, which can have a couple of different formats:
         //
-        // <meta name="og:title"      content="[subject] drawn by [artist] - e621">
-        // <meta name="twitter:title" content="[subject] drawn by [artist] - e621">
+        // <meta name="og:title"      content="[subject] created by [artist] - e621">
+        // <meta name="twitter:title" content="[subject] created by [artist] - e621">
         // (example, sfw: 1605283 )
         //
-        // <meta name="og:title"      content="drawn by [artist] - e621">
-        // <meta name="twitter:title" content="drawn by [artist] - e621">
+        // <meta name="og:title"      content="created by [artist] - e621">
+        // <meta name="twitter:title" content="created by [artist] - e621">
         // (example, nsfw: 1459690 )
         //
         // It's not clear how e621 picks [subject].  It *might* be generated
@@ -63,6 +63,9 @@ export class E621Plugin extends BaseSitePlugin {
         // a [subject] in this tag, even if they are otherwise well-tagged.
         // It *might* have something to do with the submission having a tag
         // on the default blacklist, but it might not.
+        //
+        // Before about early 8/2021, the fixed text in all four tags above
+        // was "drawn by" instead of "created by".
         //
         // If the name is not known, those meta tags still exist, but look
         // different:
@@ -74,15 +77,15 @@ export class E621Plugin extends BaseSitePlugin {
         let usernameElt = querySelector('meta[property="og:title"]');
         logger.log("e621: username element", usernameElt);
 
-        // If "drawn by " doesn't appear in the HTML meta tag, skip parsing
+        // If "created by " doesn't appear in the HTML meta tag, skip parsing
         // and leave it as "unknown artist".  That way, posts with the
         // "unknown artist" e621 tag, *and* posts with no e621 artist tag at
         // all, *both* end up in the "unknown_artist" folder if downloaded.
-        if(usernameElt && usernameElt.getAttribute('content').includes("drawn by ")) {
+        if(usernameElt && usernameElt.getAttribute('content').includes("created by ")) {
             let usernameplusjunk = usernameElt.getAttribute('content');
             logger.log("e621: username content", usernameplusjunk);
 
-            let usernameStart = usernameplusjunk.lastIndexOf("drawn by ") + 9;
+            let usernameStart = usernameplusjunk.lastIndexOf("created by ") + 11;
             let usernameEnd   = usernameplusjunk.lastIndexOf(" - e621");
             logger.log("e621: name start and end", usernameStart, usernameEnd);
 
