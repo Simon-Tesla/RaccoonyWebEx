@@ -18,10 +18,11 @@ import * as logger from '../logger';
 // submission, getPageLinkList() will find no links.
 
 const serviceName = "e621";
+const mutationSelector = 'body';
 
 export class E621Plugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName);
+        super(serviceName, mutationSelector);
     }
 
     getMedia(): Promise<I.Media> {
@@ -199,7 +200,33 @@ export class E621Plugin extends BaseSitePlugin {
     getPageLinkList(): Promise<I.PageLinkList> {
         // Links will be of the format
         // https://e621.net/posts/[id]?q=[query]
-        let links: HTMLAnchorElement[] = querySelectorAll("#posts-container .post-preview a");
+
+        // e621 supports blacklisting certain tags.  A few tags are on
+        // the default blacklist, and users can add more if they want.
+        // Detect blacklisted submissions and avoid adding them to the
+        // list of links on this page.
+
+        // The class for each individual submission starts out *without*
+        // "blacklisted" in it.  Once e621's blacklist script runs, *all*
+        // submissions will have "blacklisted" in their class, and
+        // submissions that have been blacklisted will also have
+        // "blacklisted-active" in their class.  I think.
+
+        // Check for submissions with the classes they should have *after*
+        // the blacklist has run.  Excludede blacklisted submissions.
+        let links: HTMLAnchorElement[] = querySelectorAll("#posts-container .post-preview.blacklisted:not(.blacklisted-active) a") as HTMLAnchorElement[];
+        logger.log("e621: number of links found ", links.length);
+
+        // If none of the submissions have "blacklisted" in the class yet,
+        // bail out.  The mutationSelector should call us again after the
+        // blacklist script at e621 has run.
+        if(links.length === 0) {
+            logger.log("e621: bailing out early");
+            return null;
+            }
+
+        // If we get here, the blacklist script at e621 is probably done,
+        // and links should contain the list of submissions we want.
         logger.log("e621: raw links", links);
 
         // Pass the list of URLs, plus the submission IDs.
