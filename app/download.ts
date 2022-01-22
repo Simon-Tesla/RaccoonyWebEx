@@ -114,7 +114,7 @@ ${JSON.stringify(media, null, '  ')}
 
 function sanitizePath(pathPart: string) {
     // Replace any spaces with underscores
-    pathPart = pathPart.replace(" ", "_");
+    pathPart = pathPart.replace(/ /g, "_");
     // Replace any consecutive dots (e.g. "..") with a single dot.
     pathPart = pathPart.replace(/\.+/g, ".");
     // Replace any trailing dots
@@ -150,7 +150,7 @@ function replacePathPlaceholders(path: string, media: I.Media) {
     const currentTimestamp = `${currentDate.getTime()}`;
     const isoDate = DateTime.fromJSDate(currentDate).toFormat("yyyy-MM-dd");
     const isoTime = DateTime.fromJSDate(currentDate).toFormat("HHmmss");
-        
+
     const vars = {
         siteName: media.siteName,
         submissionId: media.submissionId,
