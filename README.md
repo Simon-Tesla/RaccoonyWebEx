@@ -23,10 +23,11 @@ For **Firefox** - download the XPI for the latest release on the **[releases pag
 For **Chrome** - install from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/raccoony-webextension/ejcbnfgeiphhnkmpjggnkkhnbefihelh)** 
 
 ## Building
-- Install [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com/) (usually comes with Node.js)
-- Run `npm install -g typescript gulp`
-- Run `npm install`
-- Run `gulp build`
+1. Install [Node.js](https://nodejs.org) and [npm](https://www.npmjs.com/) (usually comes with Node.js)
+    - Currently I recommend using Node v16 or later.
+    - I recommend using [nvm](https://github.com/nvm-sh/nvm) or [nvm-windows](https://github.com/coreybutler/nvm-windows) to install Node.js, especially if you develop other projects dependent on Node.js.
+2. Run `npm install`
+3. Run `npm run build`
 
 Extension files and build output will be in `dist/`.
 

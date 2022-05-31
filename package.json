@@ -7,7 +7,9 @@
     "url": "git+https://github.com/Simon-Tesla/RaccoonyWebEx.git"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "gulp build",
+    "clean": "gulp clean",
+    "sign": "gulp sign"
   },
   "author": "Simon-Tesla <simon.tesla@thornvalley.com>",
   "license": "MIT",
@@ -41,5 +43,9 @@
     "web-ext": "^6.3.0",
     "web-ext-types": "^3.2.1",
     "webpack-stream": "^6.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=7.0.0"
   }
 }
