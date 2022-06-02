@@ -1,4 +1,6 @@
-# Raccoony! ![Raccoony logo][logo]
+# Raccoony! 
+
+![Raccoony logo][logo]
 
 A web extension for Firefox and Chrome that adds shiny new features (like automatic downloading) to art sites. 
 Inspired by the [FurAffinity Extender](https://andrewneo.github.io/faextender/) and [Inkbunny Downloader](http://www.humbird0.com/#/addons/inkbunny_downloader) Firefox addons.
