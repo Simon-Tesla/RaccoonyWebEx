@@ -18,10 +18,11 @@ import * as logger from '../logger';
 // submission, getPageLinkList() will find no links.
 
 const serviceName = "e621";
+const mutationSelector = 'body';
 
 export class E621Plugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName);
+        super(serviceName, mutationSelector);
     }
 
     getMedia(): Promise<I.Media> {
@@ -199,7 +200,28 @@ export class E621Plugin extends BaseSitePlugin {
     getPageLinkList(): Promise<I.PageLinkList> {
         // Links will be of the format
         // https://e621.net/posts/[id]?q=[query]
-        let links: HTMLAnchorElement[] = querySelectorAll("#posts-container .post-preview a");
+
+        // e621 supports blacklisting certain tags.  A few tags are on
+        // the default blacklist, and users can add more if they want.
+        // Detect blacklisted submissions and avoid adding them to the
+        // list of links on this page.
+
+        // The class for each individual submission starts out *without*
+        // "blacklisted" in it.  Once e621's blacklist script runs,
+        // submissions that have been blacklisted will have "blacklisted"
+        // in their class.
+
+        // The mutation selector on body means that we will get called
+        // repeatedly, so eventually we will be called after the
+        // blacklist script has run.
+
+        // Check for submissions that aren't marked as blacklisted.
+        let links: HTMLAnchorElement[] = querySelectorAll("#posts-container .post-preview:not(.blacklisted) a") as HTMLAnchorElement[];
+        logger.log("e621: number of links found ", links.length);
+
+        // links should now contain the list of submissions we want.
+        // It's possible for links to be length 0 here, if *everything*
+        // on the page is blacklisted.
         logger.log("e621: raw links", links);
 
         // Pass the list of URLs, plus the submission IDs.
