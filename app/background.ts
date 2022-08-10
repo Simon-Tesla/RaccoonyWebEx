@@ -17,10 +17,11 @@ browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: c
             switch (request.action) {
                 case MessageAction.OpenTabs:
                     const list: I.PageLinkList = request.data;
+                    const switchToNewTab = settingsProvider.getExtensionSettings().switchToNewTab;
                     return openInTabs(
                         list, 
                         settingsProvider.getCurrentSettings(list.siteName),
-                        { windowId: sender.tab.windowId }
+                        { windowId: sender.tab.windowId, switchToNewTab: switchToNewTab }
                     );
                 case MessageAction.Download:
                     const media: I.Media = request.data;

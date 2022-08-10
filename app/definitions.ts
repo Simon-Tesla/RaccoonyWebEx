@@ -111,6 +111,7 @@ export interface SiteSettings {
 
 export interface ExtensionSettings {
     showContextMenu: boolean;
+    switchToNewTab?: boolean;
 }
 
 export interface AppState {
