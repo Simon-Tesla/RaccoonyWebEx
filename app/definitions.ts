@@ -48,6 +48,7 @@ export interface PageLinkList {
     siteName?: string;
     list: PageLink[];
     sortable: boolean;
+    overrideNewTabBehavior?: boolean;
 }
 
 export interface SitePlugin {
@@ -66,7 +67,7 @@ export interface SitePlugin {
 }
 
 export interface UserActions {
-    openPageLinksInTabs(): void;
+    openPageLinksInTabs(overrideNewTabBehavior?: boolean): void;
     downloadMedia(force?: boolean): void;
     showDownloadMedia(): void;
     toggleFullscreen(): void;

@@ -89,8 +89,9 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         });
     }
 
-    openPageLinksInTabs = () => {
+    openPageLinksInTabs = (overrideNewTabBehavior = false) => {
         this.props.siteActions.getPageLinkList().then((list) => {
+            list.overrideNewTabBehavior = overrideNewTabBehavior;
             sendMessage(E.MessageAction.OpenTabs, list);
         });
     }

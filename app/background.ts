@@ -10,14 +10,17 @@ logger.log("[background] setting up listeners");
 
 var settingsProvider = new CachedSettings();
 
-browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: chrome.runtime.MessageSender, sendResponse) => {
+browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: chrome.runtime.MessageSender, _sendResponse) => {
     logger.log("[background] received request", request.action, request);
     return settingsProvider.ready
         .then(() => {
             switch (request.action) {
                 case MessageAction.OpenTabs:
                     const list: I.PageLinkList = request.data;
-                    const switchToNewTab = settingsProvider.getExtensionSettings().switchToNewTab;
+                    let switchToNewTab = settingsProvider.getExtensionSettings().switchToNewTab;
+                    if (list.overrideNewTabBehavior) {
+                        switchToNewTab = !switchToNewTab;
+                    }
                     return openInTabs(
                         list, 
                         settingsProvider.getCurrentSettings(list.siteName),
