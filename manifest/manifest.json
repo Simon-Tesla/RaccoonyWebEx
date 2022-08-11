@@ -44,7 +44,6 @@
     }
   ],
   "web_accessible_resources": [
-    "delayload.html",
     "*.png"
   ],
   "homepage_url": "http://raccoony.thornvalley.com/",

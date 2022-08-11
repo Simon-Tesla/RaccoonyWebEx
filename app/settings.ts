@@ -19,6 +19,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
 
 export const DefaultExtensionSettings: I.ExtensionSettings = {
     showContextMenu: true,
+    switchToNewTab: true,
 };
 
 const DefaultSettingsKey = 'default_settings';

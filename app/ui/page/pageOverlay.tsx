@@ -59,8 +59,10 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         }
     }
 
-    private onClickOpenTabs = () => {
-        this.props.userActions.openPageLinksInTabs();
+    private onClickOpenTabs = (ev: React.MouseEvent) => {
+        const override = ev.button === 2; // override on right click
+        this.props.userActions.openPageLinksInTabs(override);
+        event.preventDefault();
     }
 
     private onClickDownload = () => {
@@ -143,13 +145,14 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                 className={mainClassNames}
                 onMouseEnter={this.onMouseOver}
                 onMouseLeave={this.onMouseOut}
+                onContextMenu={(ev) => ev.preventDefault()}
             >
                 <div id={n('badges')}>
                     <a id={n("close")} className={n("circlebtn")} title="Hide Raccoony"
                         onClick={this.onClickClose}
                     >{IconGlyph.Close}</a>
                     <a id={n('tabs')} className={n("circlebtn")} title="Open all in Tabs (Hotkey: T)"
-                        onClick={this.onClickOpenTabs}
+                        onMouseUp={this.onClickOpenTabs}
                         style={{ visibility: props.hasPageLinks ? 'visible' : 'hidden' }}
                     >{IconGlyph.OpenTabs}</a>
                     <a id={n('dl')} className={n("circlebtn")} title="Download (Hotkey: D)"
@@ -191,7 +194,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                     </ActionButton>
                                 )}
                                 {props.hasPageLinks && (
-                                    <ActionButton onClick={this.onClickOpenTabs} title="Hotkey: T" icon={IconGlyph.OpenTabs}>
+                                    <ActionButton onMouseUp={this.onClickOpenTabs} title="Hotkey: T" icon={IconGlyph.OpenTabs}>
                                         Open all in tabs
                                     </ActionButton>
                                 )}

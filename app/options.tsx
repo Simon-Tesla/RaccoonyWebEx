@@ -69,6 +69,16 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
         });
     }
 
+    onClickSwitchToNewTab = (event: React.MouseEvent<HTMLInputElement>) => {
+        const value = event.currentTarget.checked;
+        this.setState(state => {
+            state.extensionSettings.switchToNewTab = value;
+            saveExtensionSettings(state.extensionSettings)
+                .catch(this.onSettingsStoreUpdate);
+            return state;
+        })
+    }
+
     onClickExport = () => {
         // Create a JSON file of the settings and download it
         const settingsJson = JSON.stringify(this.settings.settings, null, 2);
@@ -145,6 +155,16 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                                     onClick={this.onClickShowContextMenu}
                                 />
                                 {" Show Raccoony in right-click menu"}
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={this.state.extensionSettings.switchToNewTab}
+                                    onClick={this.onClickSwitchToNewTab}
+                                />
+                                {" Switch to new tab when opening all in tabs"}
                             </label>
                         </div>
 

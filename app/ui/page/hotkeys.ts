@@ -14,7 +14,9 @@ export function initializeHotkeys(handler: I.UserActions) {
 
             switch (ev.key) {
                 case 't':
-                    return handler.openPageLinksInTabs();
+                    return handler.openPageLinksInTabs(ev.shiftKey);
+                case 'T':
+                    return handler.openPageLinksInTabs(true);
                 case 'd':
                     return handler.downloadMedia(ev.shiftKey);
                 case 'D':
