@@ -22,8 +22,18 @@ export default class SiteActions {
         return `${this.siteName}_settings`;
     }
 
+    async checkFileDownload(): Promise<I.Media> {
+        let media = await this.plugin.checkFileDownload();
+        return this.postProcessMediaData(media);
+    }
+
     async getMedia(): Promise<I.Media> {
         let media = await this.plugin.getMedia();
+        return this.postProcessMediaData(media);
+    }
+
+    async postProcessMediaData(media: I.Media): Promise<I.Media> {
+        // TODO: this should probably be moved into the base plugin?
         if (media) {
             const hasSiteFilename = !!media.siteFilename;
             media = await ensureMediaHasFilenameAndExtension(media);
@@ -47,6 +57,7 @@ export default class SiteActions {
             media.author = media.author || "unknown";
             return media;
         }
+        return null;
     }
 
     async getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {

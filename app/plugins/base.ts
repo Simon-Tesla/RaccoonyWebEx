@@ -26,6 +26,10 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         return Promise.resolve(null);
     }
 
+    checkFileDownload(): Promise<I.Media> {
+        return this.getMedia();
+    }
+
     getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {
         return Promise.resolve(null);
     }

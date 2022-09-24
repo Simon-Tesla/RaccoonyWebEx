@@ -31,7 +31,8 @@
         "*://*.aryion.com/*",
         "*://*.shorpy.com/*",
         "*://*.gearfetishx.com/*",
-        "*://*.hentai-foundry.com/*"
+        "*://*.hentai-foundry.com/*",
+        "*://*.newgrounds.com/*"
       ],
       "js": [
         "browser-polyfill.js",
