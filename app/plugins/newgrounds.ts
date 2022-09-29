@@ -253,11 +253,19 @@ export class NewgroundsPlugin extends BaseSitePlugin {
     }
 
     async hasPageLinkList(): Promise<boolean> {
-        return !!querySelector(galleryPageLinkSelector) || window.location.pathname.indexOf("/social") === 0;
+        return !!querySelector(galleryPageLinkSelector) || 
+            window.location.pathname.indexOf("/social") === 0 ||
+            window.location.pathname.indexOf("/favorites") === 0;
     }
 
     getFeedLinkList(): I.PageLink[] {
         const links: HTMLAnchorElement[] = querySelectorAll('.body-main a[href*="/art/view"], .body-main a[href*="/portal/view"], .body-main a[href*="/audio/listen"]');
+        const list = getPageLinksFromAnchors(links, () => null);
+        return list;
+    }
+
+    getFavoritesLinkList(): I.PageLink[] {
+        const links: HTMLAnchorElement[] = querySelectorAll('a.item-portalitem-art-small, a.item-portalsubmission-small, a.item-link');
         const list = getPageLinksFromAnchors(links, () => null);
         return list;
     }
@@ -277,11 +285,20 @@ export class NewgroundsPlugin extends BaseSitePlugin {
     async getPageLinkList(): Promise<I.PageLinkList> {
         // Newgrounds has an infinite scroll, so we cache the list of links that have been opened
         // and suppress those on subsequent calls. A refresh of the page clears the list.
-        const sortable = !(window.location.pathname.indexOf("/favorites/") === 0 || window.location.pathname.indexOf("/social") === 0)
-        let list = window.location.pathname.indexOf("/social") === 0 ? 
-            this.getFeedLinkList() : 
-            this.getSubmissionGalleryLinkList();
-
+        let sortable = false;
+        let list: I.PageLink[] = [];
+        const pathname = window.location.pathname;
+        if (pathname.indexOf("/social") === 0) {
+            list = this.getFeedLinkList();
+        }
+        else if (pathname.indexOf("/favorites") === 0) {
+            list = this.getFavoritesLinkList();
+        }
+        else {
+            list = this.getSubmissionGalleryLinkList();
+            sortable = true;
+        }
+        
         const foundLinks = list.length > 0;
 
         // Filter out links that we've already opened
