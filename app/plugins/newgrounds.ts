@@ -6,7 +6,7 @@ import * as logger from '../logger';
 import { MediaType } from '../enums';
 
 const serviceName = "newgrounds";
-const galleryPageLinkSelector = "a.item-portalitem-art-medium, a.inline-card-portalsubmission";
+const galleryPageLinkSelector = "a.item-portalitem-art-medium, a.inline-card-portalsubmission, a.item-audiosubmission";
 
 export class NewgroundsPlugin extends BaseSitePlugin {
     constructor() {
@@ -40,17 +40,29 @@ export class NewgroundsPlugin extends BaseSitePlugin {
     }
 
     async hasMedia(): Promise<boolean> {
-        return !!(this.getArtMedia()?.url || this.getAudioMedia()?.url || querySelector('video source'));
+        const canonicalUrl = new URL(this.getCanonicalUrl());
+        const pathname = canonicalUrl.pathname;
+        return pathname.indexOf('/portal/view/') === 0 ||
+            pathname.indexOf('/audio/listen/') === 0 ||
+            !!this.getArtMedia()?.url;
     }
 
     async getMedia(): Promise<I.Media> {
-        return this.getArtMedia() ??
-            this.getVideoMedia() ??
-            this.getAudioMedia();
+        const canonicalUrl = new URL(this.getCanonicalUrl());
+        const pathname = canonicalUrl.pathname;
+        if (pathname.indexOf('/portal/view/') === 0) {
+            return this.getVideoMedia();
+        }
+        else if (pathname.indexOf('/audio/listen/') === 0) {
+            return this.getAudioMedia();
+        }
+        else {
+            return this.getArtMedia();
+        }
     }
 
     async checkFileDownload(): Promise<I.Media> {
-        // Only check file downloads for art; videos have to be treated specially.
+        // Only check file downloads for art; other media has to be treated specially.
         return this.getArtMedia();
     }
 
@@ -241,24 +253,34 @@ export class NewgroundsPlugin extends BaseSitePlugin {
     }
 
     async hasPageLinkList(): Promise<boolean> {
-        return !!querySelector(galleryPageLinkSelector);
+        return !!querySelector(galleryPageLinkSelector) || window.location.pathname.indexOf("/social") === 0;
     }
 
-    async getPageLinkList(): Promise<I.PageLinkList> {
-        // TODO: This doesn't currently work on feed pages
-        // In theory we could force the page to scroll to the bottom multiple times until we get a number of entries matching
-        // the number we expect from the currently selected tab.
-        // Or we could have it so that each button press returns the next set of links.
+    getFeedLinkList(): I.PageLink[] {
+        const links: HTMLAnchorElement[] = querySelectorAll('.body-main a[href*="/art/view"], .body-main a[href*="/portal/view"], .body-main a[href*="/audio/listen"]');
+        const list = getPageLinksFromAnchors(links, () => null);
+        return list;
+    }
 
-        const sortable = window.location.pathname.indexOf("/favorites/") !== 0
+    getSubmissionGalleryLinkList(): I.PageLink[] {
         const links: HTMLAnchorElement[] = querySelectorAll(galleryPageLinkSelector);
-        let list = getPageLinksFromAnchors(links, (_, link) => {
+        const list = getPageLinksFromAnchors(links, (_, link) => {
             const thumbSrc = link.querySelector('img')?.src;
             const thumbUrl = new URL(thumbSrc);
             const filename = thumbUrl.pathname.split('/').pop();
             const id = filename.split('_').shift();
             return id;
         });
+        return list;
+    }
+
+    async getPageLinkList(): Promise<I.PageLinkList> {
+        // Newgrounds has an infinite scroll, so we cache the list of links that have been opened
+        // and suppress those on subsequent calls. A refresh of the page clears the list.
+        const sortable = !(window.location.pathname.indexOf("/favorites/") === 0 || window.location.pathname.indexOf("/social") === 0)
+        let list = window.location.pathname.indexOf("/social") === 0 ? 
+            this.getFeedLinkList() : 
+            this.getSubmissionGalleryLinkList();
 
         const foundLinks = list.length > 0;
 
