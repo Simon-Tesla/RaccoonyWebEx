@@ -53,7 +53,7 @@ function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
 }
 
 function getDownloadedFile(media: I.Media): Promise<browser.downloads.DownloadItem> {
-    return browser.downloads.search({ url: media.url })
+    return browser.downloads.search({ url: media.url, orderBy: (["-startTime"] as any) })
         .then((downloads) => {
             return (downloads || []).find(item => item.exists);
         })
