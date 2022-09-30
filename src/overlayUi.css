@@ -76,6 +76,7 @@
     display: inline-block;
     font-size: 16px !important;
     margin-right: 4px;
+    vertical-align: middle;
 }
 
 #ry-ui .ry-action.ry-cancel {
@@ -98,8 +99,7 @@
     width: 16px;
     height: 16px;
     line-height: 16px;
-    border: 2px solid #fff;
-    border-radius: 10px;
+    border-radius: 2px;
     text-align: center;
     font-size: 10px;
     text-decoration: none;
@@ -108,6 +108,10 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
     background-color: rgba(0, 0, 0, .5);
+}
+
+#ry-ui .ry-circlebtn * {
+    color: #fff;
 }
 
 #ry-ui #ry-tabs {
