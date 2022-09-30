@@ -59,6 +59,7 @@ export interface SitePlugin {
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
     getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media>;
+    checkFileDownload(): Promise<Media>;
 
     //TODO: implement support for these
     // previous
