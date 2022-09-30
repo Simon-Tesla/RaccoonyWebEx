@@ -110,7 +110,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
     render() {
         let props = this.props;
         let state = this.state;
-        let logoUrl = browser.extension.getURL('icon-64.png');
+        let logoUrl = browser.extension.getURL('raccoon.svg');
         let showUi = state.showUi && (props.hasMedia || props.hasPageLinks);
         let canDownload = props.downloadState === E.DownloadState.NotDownloaded;
         let showDownloadStatus = props.downloadState === E.DownloadState.InProgress ||
