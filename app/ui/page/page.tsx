@@ -21,6 +21,7 @@ interface PageState extends I.AppState {
     lightboxTitle: string;
     siteSettings: I.SiteSettings;
     settings: I.Settings;
+    extensionSettings: I.ExtensionSettings;
     enableZoom: boolean;
 }
 
@@ -29,13 +30,14 @@ export default class Page extends React.Component<PageProps, PageState> implemen
 
     private _hotkeysDisposer: () => void;
 
-    constructor(props: PageProps, context) {
-        super(props, context);
+    constructor(props: PageProps) {
+        super(props);
         this.state = {
             lightboxUrl: '',
             lightboxTitle: '',
             siteSettings: null,
             settings: null,
+            extensionSettings: null,
             enableZoom: true,
 
             hasMedia: false,
@@ -83,9 +85,11 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         const siteName = this.props.siteActions.siteName;
         const siteSettings = this.settingsProvider.getCurrentSettings(siteName);
         const settings = this.settingsProvider.getSettings(siteName)
+        const extensionSettings = this.settingsProvider.getExtensionSettings();
         this.setState({
             siteSettings,
-            settings
+            settings,
+            extensionSettings
         });
     }
 
@@ -188,6 +192,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     isFullscreen={this.state.isFullscreen}
                     siteSettings={this.state.siteSettings}
                     settings={this.state.settings}
+                    extensionSettings={this.state.extensionSettings}
                     onChangeSettings={this.onChangeSettings}
                     hasMedia={this.state.hasMedia}
                     hasPageLinks={this.state.hasPageLinks}

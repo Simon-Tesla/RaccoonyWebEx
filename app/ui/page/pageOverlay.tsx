@@ -16,6 +16,7 @@ interface PageOverlayProps extends I.AppState  {
     userActions: I.UserActions;
     siteSettings: I.SiteSettings;
     settings: I.Settings;
+    extensionSettings: I.ExtensionSettings;
     onClickFullscreen: () => void;
     onChangeSettings: (settings: I.Settings) => void;
 }
@@ -104,7 +105,8 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
     render() {
         let props = this.props;
         let state = this.state;
-        let logoUrl = browser.extension.getURL('raccoon.svg');
+        const logoFile = this.props.extensionSettings.pageOverlayIcon === E.PageOverlayIcon.Scruff ? 'scrufflogo.png' : 'raccoon.svg';
+        let logoUrl = browser.extension.getURL(logoFile);
         let showUi = state.showUi && (props.hasMedia || props.hasPageLinks);
         let canDownload = props.downloadState === E.DownloadState.NotDownloaded;
         let showDownloadStatus = props.downloadState === E.DownloadState.InProgress ||

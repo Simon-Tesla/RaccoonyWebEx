@@ -46,8 +46,10 @@
     padding: 4px;
     box-sizing: border-box;
     min-width: 150px;
+    min-height: 44px;
     margin: 4px;
     cursor: default;
+    line-height: normal;
 }
 
 #ry-ui .ry-action,

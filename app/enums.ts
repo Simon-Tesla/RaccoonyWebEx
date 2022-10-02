@@ -54,3 +54,8 @@ export enum DownloadDestination {
     ContextMenuDefault,
     // TODO: add support for custom download destinations
 }
+
+export enum PageOverlayIcon {
+    Default = "Default",
+    Scruff = "Scruff"
+}

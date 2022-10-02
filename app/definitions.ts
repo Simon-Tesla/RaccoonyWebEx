@@ -114,6 +114,7 @@ export interface SiteSettings {
 export interface ExtensionSettings {
     showContextMenu: boolean;
     switchToNewTab?: boolean;
+    pageOverlayIcon?: E.PageOverlayIcon;
 }
 
 export interface AppState {

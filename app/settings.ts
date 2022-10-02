@@ -1,6 +1,6 @@
 import * as I from './definitions';
 import * as logger from './logger';
-import { MediaType, TabLoadOrder, TabLoadType } from './enums';
+import { PageOverlayIcon, TabLoadOrder, TabLoadType } from './enums';
 
 // Do not introduce settings unless they are used, in order to avoid introducing bad default settings.
 export const DefaultSiteSettings: I.SiteSettings = {
@@ -20,6 +20,7 @@ export const DefaultSiteSettings: I.SiteSettings = {
 export const DefaultExtensionSettings: I.ExtensionSettings = {
     showContextMenu: true,
     switchToNewTab: true,
+    pageOverlayIcon: PageOverlayIcon.Default
 };
 
 const DefaultSettingsKey = 'default_settings';
