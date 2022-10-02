@@ -5,7 +5,7 @@ import SiteSettingsUi from './ui/siteSettingsUi';
 import { CachedSettings, DefaultSiteSettings, saveDefaultSettings, clearDefaultSettings, clearAllSettings, saveAllSettings, saveExtensionSettings } from './settings';
 import ActionButton from './ui/page/actionButton';
 import { n } from './ui/page/common';
-import { MouseEvent } from 'react';
+import { PageOverlayIcon } from './enums';
 
 document.addEventListener("DOMContentLoaded", () => {
     let rootElt = document.getElementById('app');
@@ -25,8 +25,8 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
     private settings: CachedSettings;
     private fileInput: HTMLInputElement;
 
-    constructor(props, context) {
-        super(props, context);
+    constructor(props) {
+        super(props);
         this.state = {
             ready: false,
             extensionSettings: null,
@@ -49,6 +49,11 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
         })
     }
 
+    saveExtensionSettings(state: OptionsPageState) {
+        saveExtensionSettings(state.extensionSettings)
+            .catch(this.onSettingsStoreUpdate);
+    }
+
     onUpdateSettings = (settings: I.SiteSettings) => {
         // Optimistically update internal state then fire a call to update the store
         // If it fails, we'll refresh back to the current state.
@@ -63,8 +68,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
         const value = event.currentTarget.checked;
         this.setState(state => {
             state.extensionSettings.showContextMenu = value;
-            saveExtensionSettings(state.extensionSettings)
-                .catch(this.onSettingsStoreUpdate);
+            this.saveExtensionSettings(state);
             return state;
         });
     }
@@ -73,10 +77,18 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
         const value = event.currentTarget.checked;
         this.setState(state => {
             state.extensionSettings.switchToNewTab = value;
-            saveExtensionSettings(state.extensionSettings)
-                .catch(this.onSettingsStoreUpdate);
+            this.saveExtensionSettings(state);
             return state;
         })
+    }
+
+    onChangePageLogo = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = event.currentTarget.value as PageOverlayIcon;
+        this.setState(state => {
+            state.extensionSettings.pageOverlayIcon = value;
+            this.saveExtensionSettings(state);
+            return state;
+        });
     }
 
     onClickExport = () => {
@@ -165,6 +177,15 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                                     onClick={this.onClickSwitchToNewTab}
                                 />
                                 {" Switch to new tab when opening all in tabs"}
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                {"Page overlay icon: "}
+                                <select onChange={this.onChangePageLogo} value={this.state.extensionSettings.pageOverlayIcon}>
+                                    <option value={PageOverlayIcon.Default}>Default icon</option>
+                                    <option value={PageOverlayIcon.Scruff}>Legacy icon by ScruffKerfluff</option>
+                                </select>
                             </label>
                         </div>
 
