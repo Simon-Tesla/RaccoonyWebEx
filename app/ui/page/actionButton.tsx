@@ -12,16 +12,17 @@ export interface ActionButtonProps extends React.ButtonHTMLAttributes<HTMLButton
 
 export default class ActionButton extends React.Component<ActionButtonProps, {}> {
     render() {
+        const { icon, children, ...buttonProps } = this.props;
         let className = classnames(n('action'), this.props.className);
         return (
             <button
-                {...this.props}
+                {...buttonProps}
                 className={className}
             >
-                {this.props.icon && (
-                    <span>{this.props.icon}</span>
+                {icon && (
+                    <span>{icon}</span>
                 )}
-                {this.props.children}
+                {children}
             </button >
         );
     }

@@ -7,6 +7,7 @@ import ActionButton, { ActionButtonProps } from './actionButton';
 import SettingsUi from './settingsUi';
 import { n } from './common'
 import SiteActions from '../siteActions'
+import { IconDownload, IconFolder, IconZoomIn, IconZoomOut, IconTab, IconSettings, IconClose, IconCheck, IconError, IconSpinner, SvgIconProps } from './icons';
 
 const IconGlyph = E.IconGlyph;
 
@@ -15,6 +16,7 @@ interface PageOverlayProps extends I.AppState  {
     userActions: I.UserActions;
     siteSettings: I.SiteSettings;
     settings: I.Settings;
+    extensionSettings: I.ExtensionSettings;
     onClickFullscreen: () => void;
     onChangeSettings: (settings: I.Settings) => void;
 }
@@ -28,43 +30,38 @@ interface DownloadButtonProps extends ActionButtonProps {
     label: string,
 }
 
-const downloadButtonDefaultProps: { [state: number]: DownloadButtonProps } = {};
-downloadButtonDefaultProps[E.DownloadState.Done] = downloadButtonDefaultProps[E.DownloadState.Exists] = {
-    icon: IconGlyph.Exists,
-    label: "Downloaded",
-    disabled: true,
-}
-downloadButtonDefaultProps[E.DownloadState.Error] = {
-    icon: IconGlyph.Download,
-    label: "Download error",
-}
-downloadButtonDefaultProps[E.DownloadState.InProgress] = {
-    icon: IconGlyph.Download,
-    label: "Downloading",
-    disabled: true,
-}
-downloadButtonDefaultProps[E.DownloadState.NotDownloaded] = {
-    icon: IconGlyph.Download,
-    label: "Download",
-}
+
+const DownloadStatusUi: { [state: number]: JSX.Element } = {};
+DownloadStatusUi[E.DownloadState.Done] = DownloadStatusUi[E.DownloadState.Exists] =
+    <IconCheck title="Downloaded" />
+DownloadStatusUi[E.DownloadState.Error] = <IconError title="Download error" />
+DownloadStatusUi[E.DownloadState.InProgress] = <IconSpinner title="Downloading" />
 
 export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> {
     private _mouseLeaveTimeout: number;
 
-    constructor(props: PageOverlayProps, context) {
-        super(props, context);
+    constructor(props: PageOverlayProps) {
+        super(props);
         this.state = {
             showUi: true,
             showBalloon: false,
         }
     }
 
-    private onClickOpenTabs = () => {
-        this.props.userActions.openPageLinksInTabs();
+    private onClickOpenTabs = (ev: React.MouseEvent) => {
+        const override = ev.button === 2; // override on right click
+        this.props.userActions.openPageLinksInTabs(override);
+        ev.preventDefault();
     }
 
     private onClickDownload = () => {
-        this.props.userActions.downloadMedia();
+        let force = false;
+        if (this.props.downloadState === E.DownloadState.Exists)  {
+            const force = confirm("Raccoony has already downloaded this. Download again?");
+        } else if (this.props.downloadState === E.DownloadState.Error) {
+            const force = confirm("Raccoony encountered an error when downloading this previously. Try downloading again?");
+        }
+        this.props.userActions.downloadMedia(force); 
     }
 
     private onClickOpenFolder = () => {
@@ -108,7 +105,8 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
     render() {
         let props = this.props;
         let state = this.state;
-        let logoUrl = browser.extension.getURL('icon-64.png');
+        const logoFile = this.props.extensionSettings.pageOverlayIcon === E.PageOverlayIcon.Scruff ? 'scrufflogo.png' : 'raccoon.svg';
+        let logoUrl = browser.extension.getURL(logoFile);
         let showUi = state.showUi && (props.hasMedia || props.hasPageLinks);
         let canDownload = props.downloadState === E.DownloadState.NotDownloaded;
         let showDownloadStatus = props.downloadState === E.DownloadState.InProgress ||
@@ -134,7 +132,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
             );
         }
 
-        const downloadButtonProps = downloadButtonDefaultProps[props.downloadState];
+        const downloadStatusUi = DownloadStatusUi[props.downloadState];
 
         //TODO: fix mini-download button if the downloaded file exists
         return (
@@ -143,18 +141,19 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                 className={mainClassNames}
                 onMouseEnter={this.onMouseOver}
                 onMouseLeave={this.onMouseOut}
+                onContextMenu={(ev) => ev.preventDefault()}
             >
                 <div id={n('badges')}>
                     <a id={n("close")} className={n("circlebtn")} title="Hide Raccoony"
                         onClick={this.onClickClose}
-                    >{IconGlyph.Close}</a>
+                    >{IconClose}</a>
                     <a id={n('tabs')} className={n("circlebtn")} title="Open all in Tabs (Hotkey: T)"
-                        onClick={this.onClickOpenTabs}
+                        onMouseUp={this.onClickOpenTabs}
                         style={{ visibility: props.hasPageLinks ? 'visible' : 'hidden' }}
-                    >{IconGlyph.OpenTabs}</a>
+                    >{IconTab}</a>
                     <a id={n('dl')} className={n("circlebtn")} title="Download (Hotkey: D)"
                         style={{ visibility: props.hasMedia && canDownload ? 'visible' : 'hidden' }}
-                    >{IconGlyph.Download}</a>
+                    >{IconDownload}</a>
                 </div>
                 <a id={n("imglink")} title="Raccoony - click for page options">
                     <img src={logoUrl} id={n("img")} width={64} height={64} />
@@ -168,30 +167,30 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                 {props.hasMedia && (
                                     <ActionButton
                                         onClick={this.onClickDownload}
-                                        title={downloadButtonProps.disabled ? null : 'Hotkey: D'}
-                                        icon={downloadButtonProps.icon}
-                                        disabled={downloadButtonProps.disabled}
+                                        title={'Hotkey: D'}
+                                        icon={downloadStatusUi || IconDownload}
+                                        disabled={props.downloadState === E.DownloadState.InProgress}
                                     >
-                                        {downloadButtonProps.label}
+                                        Download
                                     </ActionButton>
                                 )}
                                 {props.hasMedia && (props.downloadState === E.DownloadState.Exists || props.downloadState === E.DownloadState.Done) && (
-                                    <ActionButton onClick={this.onClickOpenFolder} title="Hotkey: F" icon={IconGlyph.OpenFolder}>
+                                    <ActionButton onClick={this.onClickOpenFolder} title="Hotkey: F" icon={IconFolder}>
                                         Open folder
                                     </ActionButton >
                                 )}
                                 {props.canFullscreen && !props.isFullscreen && (
-                                    <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.Fullscreen}>
+                                    <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconZoomIn}>
                                         Fullscreen
                                     </ActionButton>
                                 )}
                                 {props.isFullscreen && (
-                                    <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconGlyph.ExitFullscreen}>
+                                    <ActionButton onClick={this.onClickFullscreen} title="Hotkey: O" icon={IconZoomOut}>
                                         Exit fullscreen
                                     </ActionButton>
                                 )}
                                 {props.hasPageLinks && (
-                                    <ActionButton onClick={this.onClickOpenTabs} title="Hotkey: T" icon={IconGlyph.OpenTabs}>
+                                    <ActionButton onMouseUp={this.onClickOpenTabs} title="Hotkey: T" icon={IconTab}>
                                         Open all in tabs
                                     </ActionButton>
                                 )}
@@ -199,7 +198,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                                     onClick={this.onClickOptions}
                                     className={n('nolabel')}
                                     title="Configure Raccoony"
-                                    icon={IconGlyph.Config}
+                                    icon={IconSettings}
                                 ></ActionButton>
                             </div >
                         )}

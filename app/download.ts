@@ -53,7 +53,7 @@ function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
 }
 
 function getDownloadedFile(media: I.Media): Promise<browser.downloads.DownloadItem> {
-    return browser.downloads.search({ url: media.url })
+    return browser.downloads.search({ url: media.url, orderBy: (["-startTime"] as any) })
         .then((downloads) => {
             return (downloads || []).find(item => item.exists);
         })
@@ -114,7 +114,7 @@ ${JSON.stringify(media, null, '  ')}
 
 function sanitizePath(pathPart: string) {
     // Replace any spaces with underscores
-    pathPart = pathPart.replace(" ", "_");
+    pathPart = pathPart.replace(/ /g, "_");
     // Replace any consecutive dots (e.g. "..") with a single dot.
     pathPart = pathPart.replace(/\.+/g, ".");
     // Replace any trailing dots
@@ -150,7 +150,7 @@ function replacePathPlaceholders(path: string, media: I.Media) {
     const currentTimestamp = `${currentDate.getTime()}`;
     const isoDate = DateTime.fromJSDate(currentDate).toFormat("yyyy-MM-dd");
     const isoTime = DateTime.fromJSDate(currentDate).toFormat("HHmmss");
-        
+
     const vars = {
         siteName: media.siteName,
         submissionId: media.submissionId,

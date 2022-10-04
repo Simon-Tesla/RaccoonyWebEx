@@ -41,10 +41,10 @@ export function getLargestImageElement(thresholdPx: number = MinimumImageElement
     return largestImg;
 }
 
-export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string) => string): PageLink[] {
+export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string, linkElt: HTMLAnchorElement) => string): PageLink[] {
     return links.map(linkElt => {
         let href = linkElt.href;
-        let id = getIdFromSubmissionUrl(href);
+        let id = getIdFromSubmissionUrl(href, linkElt);
 
         let link: PageLink = {
             url: href,

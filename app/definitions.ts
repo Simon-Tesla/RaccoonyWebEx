@@ -48,6 +48,7 @@ export interface PageLinkList {
     siteName?: string;
     list: PageLink[];
     sortable: boolean;
+    overrideNewTabBehavior?: boolean;
 }
 
 export interface SitePlugin {
@@ -58,6 +59,7 @@ export interface SitePlugin {
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
     getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media>;
+    checkFileDownload(): Promise<Media>;
 
     //TODO: implement support for these
     // previous
@@ -66,7 +68,7 @@ export interface SitePlugin {
 }
 
 export interface UserActions {
-    openPageLinksInTabs(): void;
+    openPageLinksInTabs(overrideNewTabBehavior?: boolean): void;
     downloadMedia(force?: boolean): void;
     showDownloadMedia(): void;
     toggleFullscreen(): void;
@@ -111,6 +113,8 @@ export interface SiteSettings {
 
 export interface ExtensionSettings {
     showContextMenu: boolean;
+    switchToNewTab?: boolean;
+    pageOverlayIcon?: E.PageOverlayIcon;
 }
 
 export interface AppState {

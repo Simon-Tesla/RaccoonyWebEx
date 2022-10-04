@@ -7,6 +7,7 @@ import './gfx'
 import './hentaifoundry';
 import './hiccears';
 import './inkbunny';
+import './newgrounds';
 import './patreon';
 import './shorpy';
 import './sofurry';

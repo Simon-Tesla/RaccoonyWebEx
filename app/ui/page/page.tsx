@@ -21,6 +21,7 @@ interface PageState extends I.AppState {
     lightboxTitle: string;
     siteSettings: I.SiteSettings;
     settings: I.Settings;
+    extensionSettings: I.ExtensionSettings;
     enableZoom: boolean;
 }
 
@@ -29,13 +30,14 @@ export default class Page extends React.Component<PageProps, PageState> implemen
 
     private _hotkeysDisposer: () => void;
 
-    constructor(props: PageProps, context) {
-        super(props, context);
+    constructor(props: PageProps) {
+        super(props);
         this.state = {
             lightboxUrl: '',
             lightboxTitle: '',
             siteSettings: null,
             settings: null,
+            extensionSettings: null,
             enableZoom: true,
 
             hasMedia: false,
@@ -83,20 +85,26 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         const siteName = this.props.siteActions.siteName;
         const siteSettings = this.settingsProvider.getCurrentSettings(siteName);
         const settings = this.settingsProvider.getSettings(siteName)
+        const extensionSettings = this.settingsProvider.getExtensionSettings();
         this.setState({
             siteSettings,
-            settings
+            settings,
+            extensionSettings
         });
     }
 
-    openPageLinksInTabs = () => {
+    openPageLinksInTabs = (overrideNewTabBehavior = false) => {
         this.props.siteActions.getPageLinkList().then((list) => {
+            list.overrideNewTabBehavior = overrideNewTabBehavior;
             sendMessage(E.MessageAction.OpenTabs, list);
         });
     }
 
     downloadMedia = (force: boolean = false) => {
         this.props.siteActions.getMedia().then((media) => {
+            if (!media) {
+                return;
+            }
             const { downloadState } = this.state;
             if (!force && (downloadState === E.DownloadState.InProgress ||
                 downloadState === E.DownloadState.Done ||
@@ -184,6 +192,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     isFullscreen={this.state.isFullscreen}
                     siteSettings={this.state.siteSettings}
                     settings={this.state.settings}
+                    extensionSettings={this.state.extensionSettings}
                     onChangeSettings={this.onChangeSettings}
                     hasMedia={this.state.hasMedia}
                     hasPageLinks={this.state.hasPageLinks}
@@ -216,26 +225,28 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         });
         if (hasMedia) {
             // Check to see if the file has been downloaded
-            const media = await this.props.siteActions.getMedia();
-            if (media && media.type === E.MediaType.Image) {
-                this.setState({ canFullscreen: true });
-            }
-            const isDownloaded: boolean = await sendMessage(E.MessageAction.CheckDownload, media);
-            if (isDownloaded) {
-                this.setState({ downloadState: E.DownloadState.Exists });
-            }
-            else {
-                // Wait for the settings to be ready before checking for the autoDownload setting.
-                await this.settingsProvider.ready;
-                // And an extra delay for state to settle. 
-                // This is a bit hackish, as we could initialize the download sooner if we waited on the setState call
-                // somehow, but starting the auto-download isn't exactly time-critical either.
-                // Also, I'd like to refactor all of this with hooks and context at some point anyway.
-                await sleep(200);
-                if (this.state.siteSettings.autoDownload) {
-                    this.downloadMedia();
+            const media = await this.props.siteActions.checkFileDownload();
+            if (media) {
+                if (media.type === E.MediaType.Image) {
+                    this.setState({ canFullscreen: true });
                 }
-            }   
+                const isDownloaded: boolean = await sendMessage(E.MessageAction.CheckDownload, media);
+                if (isDownloaded) {
+                    this.setState({ downloadState: E.DownloadState.Exists });
+                }
+                else {
+                    // Wait for the settings to be ready before checking for the autoDownload setting.
+                    await this.settingsProvider.ready;
+                    // And an extra delay for state to settle. 
+                    // This is a bit hackish, as we could initialize the download sooner if we waited on the setState call
+                    // somehow, but starting the auto-download isn't exactly time-critical either.
+                    // Also, I'd like to refactor all of this with hooks and context at some point anyway.
+                    await sleep(200);
+                    if (this.state.siteSettings.autoDownload) {
+                        this.downloadMedia();
+                    }
+                }   
+            }
         }
         
         const hasPageLinks = await this.props.siteActions.hasPageLinkList();
