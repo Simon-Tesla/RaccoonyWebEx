@@ -50,6 +50,9 @@ function createBundleJsFile(filename) {
             // The "none" output is most like the original JS.
             "mode": "none",
             "output": { filename },
+            // TODO: need to turn this off for the non-dev version
+            // TODO: make webpack run the typescript compilation as well so that we can generate source maps against the original files
+            //"devtool": "inline-source-map" 
         }))
         .pipe(gulp.dest(`${outputDir}/ext/`));
 }
