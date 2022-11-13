@@ -4,5 +4,8 @@
       "id": "raccoony@thornvalley.com",
       "update_url": "https://raw.github.com/Simon-Tesla/RaccoonyWebEx/master/updates.json"
     }
+  },
+  "background": {
+    "persistent": true
   }
 }
