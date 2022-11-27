@@ -205,7 +205,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                         mainSrc={this.state.lightboxUrl}
                         onCloseRequest={this.onClickLightboxClose}
                         reactModalStyle={{
-                            overlay: { zIndex: 1000000 }
+                            overlay: { zIndex: 100000000 }
                         }}
                         imageTitle={title}
                         onImageLoadError={this.onFullscreenError}
