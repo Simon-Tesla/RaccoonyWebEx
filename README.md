@@ -1,5 +1,5 @@
 # Raccoony! 
-![Raccoony logo][oldlogo]
+![Raccoony logo][logo]
 
 **Now with 100% more WebExtension goodness™**
 
