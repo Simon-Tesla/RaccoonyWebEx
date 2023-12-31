@@ -3,85 +3,64 @@ import { default as BaseSitePlugin, registerPlugin } from './base';
 import { querySelectorAll, querySelector, getPageLinksFromAnchors, getLargestImageElement } from '../utils/dom';
 import * as logger from '../logger';
 import { isValidExtensionForType, isValidExtension } from '../utils/file';
+import { MediaType } from '../enums';
 
 const serviceName = "patreon";
 
 export class PatreonPlugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName, '#reactTarget');
+        super(serviceName, '[data-reactroot]');
     }
 
-    getMedia(): Promise<I.Media> {
-        return new Promise(function (resolve, reject) {
-            try {
-                // Get the post image
-                let image: HTMLImageElement = querySelector(".patreon-creation-shim--image") ||
-                    querySelector("[data-test-tag=post-card] img") ||
-                    querySelector("[data-tag=post-card] img");
+    async getMediaForSrcUrl(mediaUrl: string, mediaType: MediaType): Promise<I.Media> {
+        return {
+            url: mediaUrl,
+            previewUrl: mediaUrl,
+            siteName: serviceName,
+            ...this.getFilenameAndId(mediaUrl),
+            ...this.getGlobalPostMetadata(),
+        }
+    }
 
-                if (!image && window.location.pathname.startsWith('/posts/')) {
-                    // Since Patreon uses some CSS module library that munges things like class names,
-                    // this can be hard to scrape. In the worst case, fall back to the largest image on the page.
-                    image = getLargestImageElement();
-                }
+    async getMedia(): Promise<I.Media> {
+        // TODO: Patreon currently hides a wealth of data in a JSON blob in script#__NEXT_DATA__
+        // This may be a very useful source of data to scrape, depending on how stable the schema is
+        // Most of the interesting data exists in props.pageProps.bootstrapEnvelope.bootstrap.post
+        // 'data' contains metadata for the post itself,
+        // 'included' contains info on the media inside the post (among other things) - the full-size 
+        // image URLs appear to be represented here and are referenced by an ID number.
+        try {
+            // Get the post image
+            let mediaElt: HTMLImageElement | HTMLAudioElement = 
+                // New 2023 Patreon layout
+                querySelector('[data-tag=post-card] img')
+                || querySelector('audio[tag=audio-player]')
+                || querySelector("[data-tag=post-card] audio")
+                // Old Patreon layout
+                || querySelector(".patreon-creation-shim--image");
 
-                if (!image) {
-                    resolve(null)
-                    return;
-                }
-                let url = new URL(image.src);
-
-                // Patreon image URLs usually look like so:
-                // https://cdn3.patreon.com/1/patreon.posts/#####.jpg?v=####                    
-                let extIndex = url.pathname.lastIndexOf(".");
-                let ext = url.pathname.substring(extIndex + 1);
-                // Some newer patreon URLs don't contain extensions in them; leave it null if it doesn't
-                if (ext && (extIndex > -1 || !isValidExtension(ext))) {
-                    ext = null;
-                }
-
-                // Get the filename
-                // Patreon page URLs look like so:
-                // https://www.patreon.com/posts/[filename]-[id]
-                let pageUrlSlug = window.location.pathname.split('/').pop();
-                let slugParts = pageUrlSlug.split('-');
-                let id = slugParts.length > 0 ? slugParts.pop() : pageUrlSlug;
-                let filename = slugParts.length > 0 ? slugParts.join('-') : pageUrlSlug;
-
-                // Get the username
-                let titleParts = document.title.split('|');
-                let username = titleParts[1];
-                let trimIdx = username.lastIndexOf(' on Patreon');
-                username = username.substring(0, trimIdx).trim();
-
-                let title = titleParts[0].trim();
-                let descriptionElt = querySelector(".patreon-creation-shim--text--body") ||
-                    querySelector("[class$='Post--postContentWrapper text']") ||
-                    querySelector("[data-tag=post-content]");
-                let description = (descriptionElt && descriptionElt.textContent.trim()) || '';
-                let tagsElts = querySelectorAll("[class$='Post--postTags'] a");
-                tagsElts = tagsElts.length > 0 ? tagsElts : querySelectorAll("[data-tag=post-tags] a");
-                let tags = tagsElts.map(elt => elt.textContent);
-
-                let media: I.Media = {
-                    url: url.href,
-                    previewUrl: url.href,
-                    author: username,
-                    filename: filename,
-                    extension: ext,
-                    submissionId: id,
-                    siteName: serviceName,
-                    title: title,
-                    description: description,
-                    tags: tags
-                };
-                resolve(media);
-            } catch (e) {
-                // swallow errors
-                logger.error("patreon", e.message, e);
-                reject(e);
+            if (!mediaElt && window.location.pathname.startsWith('/posts/')) {
+                // Since Patreon uses some CSS module library that munges things like class names,
+                // this can be hard to scrape. In the worst case, fall back to the largest image on the page.
+                mediaElt = getLargestImageElement();
             }
-        });
+
+            if (!mediaElt) {
+                return null;
+            }
+            const mediaUrl = mediaElt.src;
+
+            return {
+                url: mediaUrl,
+                previewUrl: mediaUrl,
+                siteName: serviceName,
+                ...this.getFilenameAndId(mediaUrl),
+                ...this.getGlobalPostMetadata(),
+            }
+        } catch (e) {
+            logger.error("patreon", e.message, e);
+            throw e;
+        }
     }
 
     getPageLinkList(): Promise<I.PageLinkList> {
@@ -114,6 +93,77 @@ export class PatreonPlugin extends BaseSitePlugin {
             sortable: true,
         }
         return Promise.resolve(pageList);
+    }
+
+    
+    private getTags() {
+        let tagsElts = querySelectorAll("[data-tag=post-tags] a");
+        return tagsElts.map(elt => elt.textContent);
+    }
+
+    private getPostMetadataJson() {
+        // Note: there are multiple matching tags of this type. 
+        // The first one should contain the description, but for resiliancy we'll do some basic duck typing.
+        const jsonScriptElts = querySelectorAll('script[type="application/ld+json"]');
+        for (const scriptElt of jsonScriptElts) {
+            const res = JSON.parse(scriptElt.textContent);
+            if (res.author && res.description) {
+                return res as {
+                    author: { name: string },
+                    name: string,
+                    description: string
+                };
+            }
+        }
+    }
+
+    private getGlobalPostMetadata(): Pick<I.Media, 'title' | 'author' | 'description' | 'tags'> {
+        const metadata = this.getPostMetadataJson();
+        const tags = this.getTags();
+        if (metadata) {
+            return {
+                author: metadata.author.name,
+                title: metadata.name,
+                description: metadata.description,
+                tags
+            }
+        }
+        else {
+            // Fall back to Open Graph tags if we couldn't find the metadata
+            // Format: "[Title] | [Creator]"
+            const ogTitle = querySelector('meta[property="og:title"]')?.getAttribute('content');
+            const titleParts = ogTitle.split('|');
+            return {
+                author: titleParts[1].trim(),
+                title: titleParts[0].trim(),
+                description: '', // The description is in an element not marked with any easy to scrape class names. 
+                tags
+            }
+        }
+    }
+
+    private getFilenameAndId(urlSrc: string): Pick<I.Media, 'filename' | 'extension' | 'submissionId'> {
+        // Patreon image URLs usually look like so:
+        // https://c10.patreonusercontent.com/4/patreon-media/p/post/###/###/[base64encodedJSON]/1.[ext]?token-time=[###]&token-hash=[###]"            
+        let url = new URL(urlSrc);
+        let extIndex = url.pathname.lastIndexOf(".");
+        let extension = url.pathname.substring(extIndex + 1);
+        // Some newer patreon URLs don't contain extensions in them; leave it null if it doesn't
+        if (extension && (extIndex > -1 || !isValidExtension(extension))) {
+            extension = null;
+        }
+
+        // Patreon page URLs look like so:
+        // https://www.patreon.com/posts/[filename]-[id]
+        let pageUrlSlug = window.location.pathname.split('/').pop();
+        let slugParts = pageUrlSlug.split('-');
+        let submissionId = slugParts.length > 0 ? slugParts.pop() : pageUrlSlug;
+        let filename = slugParts.length > 0 ? slugParts.join('-') : pageUrlSlug;
+        return {
+            filename,
+            extension,
+            submissionId
+        }
     }
 }
 
