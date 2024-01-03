@@ -34,7 +34,8 @@
         "*://*.shorpy.com/*",
         "*://*.gearfetishx.com/*",
         "*://*.hentai-foundry.com/*",
-        "*://*.newgrounds.com/*"
+        "*://*.newgrounds.com/*",
+        "*://*.itaku.ee/*"
       ],
       "js": [
         "browser-polyfill.js",
