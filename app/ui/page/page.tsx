@@ -219,41 +219,49 @@ export default class Page extends React.Component<PageProps, PageState> implemen
     private async initialize() {
         logger.log("initializing page UI");
         const hasMedia = await this.props.siteActions.hasMedia();
-        logger.log("hasMedia", hasMedia);
-        this.setState({
+        const hasPageLinks = await this.props.siteActions.hasPageLinkList();
+        logger.log("hasItems", { hasMedia, hasPageLinks });
+
+        const newState = {
             hasMedia,
-        });
+            hasPageLinks,
+            isFullscreen: false,
+            canFullscreen: false,
+            downloadState: E.DownloadState.NotDownloaded,
+        } as PageState
+
         if (hasMedia) {
             // Check to see if the file has been downloaded
             const media = await this.props.siteActions.checkFileDownload();
             if (media) {
                 if (media.type === E.MediaType.Image) {
-                    this.setState({ canFullscreen: true });
+                    newState.canFullscreen = true;
                 }
                 const isDownloaded: boolean = await sendMessage(E.MessageAction.CheckDownload, media);
                 if (isDownloaded) {
-                    this.setState({ downloadState: E.DownloadState.Exists });
+                    newState.downloadState = E.DownloadState.Exists;
                 }
                 else {
-                    // Wait for the settings to be ready before checking for the autoDownload setting.
-                    await this.settingsProvider.ready;
-                    // And an extra delay for state to settle. 
-                    // This is a bit hackish, as we could initialize the download sooner if we waited on the setState call
-                    // somehow, but starting the auto-download isn't exactly time-critical either.
-                    // Also, I'd like to refactor all of this with hooks and context at some point anyway.
-                    await sleep(200);
-                    if (this.state.siteSettings.autoDownload) {
-                        this.downloadMedia();
-                    }
-                }   
+                    // Fire-and-forget the download call
+                    this.downloadAfterInitialized();
+                }
             }
         }
-        
-        const hasPageLinks = await this.props.siteActions.hasPageLinkList();
-        logger.log("hasPageLinks", hasPageLinks);
-        this.setState({
-            hasPageLinks,
-        });
+
+        this.setState(newState);
+    }
+
+    private async downloadAfterInitialized() {
+        // Wait for the settings to be ready before checking for the autoDownload setting.
+        await this.settingsProvider.ready;
+        // And an extra delay for state to settle. 
+        // This is a bit hackish, as we could initialize the download sooner if we waited on the setState call
+        // somehow, but starting the auto-download isn't exactly time-critical either.
+        // Also, I'd like to refactor all of this with hooks and context at some point anyway.
+        await sleep(200);
+        if (this.state.siteSettings.autoDownload) {
+            this.downloadMedia();
+        }
     }
 
     private enableHotkeys() {
