@@ -12,6 +12,7 @@ import './newgrounds';
 import './patreon';
 import './shorpy';
 import './sofurry';
+import './subscribestar';
 import './tumblr';
 import './weasyl';
 
