@@ -48,6 +48,11 @@ export interface PageLinkList {
     siteName?: string;
     list: PageLink[];
     sortable: boolean;
+
+    /** If set to true, Raccoony will try to avoid re-opening links it's already opened from the current page */
+    infiniteScroll?: boolean;
+
+    /** If true, overrides the switchToNewTab setting. Plugins should not set this. */
     overrideNewTabBehavior?: boolean;
 }
 

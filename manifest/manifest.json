@@ -35,7 +35,9 @@
         "*://*.gearfetishx.com/*",
         "*://*.hentai-foundry.com/*",
         "*://*.newgrounds.com/*",
-        "*://*.itaku.ee/*"
+        "*://*.itaku.ee/*",
+        "*://*.subscribestar.com/*",
+        "*://*.subscribestar.adult/*"
       ],
       "js": [
         "browser-polyfill.js",

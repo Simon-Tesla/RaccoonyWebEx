@@ -97,14 +97,27 @@ export default class SiteActions {
         return await ensureMediaHasFilenameAndExtension(media);
     }
 
-    getPageLinkList(): Promise<I.PageLinkList> {
-        return this.plugin.getPageLinkList()
-            .then(list => {
-                if (list) {
-                    list.siteName = this.siteName;
+    async getPageLinkList(): Promise<I.PageLinkList> {
+        const list = await this.plugin.getPageLinkList();
+        if (list) {
+            list.siteName = this.siteName;
+            if (list.infiniteScroll) {
+                // Check for and filter out links we've already opened.
+                const filteredList = list.list.filter(link => {
+                    const hasLink = this._visitedPages.has(link.url)
+                    if (!hasLink) {
+                        this._visitedPages.add(link.url);
+                    }
+                    return !hasLink;
+                });
+                if (list.list.length > 0 && filteredList.length === 0) {
+                    // TODO: add bubble UI for this state
+                    alert("All of the links on this page have been opened. Scroll down to load additional images and try again.");
                 }
-                return list;
-            })
+                list.list = filteredList;
+            }
+        }
+        return list;
     }
 
     hasMedia(): Promise<boolean> {
@@ -135,6 +148,8 @@ export default class SiteActions {
             ...settings
         });
     }
+
+    private _visitedPages = new Set<string>();
 }
 
 
