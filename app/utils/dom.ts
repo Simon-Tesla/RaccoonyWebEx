@@ -41,7 +41,9 @@ export function getLargestImageElement(thresholdPx: number = MinimumImageElement
     return largestImg;
 }
 
-export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: (href: string, linkElt: HTMLAnchorElement) => string): PageLink[] {
+type DomLinkSubmissionIdExtractor = (href: string, linkElt: HTMLAnchorElement) => string;
+
+export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => null): PageLink[] {
     return links.map(linkElt => {
         let href = linkElt.href;
         let id = getIdFromSubmissionUrl(href, linkElt);
@@ -54,3 +56,8 @@ export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSub
     });
 }
 
+export function getPageLinksFromSelector(selector: string, getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => null): PageLink[] {
+    const links: HTMLAnchorElement[] = querySelectorAll(selector);
+    const list = getPageLinksFromAnchors(links, getIdFromSubmissionUrl);
+    return list;
+}
