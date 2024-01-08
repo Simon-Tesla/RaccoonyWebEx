@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.0 (2024-01-07)
+* Fix non-image submissions on old FA UI and Flash support on both FA UIs by @Eupeptic1 in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/113
+* Make filename space-to-underscore substitution global by @Eupeptic1 in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/120
+* Furrynetwork submission ID fix by @Eupeptic1 in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/121
+* Make e621 plugin respect blacklist.  Closes #122. by @Eupeptic1 in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/133
+* Update Open all in tabs behavior by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/139
+* Added Newgrounds support (#125) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/140
+* Use SVG icons for logo and UI elements by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/141
+* Fix Furaffinity zindex bug with fullscreen overlay (#150) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/151
+* Fix patreon scraper by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/166
+* Add Itaku support by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/167
+* Add SubscribeStar support by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/168
+
 ## 1.2.5 (2021-09-06)
 - Fixed DeviantArt "Open All in Tabs" duplication bug (#103)
 - Fixed HentaiFoundary bug where some submissions wouldn't be recognized by Raccoony (#93)
