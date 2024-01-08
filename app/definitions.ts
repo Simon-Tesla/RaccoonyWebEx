@@ -87,7 +87,7 @@ export interface UserActions {
 export type AllSettings = PrimarySettings & PerSiteSettings;
 
 export interface PrimarySettings {
-    version: Number;
+    version: number;
     extension: ExtensionSettings;
     default_settings: SiteSettings;
 }

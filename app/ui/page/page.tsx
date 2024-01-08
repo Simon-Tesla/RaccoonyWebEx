@@ -222,24 +222,24 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         const hasPageLinks = await this.props.siteActions.hasPageLinkList();
         logger.log("hasItems", { hasMedia, hasPageLinks });
 
-        const newState = {
+        this.setState({
             hasMedia,
             hasPageLinks,
             isFullscreen: false,
             canFullscreen: false,
             downloadState: E.DownloadState.NotDownloaded,
-        } as PageState
+        });
 
         if (hasMedia) {
             // Check to see if the file has been downloaded
             const media = await this.props.siteActions.checkFileDownload();
             if (media) {
                 if (media.type === E.MediaType.Image) {
-                    newState.canFullscreen = true;
+                    this.setState({ canFullscreen: true });
                 }
                 const isDownloaded: boolean = await sendMessage(E.MessageAction.CheckDownload, media);
                 if (isDownloaded) {
-                    newState.downloadState = E.DownloadState.Exists;
+                    this.setState({ downloadState: E.DownloadState.Exists })
                 }
                 else {
                     // Fire-and-forget the download call
@@ -247,8 +247,6 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                 }
             }
         }
-
-        this.setState(newState);
     }
 
     private async downloadAfterInitialized() {
