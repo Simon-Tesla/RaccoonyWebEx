@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.3.1 (2024-01-07)
+* Fixed a minor bug in the full-screen UI that prevented auto-fullscreen from working.
+
 ## 1.3.0 (2024-01-07)
 * Fix non-image submissions on old FA UI and Flash support on both FA UIs by @Eupeptic1 in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/113
 * Make filename space-to-underscore substitution global by @Eupeptic1 in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/120
