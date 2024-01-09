@@ -8,7 +8,8 @@ import './hentaifoundry';
 import './hiccears';
 import './inkbunny';
 import './itaku';
-import './newgrounds';
+// TODO: readd when this is stable
+// import './newgrounds';
 import './patreon';
 import './shorpy';
 import './sofurry';

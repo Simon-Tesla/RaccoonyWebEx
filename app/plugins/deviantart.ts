@@ -4,11 +4,10 @@ import { default as BaseSitePlugin, registerPlugin} from './base';
 import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 
 const serviceName = "deviantart";
-const mutationSelector = 'body';
 
 export class DeviantArtPlugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName, mutationSelector);
+        super(serviceName, 'main');
     }
 
     async getMedia(): Promise<I.Media> {

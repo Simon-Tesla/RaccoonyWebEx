@@ -18,11 +18,10 @@ import * as logger from '../logger';
 // submission, getPageLinkList() will find no links.
 
 const serviceName = "e621";
-const mutationSelector = 'body';
 
 export class E621Plugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName, mutationSelector);
+        super(serviceName);
     }
 
     getMedia(): Promise<I.Media> {
@@ -242,3 +241,4 @@ export class E621Plugin extends BaseSitePlugin {
 }
 
 registerPlugin(E621Plugin, 'e621.net');
+registerPlugin(E621Plugin, 'e926.net');
