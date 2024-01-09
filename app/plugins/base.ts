@@ -11,7 +11,9 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         this.siteName = siteName;
 
         logger.log('initializing plugin', this.siteName);
-        if (mutationSelector) {
+        // Do not allow a mutation selector of body or html, since this will catch updates to the Raccoony UI as well, leading to infinite loops.
+        // In theory there's probably a way to filter that out even with this sort of selector but this will do for now.
+        if (mutationSelector && mutationSelector.toLowerCase() !== 'body' && mutationSelector.toLowerCase() !== 'html') {
             let element = document.querySelector(mutationSelector);
             let observer = new MutationObserver((mutations, observer) => {
                 if (mutations.some(mut => mut.addedNodes.length > 0) || mutations.some(mut => mut.removedNodes.length > 0)) {
