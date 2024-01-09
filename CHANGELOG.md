@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.1 (2024-01-08)
+* Fix overbroad mutation selector infinite loop bug by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/170
+* Added e926.net support
+
 ## 1.3.1 (2024-01-07)
 * Fixed a minor bug in the full-screen UI that prevented auto-fullscreen from working.
 
