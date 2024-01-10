@@ -110,6 +110,7 @@ export interface SiteSettings {
     tabLoadDelay?: number;
     tabLoadSortBy?: E.TabLoadOrder;
     tabLoadSortAsc?: boolean;
+    /** @deprecated Placeholder tab loading code has been removed. This is here since the setting will still be hanging out in user configurations. */
     tabLoadType?: E.TabLoadType;
     downloadPath?: string;
     autoDownload?: boolean;
