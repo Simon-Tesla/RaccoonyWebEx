@@ -104,7 +104,9 @@ export class ItakuPlugin extends BaseSitePlugin {
     }
 
     private getSubmissionGalleryLinkList(): I.PageLink[] {
-        return getPageLinksFromSelector('a.img-link', extractSubmissionIdFromItakuUrl);
+        // This selector (attempts to) omit any items with a content warning or blacklisted tag from being opened.
+        // Ideally Itaku implements the blacklists/warnings on individual image submissions like other sites do, in which case this code would be unnecessary.
+        return getPageLinksFromSelector('a.img-link:not(:has([data-cy=app-gallery-images-blacklisted]))', extractSubmissionIdFromItakuUrl);
     }
 
     private isSubmissionGalleryLinkList(pathname: string) {
