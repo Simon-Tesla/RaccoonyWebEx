@@ -19,8 +19,8 @@ export class ItakuPlugin extends BaseSitePlugin {
     async getMedia(): Promise<I.Media> {
         // Preview link format: https://itaku.ee/api/media_2/gallery_imgs/[filename]_[hash?]/xl.[ext]
         // Note that the preview link is derived from the download link.
-        const img = querySelector<HTMLImageElement>('img.main-img');
-        const previewUrl = img.src;
+        const img = querySelector<HTMLImageElement>('.main-img');
+        const previewUrl = img?.src;
 
         // Download link format: https://itaku.ee/api/media_2/gallery_imgs/[filename]_[hash?].[ext]
         const downloadButton = querySelector<HTMLAnchorElement>('a.mat-primary[target="_blank"]');
