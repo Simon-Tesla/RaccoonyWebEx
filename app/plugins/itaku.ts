@@ -19,8 +19,8 @@ export class ItakuPlugin extends BaseSitePlugin {
     async getMedia(): Promise<I.Media> {
         // Preview link format: https://itaku.ee/api/media_2/gallery_imgs/[filename]_[hash?]/xl.[ext]
         // Note that the preview link is derived from the download link.
-        const img = querySelector<HTMLImageElement>('img.main-img');
-        const previewUrl = img.src;
+        const img = querySelector<HTMLImageElement>('.main-img');
+        const previewUrl = img?.src;
 
         // Download link format: https://itaku.ee/api/media_2/gallery_imgs/[filename]_[hash?].[ext]
         const downloadButton = querySelector<HTMLAnchorElement>('a.mat-primary[target="_blank"]');
@@ -104,7 +104,9 @@ export class ItakuPlugin extends BaseSitePlugin {
     }
 
     private getSubmissionGalleryLinkList(): I.PageLink[] {
-        return getPageLinksFromSelector('a.img-link', extractSubmissionIdFromItakuUrl);
+        // This selector (attempts to) omit any items with a content warning or blacklisted tag from being opened.
+        // Ideally Itaku implements the blacklists/warnings on individual image submissions like other sites do, in which case this code would be unnecessary.
+        return getPageLinksFromSelector('a.img-link:not(:has([data-cy=app-gallery-images-blacklisted]))', extractSubmissionIdFromItakuUrl);
     }
 
     private isSubmissionGalleryLinkList(pathname: string) {
