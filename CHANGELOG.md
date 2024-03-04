@@ -1,6 +1,10 @@
 # Changelog
 
-## 1.3.1 (2024-01-08)
+## 1.3.3 (2024-03-03)
+* Fixed dA plugin, minor syntax error in icons by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/175
+* Fix Itaku plugin, add video and blacklist support by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/176
+
+## 1.3.2 (2024-01-08)
 * Fix overbroad mutation selector infinite loop bug by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/170
 * Added e926.net support
 
