@@ -33,9 +33,10 @@ export class PatreonPlugin extends BaseSitePlugin {
             // Get the post image
             let mediaElt: HTMLImageElement | HTMLAudioElement = 
                 // New 2023 Patreon layout
-                querySelector('[data-tag=post-card] img')
-                || querySelector('audio[tag=audio-player]')
+                // Look for audio players before looking for images
+                querySelector('audio[tag=audio-player]')
                 || querySelector("[data-tag=post-card] audio")
+                || querySelector('[data-tag=post-card] img')
                 // Old Patreon layout
                 || querySelector(".patreon-creation-shim--image");
 
