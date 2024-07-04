@@ -12,36 +12,46 @@ export class SofurryPlugin extends BaseSitePlugin {
     getMedia(): Promise<I.Media> {
         // TODO: support downloading stories
         // Get the download button
-        let button = document.getElementById("sfDownload") || querySelector("#sfContentImage a");
+        const button = document.getElementById("sfDownload") || querySelector("#sfContentImage a");
         if (!button) {
             return Promise.resolve(null);
         }
 
         // Get the URL
-        var url = button.getAttribute("href");
-        var id = window.location.href.split("/").pop();
+        const url = button.getAttribute("href");
+        const id = window.location.href.split("/").pop();
 
         // Get the filename
-        var titleElt = document.getElementById("sfContentTitle");
-        var filename = titleElt.textContent.trim();
-        // And the extension - we use the preview image to determine this.
-        var imgPreview: HTMLImageElement = querySelector("#sfContentImage img");
-        let previewUrl = imgPreview.src;
-        let previewUrlObj = new URL(previewUrl);
+        const titleElt = document.getElementById("sfContentTitle");
+        const filename = titleElt.textContent.trim();
+        // And the extension - we use the preview image or video to determine this.
+        const imgPreview = querySelector<HTMLImageElement | HTMLVideoElement>("#sfContentImage img, #sfContentImage video");
+        const previewUrl = imgPreview.currentSrc; // currentSrc works on both IMG and VIDEO tags
+        const previewUrlObj = new URL(previewUrl);
         let siteFilename = previewUrlObj.searchParams.get('filename');
-        var ext = siteFilename.split('.').pop();
+        let ext = '';
+        if (siteFilename) {
+            // Found a filename on the preview image URL
+            ext = siteFilename.split('.').pop();
+        }
+        else {
+            // Probably dealing with a video, need to synthesize a filename and extension
+            ext = previewUrlObj.searchParams.get('ext');
+            ext = ext.replace('.', '');
+            siteFilename = `${id}.${ext}`;
+        }
 
         // Get the username
-        var usernameElt = document.querySelector("#sf-userinfo-outer .sf-username");
-        var username = usernameElt.textContent;
+        const usernameElt = document.querySelector("#sf-userinfo-outer .sf-username");
+        const username = usernameElt.textContent;
 
-        let title = filename;
-        let descriptionElt = querySelector("#sfContentDescription");
-        let description = descriptionElt && descriptionElt.textContent.trim();
-        let tags = querySelectorAll("#submission_tags .sf-tag")
+        const title = filename;
+        const descriptionElt = querySelector("#sfContentDescription");
+        const description = descriptionElt && descriptionElt.textContent.trim();
+        const tags = querySelectorAll("#submission_tags .sf-tag")
             .map(tagEl => tagEl.textContent.trim());
 
-        let media: I.Media = {
+        const media: I.Media = {
             url: url,
             previewUrl: previewUrl,
             author: username,

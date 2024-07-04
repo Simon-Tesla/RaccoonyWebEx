@@ -5,7 +5,7 @@ export function querySelectorAll<T extends HTMLElement>(selector: string, scope?
     return Array.from(list);
 }
 
-export function querySelector<T extends HTMLElement>(selector: string, scope?: HTMLElement): T {
+export function querySelector<T extends HTMLElement>(selector: string, scope?: HTMLElement): T | null {
     return <T>((scope || document).querySelector(selector));
 }
 
