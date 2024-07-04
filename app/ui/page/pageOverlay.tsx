@@ -37,6 +37,13 @@ DownloadStatusUi[E.DownloadState.Done] = DownloadStatusUi[E.DownloadState.Exists
 DownloadStatusUi[E.DownloadState.Error] = <IconError title="Download error" />
 DownloadStatusUi[E.DownloadState.InProgress] = <IconSpinner title="Downloading" />
 
+const DownloadStatusMessage: { [state: number]: string } = {
+    [E.DownloadState.Done]: 'Downloaded!',
+    [E.DownloadState.Error]: 'Error occured while downloading',
+    [E.DownloadState.InProgress]: 'Downloading...'
+}
+
+
 export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> {
     private _mouseLeaveTimeout: number;
 
@@ -133,6 +140,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         }
 
         const downloadStatusUi = DownloadStatusUi[props.downloadState];
+        const message = DownloadStatusMessage[props.downloadState];
 
         //TODO: fix mini-download button if the downloaded file exists
         return (
@@ -164,12 +172,14 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                             alternateBalloonUi
                         ) : (
                             <div className={n("bubble")}>
+                                {message && <div className={n('message')}>{message}</div>}
                                 {props.hasMedia && (
                                     <ActionButton
                                         onClick={this.onClickDownload}
                                         title={'Hotkey: D'}
                                         icon={downloadStatusUi || IconDownload}
                                         disabled={props.downloadState === E.DownloadState.InProgress}
+                                        className={props.downloadState === E.DownloadState.Error ? n('error') : undefined}
                                     >
                                         Download
                                     </ActionButton>

@@ -31,6 +31,10 @@
     opacity: 1;
 }
 
+#ry-ui .ry-message {
+    margin: 4px;
+}
+
 #ry-ui a {
     text-decoration: none !important;
     border-bottom: none;
@@ -59,12 +63,21 @@
     color: #fff !important;
 }
 
+#ry-ui .ry-action.ry-error {
+    background-color: #600;
+    border-color: #600;
+}
+
 #ry-ui .ry-action.ry-nolabel {
     min-width: 0;
 }
 
 #ry-ui .ry-action:hover {
     background-color: #0081e0;
+}
+
+#ry-ui .ry-action.ry-error:hover {
+    background-color: #900;
 }
 
 #ry-ui .ry-action:disabled,
