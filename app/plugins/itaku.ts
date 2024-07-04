@@ -132,7 +132,7 @@ export class ItakuPlugin extends BaseSitePlugin {
             pathname === '/home/images' ||
             pathname.startsWith('/posts') ||
             (pathname.startsWith('/profile') && (
-                pathname.endsWith('/gallery')
+                pathname.includes('/gallery')
             ));
 
     }
