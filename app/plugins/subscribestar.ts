@@ -39,8 +39,13 @@ export class SubscribeStarPlugin extends BaseSitePlugin {
         // Use mediaInfo corresponding to the image shown in the gallery when using the carousel viewer
         const downloadLink = querySelector<HTMLAnchorElement>('a.gallery-image_original_link');
         if (downloadLink) {
+            // Handle cases with both relative and absolute URLs
             const downloadUrl = downloadLink.href;
-            mediaInfo = mediaInfos.find(info => info.url === downloadUrl) ?? mediaInfo;
+            const downloadHref = downloadLink.getAttribute('href')
+            mediaInfo = mediaInfos.find(info => info.url === downloadUrl || 
+                info.url === downloadHref || 
+                downloadUrl === new URL(info.url, window.location.href).href
+            ) ?? mediaInfo;
         }
 
         // Title may or may not exist
@@ -84,9 +89,12 @@ export class SubscribeStarPlugin extends BaseSitePlugin {
         const siteFilename = mediaInfo.original_filename;
         const { filename, ext: extension } = getFilenameParts(siteFilename);
         const type = MediaTypeMap[mediaInfo.type];
+        // Ensure absolute URLs
+        const url = new URL(mediaInfo.url, window.location.href).href;
+        const previewUrl = new URL(mediaInfo.url, window.location.href).href;
         return {
-            url: mediaInfo.url,
-            previewUrl: mediaInfo.preview_url,
+            url,
+            previewUrl,
             submissionId: `${mediaInfo.id}`,
             siteFilename,
             filename,

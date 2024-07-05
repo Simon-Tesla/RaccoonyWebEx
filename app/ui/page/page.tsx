@@ -125,6 +125,9 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                         downloadState: download.success ? E.DownloadState.Exists : E.DownloadState.NotDownloaded,
                     }), 2000);
                 })
+                .catch(() => {
+                    this.setState({ downloadState: E.DownloadState.Error });
+                })
         });
     }
 
