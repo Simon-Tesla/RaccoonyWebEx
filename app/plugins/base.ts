@@ -7,6 +7,9 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
 
     private _pageChangeHandler: () => void = () => { };
 
+    private _observer: MutationObserver;
+    private _observedElements = new Set<Element>();
+
     constructor(siteName: string, mutationSelector?: string) {
         this.siteName = siteName;
 
@@ -15,12 +18,12 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         // In theory there's probably a way to filter that out even with this sort of selector but this will do for now.
         if (mutationSelector && mutationSelector.toLowerCase() !== 'body' && mutationSelector.toLowerCase() !== 'html') {
             let element = document.querySelector(mutationSelector);
-            let observer = new MutationObserver((mutations, observer) => {
+            this._observer = new MutationObserver((mutations, observer) => {
                 if (mutations.some(mut => mut.addedNodes.length > 0) || mutations.some(mut => mut.removedNodes.length > 0)) {
                     this.notifyPageChange();
                 }
             });
-            observer.observe(element, { childList: true, subtree: true });
+            this.observeElementForChanges(element);
         }
     }
 
@@ -57,6 +60,22 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
     protected notifyPageChange() {
         logger.log('notifying page change')
         this._pageChangeHandler && this._pageChangeHandler();
+    }
+
+    /** 
+     * Registers additional areas of the page not available at load time for change monitoring.
+     * If a plugin notices new DOM that should be monitored for changes, this can be used to add that monitoring.
+    */
+    protected observeElementForChanges(element: Element) {
+        if (element === document.body) {
+            logger.error('Cannot observe body element');
+            return;
+        }
+        if (!this._observedElements.has(element)) {
+            logger.log('observing new element', element);
+            this._observedElements.add(element);
+            this._observer.observe(element, { childList: true, subtree: true });
+        }
     }
 }
 
