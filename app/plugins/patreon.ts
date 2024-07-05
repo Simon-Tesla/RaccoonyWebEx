@@ -1,6 +1,6 @@
 import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
-import { querySelectorAll, querySelector, getPageLinksFromAnchors, getLargestImageElement } from '../utils/dom';
+import { querySelectorAll, querySelector, getPageLinksFromAnchors, getLargestImageElement, getFirstNonBodyAncestorElement } from '../utils/dom';
 import * as logger from '../logger';
 import { isValidExtensionForType, isValidExtension } from '../utils/file';
 import { MediaType } from '../enums';
@@ -30,20 +30,28 @@ export class PatreonPlugin extends BaseSitePlugin {
         // 'included' contains info on the media inside the post (among other things) - the full-size 
         // image URLs appear to be represented here and are referenced by an ID number.
         try {
-            // Get the post image
-            let mediaElt: HTMLImageElement | HTMLAudioElement = 
-                // New 2023 Patreon layout
-                // Look for audio players before looking for images
-                querySelector('audio[tag=audio-player]')
-                || querySelector("[data-tag=post-card] audio")
-                || querySelector('[data-tag=post-card] img')
-                // Old Patreon layout
-                || querySelector(".patreon-creation-shim--image");
+            // Check to see if the patreon lightbox is open and use that image first, when possible.
+            let mediaElt: HTMLImageElement | HTMLAudioElement = querySelector('img[data-tag=lightboxImage]');
+            if (mediaElt) {
+                // Register the lightbox for change handling
+                const parent = getFirstNonBodyAncestorElement(mediaElt);
+                this.observeElementForChanges(parent);                
+            } else {
+                // Get the post image
+                mediaElt = 
+                    // New 2023 Patreon layout
+                    // Look for audio players before looking for images
+                    querySelector('audio[tag=audio-player]')
+                    || querySelector("[data-tag=post-card] audio")
+                    || querySelector('[data-tag=post-card] img')
+                    // Old Patreon layout
+                    || querySelector(".patreon-creation-shim--image");
 
-            if (!mediaElt && window.location.pathname.startsWith('/posts/')) {
-                // Since Patreon uses some CSS module library that munges things like class names,
-                // this can be hard to scrape. In the worst case, fall back to the largest image on the page.
-                mediaElt = getLargestImageElement();
+                if (!mediaElt && window.location.pathname.startsWith('/posts/')) {
+                    // Since Patreon uses some CSS module library that munges things like class names,
+                    // this can be hard to scrape. In the worst case, fall back to the largest image on the page.
+                    mediaElt = getLargestImageElement();
+                }
             }
 
             if (!mediaElt) {
@@ -145,7 +153,7 @@ export class PatreonPlugin extends BaseSitePlugin {
 
     private getFilenameAndId(urlSrc: string): Pick<I.Media, 'filename' | 'extension' | 'submissionId'> {
         // Patreon image URLs usually look like so:
-        // https://c10.patreonusercontent.com/4/patreon-media/p/post/###/###/[base64encodedJSON]/1.[ext]?token-time=[###]&token-hash=[###]"            
+        // https://c10.patreonusercontent.com/4/patreon-media/p/post/[submissionId]/[mediaId]/[base64encodedJSON]/1.[ext]?token-time=[###]&token-hash=[###]"            
         let url = new URL(urlSrc);
         let extIndex = url.pathname.lastIndexOf(".");
         let extension = url.pathname.substring(extIndex + 1);
@@ -154,16 +162,21 @@ export class PatreonPlugin extends BaseSitePlugin {
             extension = null;
         }
 
+        const pathParts = url.pathname.split('/');
+        const mediaId = pathParts[6];
+
         // Patreon page URLs look like so:
         // https://www.patreon.com/posts/[filename]-[id]
         let pageUrlSlug = window.location.pathname.split('/').pop();
         let slugParts = pageUrlSlug.split('-');
         let submissionId = slugParts.length > 0 ? slugParts.pop() : pageUrlSlug;
         let filename = slugParts.length > 0 ? slugParts.join('-') : pageUrlSlug;
+
         return {
             filename,
             extension,
-            submissionId
+            // Need to concatenate the submissionId to the mediaId as the submissionId is not unique for a multi-image submission.
+            submissionId: `${submissionId}_${mediaId}`
         }
     }
 }

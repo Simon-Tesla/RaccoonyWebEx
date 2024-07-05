@@ -61,3 +61,13 @@ export function getPageLinksFromSelector(selector: string, getIdFromSubmissionUr
     const list = getPageLinksFromAnchors(links, getIdFromSubmissionUrl);
     return list;
 }
+
+export function getFirstNonBodyAncestorElement(element: Element) {
+    if (element === document.body) {
+        return undefined;
+    }
+    while (element.parentElement != document.body) {
+        element = element.parentElement;
+    }
+    return element;
+}
