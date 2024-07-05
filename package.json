@@ -1,6 +1,6 @@
 {
   "name": "raccoony-webextension",
-  "version": "1.3.3",
+  "version": "1.4.0",
   "description": "A WebExtension for adding shiny features to art websites",
   "repository": {
     "type": "git",

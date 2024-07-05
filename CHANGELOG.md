@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.4.0 (2024-07-04)
+* Simon/itaku substar fixes by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/184
+* Fixed Itaku gallery folder links (#181)
+* Fixed SubscribeStar downloading (#182)
+* Fixed Patreon audio detection (#180)
+* Added video support to SoFurry plugin
+* Added better UI for displaying errors when downloading
+* Add download support for Patreon's image viewer by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/185
+
 ## 1.3.3 (2024-03-03)
 * Fixed dA plugin, minor syntax error in icons by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/175
 * Fix Itaku plugin, add video and blacklist support by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/176
