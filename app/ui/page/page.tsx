@@ -121,8 +121,11 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                     this.setState({
                         downloadState: download.success ? E.DownloadState.Done : E.DownloadState.Error,
                     })
-                    setTimeout(() => this.setState({
-                        downloadState: download.success ? E.DownloadState.Exists : E.DownloadState.NotDownloaded,
+                    setTimeout(() => this.setState(state => {
+                        const downloadState = state.downloadState === E.DownloadState.Done ? 
+                            E.DownloadState.Exists : 
+                            E.DownloadState.NotDownloaded;
+                        return {...state, downloadState}
                     }), 2000);
                 })
                 .catch(() => {
@@ -242,7 +245,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
                 }
                 const isDownloaded: boolean = await sendMessage(E.MessageAction.CheckDownload, media);
                 if (isDownloaded) {
-                    this.setState({ downloadState: E.DownloadState.Exists })
+                    this.setState({ downloadState: E.DownloadState.Exists });
                 }
                 else {
                     // Fire-and-forget the download call
