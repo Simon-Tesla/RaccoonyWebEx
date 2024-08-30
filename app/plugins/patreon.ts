@@ -9,7 +9,7 @@ const serviceName = "patreon";
 
 export class PatreonPlugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName, '[data-reactroot]');
+        super(serviceName, '#__next, [data-reactroot]');
     }
 
     async getMediaForSrcUrl(mediaUrl: string, mediaType: MediaType): Promise<I.Media> {
