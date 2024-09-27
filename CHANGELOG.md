@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.2 (2024-09-26)
+
+-   Fix Patreon JSON metadata parsing bug by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/195
+
 ## 1.4.1 (2024-08-29)
 
 -   Fix Patreon plugin, MutationObserver logic by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/192
