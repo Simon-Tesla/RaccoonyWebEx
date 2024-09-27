@@ -115,7 +115,7 @@ export class PatreonPlugin extends BaseSitePlugin {
         // The first one should contain the description, but for resiliancy we'll do some basic duck typing.
         const jsonScriptElts = querySelectorAll('script[type="application/ld+json"]');
         for (const scriptElt of jsonScriptElts) {
-            const res = JSON.parse(scriptElt.textContent);
+            const res = parseHtmlEncodedJson(scriptElt.textContent);
             if (res.author && res.description) {
                 return res as {
                     author: { name: string },
@@ -182,3 +182,20 @@ export class PatreonPlugin extends BaseSitePlugin {
 }
 
 registerPlugin(PatreonPlugin, 'patreon.com');
+
+function parseHtmlEncodedJson(json: string) {
+    try {
+        if (json.includes('&quot;')) {
+            // Patreon has begun encoding HTML entities in their JSON blob, so we need to decode them before use.
+            // We check to see if &quot; is present since that is going to show up in JSON no matter what.
+            const parsedDoc = new DOMParser().parseFromString(json, 'text/html');
+            json = parsedDoc.body.textContent;
+        }
+        return JSON.parse(json);
+    }
+    catch(e) {
+        // Swallow and log the error as we don't want this to be fatal
+        logger.error('JSON parse failure:', e);
+    }
+    return {}
+} 
