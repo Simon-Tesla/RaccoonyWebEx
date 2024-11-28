@@ -215,7 +215,7 @@ export class E621Plugin extends BaseSitePlugin {
         // blacklist script has run.
 
         // Check for submissions that aren't marked as blacklisted.
-        let links: HTMLAnchorElement[] = querySelectorAll("#posts-container .post-preview:not(.blacklisted) a") as HTMLAnchorElement[];
+        let links: HTMLAnchorElement[] = querySelectorAll(".posts-container article:not(.blacklisted) a") as HTMLAnchorElement[];
         logger.log("e621: number of links found ", links.length);
 
         // links should now contain the list of submissions we want.
