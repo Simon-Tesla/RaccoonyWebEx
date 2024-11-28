@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3 (2024-11-27)
+
+-   Fix link detection in e621 plugin (2024-11 DOM update) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/197
+
 ## 1.4.2 (2024-09-26)
 
 -   Fix Patreon JSON metadata parsing bug by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/195
