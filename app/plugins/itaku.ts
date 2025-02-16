@@ -100,7 +100,9 @@ export class ItakuPlugin extends BaseSitePlugin {
             (pathname.startsWith('/profile') && (
                 pathname.endsWith('/commissions/created') ||
                 pathname.endsWith('/posts')
-            ));
+            )) || 
+            // Itaku uses a custom element for submission feeds; the presense of this element should reliably indicate that a page has one.
+            !!querySelector('app-submission-feed');
     }
 
     private getSubmissionGalleryLinkList(): I.PageLink[] {
@@ -129,11 +131,15 @@ export class ItakuPlugin extends BaseSitePlugin {
         // https://itaku.ee/home/images
         // https://itaku.ee/posts/[postId]
         return pathname === '/submission-inbox/images' ||
+            pathname === '/submission-inbox/reshared-images' ||
             pathname === '/home/images' ||
             pathname.startsWith('/posts') ||
             (pathname.startsWith('/profile') && (
                 pathname.includes('/gallery')
-            ));
+            )) ||
+            // Itaku uses a custom element for submission galleries; the presense of this element should reliably indicate that a page has one.
+            // Note that feeds can also have app-gallery-images inside them, so we need to check that we're not on a feed as well.
+            (!!querySelector('app-gallery-images') && !querySelector('app-submission-feed'));
 
     }
 
