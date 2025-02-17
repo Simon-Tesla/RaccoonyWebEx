@@ -43,14 +43,21 @@ export function getLargestImageElement(thresholdPx: number = MinimumImageElement
 
 type DomLinkSubmissionIdExtractor = (href: string, linkElt: HTMLAnchorElement) => string;
 
+/** @deprecated use @see getPageLinksFromHtmlLinks */
 export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => null): PageLink[] {
+    return getPageLinksFromHtmlLinks(links, (href, elt) => ({submissionId: getIdFromSubmissionUrl(href, elt)}));
+}
+
+type PageLinkDetailsExtractor = (href: string, linkElt: HTMLAnchorElement) => Partial<Pick<PageLink, 'submissionId' | 'hasContentWarning'>>;
+
+export function getPageLinksFromHtmlLinks(links: HTMLAnchorElement[], detailsExtractorCallback: PageLinkDetailsExtractor = () => ({})) {
     return links.map(linkElt => {
         let href = linkElt.href;
-        let id = getIdFromSubmissionUrl(href, linkElt);
+        let details = detailsExtractorCallback(href, linkElt);
 
         let link: PageLink = {
             url: href,
-            submissionId: id,
+            ...details
         };
         return link;
     });
