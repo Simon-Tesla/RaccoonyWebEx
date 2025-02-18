@@ -37,11 +37,17 @@ export interface Media {
     tags: string[];
     sourceUrl?: string;
     downloadDestination?: E.DownloadDestination;
+
+    /** Identifies media that has a content warning attached to it. */
+    hasContentWarning?: boolean;
 }
 
 export interface PageLink {
     url: string;
     submissionId?: string;
+
+    /** Identifies links that are available on a page but have a content warning attached to them. */
+    hasContentWarning?: boolean;
 }
 
 export interface PageLinkList {

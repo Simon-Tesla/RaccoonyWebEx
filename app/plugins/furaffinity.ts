@@ -1,6 +1,6 @@
 import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
-import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
+import { querySelectorAll, querySelector, getPageLinksFromHtmlLinks } from '../utils/dom';
 import { getFilenameParts } from '../utils/file';
 import * as logger from '../logger';
 
@@ -27,7 +27,7 @@ export class FuraffinityPlugin extends BaseSitePlugin {
     }
 
     getMedia(): Promise<I.Media> {
-        let { url, previewUrl, uiAndType } = getMediaUrls();
+        let { url, previewUrl, hasContentWarning, uiAndType } = getMediaUrls();
 
         if (!url) {
             // Didn't find a URL on the page, so let's give up.
@@ -150,32 +150,48 @@ export class FuraffinityPlugin extends BaseSitePlugin {
             extension: ext,
             title: title,
             description: description,
-            tags: tags
+            tags: tags,
+            hasContentWarning
         }
 
         return Promise.resolve(result);
     }
 
-    getPageLinkList(): Promise<I.PageLinkList> {
+    async getPageLinkList(): Promise<I.PageLinkList> {
         let list: I.PageLink[] = [];
         // Don't try to sort the favorites lists.
         let pageUrl = window.location.href;
         let sortable = !(pageUrl.indexOf("/favorites/") !== -1 || pageUrl.indexOf("/search/") !== -1);
 
-        let links: HTMLAnchorElement[] = querySelectorAll("figure figcaption a[href*='/view/']");
+        let links: HTMLAnchorElement[] = getPageLinkElements();
 
-        list = getPageLinksFromAnchors(links, getIdFromSubmissionUrl);
+        list = getPageLinksFromHtmlLinks(links, (href, elt) => {
+            const blockedThumb = elt.closest('figure').querySelector('img.blocked-content');
+            return {
+                submissionId: getIdFromSubmissionUrl(href),
+                hasContentWarning: !!blockedThumb
+            }
+        });
 
-        return Promise.resolve({
+        return {
             list: list,
             sortable: sortable
-        });
+        };
+    }
+
+    async hasPageLinkList(): Promise<boolean> {
+        const elts = getPageLinkElements();
+        return elts?.length > 0;
     }
 }
 
 registerPlugin(FuraffinityPlugin, 'furaffinity.net');
 
-function getMediaUrls() {
+function getPageLinkElements(): HTMLAnchorElement[] {
+    return querySelectorAll("figure figcaption a[href*='/view/']");
+}
+
+function getMediaUrls(): Pick<I.Media, 'url' | 'previewUrl' | 'hasContentWarning'> & {uiAndType: FAUiAndType} {
     // Get the download button, if it exists.  As of 2021-08, there are
     // three cases; check them all.  Note which case we have, because it
     // matters for later parsing elsewhere.
@@ -224,6 +240,8 @@ function getMediaUrls() {
     let previewUrl = img && img.getAttribute('data-preview-src');
     logger.log("fa: previewURL ", previewUrl);
 
+    const hasContentWarning = img && img.classList.contains('blocked-content');
+
     if (!url && img) {
         // If all else fails, get the submission image source URL
         url = img.getAttribute('data-fullview-src') || img.src;
@@ -237,6 +255,7 @@ function getMediaUrls() {
     return {
         url,
         previewUrl,
+        hasContentWarning,
         uiAndType
     };
 }

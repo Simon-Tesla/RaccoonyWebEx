@@ -70,7 +70,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         if (!prevState.siteSettings && this.state.siteSettings) {
             // Updating in response to settings initialization
             if (this.state.siteSettings.autoFullscreen) {
-                this.enterFullscreen();
+                this.enterFullscreen(true);
             }
         }
         if (this.state.siteSettings && this.state.siteSettings.hotkeysEnabled) {
@@ -163,7 +163,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
             this.setState({ isFullscreen: false });
         }
         else {
-            this.enterFullscreen();
+            this.enterFullscreen(false);
         }
     }
 
@@ -285,14 +285,15 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         ) {
             //Disable zoom for half a second to prevent the scroll from zooming the picture.
             this.setState({ enableZoom: false });
-            this.enterFullscreen();
+            this.enterFullscreen(true);
             setTimeout(() => this.setState({ enableZoom: true }), 500);
         }
     }
 
-    private enterFullscreen() {
+    private enterFullscreen(skipForContentWarning: boolean) {
         this.props.siteActions.getMedia().then((media) => {
-            if (media && media.type === E.MediaType.Image) {
+            const shouldSkip = skipForContentWarning && media?.hasContentWarning;
+            if (media && media.type === E.MediaType.Image && !shouldSkip) {
                 this.setState({
                     lightboxUrl: media.url,
                     lightboxTitle: media.title,
