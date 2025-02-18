@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0 (2025-2-17)
+
+-   [Itaku] Add support for reshared images gallery by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/200
+-   [FurAffinity] Add hasContentWarning support and skip autofullscreen by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/201
+
 ## 1.4.3 (2024-11-27)
 
 -   Fix link detection in e621 plugin (2024-11 DOM update) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/197
