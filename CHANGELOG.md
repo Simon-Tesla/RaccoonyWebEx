@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.1 (2025-08-09)
+
+-   Fix for e621 tag and description parsing (contributed by Eupeptic) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/207
+
 ## 1.5.0 (2025-2-17)
 
 -   [Itaku] Add support for reshared images gallery by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/200
