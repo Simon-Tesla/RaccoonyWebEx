@@ -81,12 +81,12 @@ export class E621Plugin extends BaseSitePlugin {
         // and leave it as "unknown artist".  That way, posts with the
         // "unknown artist" e621 tag, *and* posts with no e621 artist tag at
         // all, *both* end up in the "unknown_artist" folder if downloaded.
-        if(usernameElt && usernameElt.getAttribute('content').includes("created by ")) {
+        if (usernameElt && usernameElt.getAttribute('content').includes("created by ")) {
             let usernameplusjunk = usernameElt.getAttribute('content');
             logger.log("e621: username content", usernameplusjunk);
 
             let usernameStart = usernameplusjunk.lastIndexOf("created by ") + 11;
-            let usernameEnd   = usernameplusjunk.lastIndexOf(" - e621");
+            let usernameEnd = usernameplusjunk.lastIndexOf(" - e621");
             logger.log("e621: name start and end", usernameStart, usernameEnd);
 
             username = usernameplusjunk.substring(usernameStart, usernameEnd);
@@ -103,7 +103,7 @@ export class E621Plugin extends BaseSitePlugin {
         logger.log("e621: id", id);
 
         // Get the description
-        let descriptionElt = querySelector(".original-artist-commentary");
+        let descriptionElt = querySelector("#post-description-container");
         let description = (descriptionElt && descriptionElt.textContent) || '';
         description = description.trim();
         logger.log("e621: desc", description);
@@ -112,31 +112,56 @@ export class E621Plugin extends BaseSitePlugin {
         // Get the artist tags and the everything-else tags separately,
         // because we use the everything-else tags to build the filename
         // later on.
-        let artistTags: string[] = querySelectorAll(".artist-tag-list a[href^='/posts?tags='].search-tag")
-            .map((el) => el.textContent.trim());
+        // Also, if the artist has the "verified" check mark, the alt
+        // text for that mark - '\n        Uploaded by the artist' - will
+        // be appended to their artist tag; trim that off if present.
+        // As of 2025-07, none of the other tag types can have an image
+        // with alt text, so don't trim those.
+
+        let artistTagsJunk: string[] =
+            querySelectorAll(".artist-tag-list li a[href^='/posts?tags='].tag-list-search span.tag-list-name")
+                .map((el) => el.textContent.trim());
+        logger.log("e621: raw artist tags", artistTagsJunk);
+
+        let artistTags: string[] = [];
+        for (let i = 0; i < artistTagsJunk.length; i++) {
+            // hopefully 'bobby\ntables' never uploads to e621
+            let backslashIndex = artistTagsJunk[i].lastIndexOf("\n");
+            if (backslashIndex != -1) {
+                // alt text found - remove while copying
+                artistTags.push(artistTagsJunk[i].substring(0, backslashIndex));
+            }
+            else {
+                // alt text not found - direct copy
+                artistTags.push(artistTagsJunk[i]);
+            }
+        }
         logger.log("e621: cooked artist tags", artistTags);
 
-        let allOtherTags: string[] = querySelectorAll("ul:not(.artist-tag-list) a.search-tag")
-            .map((el) => el.textContent.trim());
+        let allOtherTags: string[] =
+            querySelectorAll("ul:not(.artist-tag-list) li a.tag-list-search span.tag-list-name")
+                .map((el) => el.textContent.trim());
         logger.log("e621: cooked not-artist tags", allOtherTags);
 
         let tags = artistTags.concat(allOtherTags);
         logger.log("e621: combined tags", tags);
 
         // If you just want all the tags at once, regardless of type:
-        // let tags = querySelectorAll("a.search-tag");
-        //
+        // XXX untested
+        // let tags = querySelectorAll("a.tag-list-search");
+
         // If you wanted to enumerate all the tag types and select them
         // that way, this would work with the seven known tag types (as
-        // of late March, 2020):
+        // of late July, 2025):
+        // XXX untested
         // let tagSelector =
-        //     ".artist-tag-list    a[href^='/posts?tags='].search-tag, " +
-        //     ".copyright-tag-list a[href^='/posts?tags='].search-tag, " +
-        //     ".species-tag-list   a[href^='/posts?tags='].search-tag, " +
-        //     ".character-tag-list a[href^='/posts?tags='].search-tag, " +
-        //     ".general-tag-list   a[href^='/posts?tags='].search-tag, " +
-        //     ".meta-tag-list      a[href^='/posts?tags='].search-tag, " +
-        //     ".lore-tag-list      a[href^='/posts?tags='].search-tag"
+        //     ".artist-tag-list    li a[href^='/posts?tags='].tag-list-search span.tag-list-name, " +
+        //     ".copyright-tag-list li a[href^='/posts?tags='].tag-list-search span.tag-list-name, " +
+        //     ".species-tag-list   li a[href^='/posts?tags='].tag-list-search span.tag-list-name, " +
+        //     ".character-tag-list li a[href^='/posts?tags='].tag-list-search span.tag-list-name, " +
+        //     ".general-tag-list   li a[href^='/posts?tags='].tag-list-search span.tag-list-name, " +
+        //     ".meta-tag-list      li a[href^='/posts?tags='].tag-list-search span.tag-list-name, " +
+        //     ".lore-tag-list      li a[href^='/posts?tags='].tag-list-search span.tag-list-name";
         //  let tags = querySelectorAll(tagSelector);
 
         // Get serviceFilename and ext from the URL
@@ -226,9 +251,9 @@ export class E621Plugin extends BaseSitePlugin {
         // Pass the list of URLs, plus the submission IDs.
         // Note that the URLs are fully-qualified here, and not relative.
         let list = getPageLinksFromAnchors(links, href => {
-                let urlparts = href.split('/');
-                return urlparts.pop();
-            }
+            let urlparts = href.split('/');
+            return urlparts.pop();
+        }
         );
         logger.log("e621: cooked links", list);
 
