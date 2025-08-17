@@ -26,18 +26,27 @@ export class E621Plugin extends BaseSitePlugin {
 
     getMedia(): Promise<I.Media> {
         // Look for the "download" link first
-        let downloadLink = querySelector('#image-download-link a');
-        let url = downloadLink && downloadLink.getAttribute("href");
-        logger.log("e621: first try url", url);
+        // Note: the download link no longer has an easy-to-locate selector, so we're getting this from some metadata on #image-container now
+        let downloadLink = querySelector('#image-container');
+        let url = downloadLink && downloadLink.getAttribute("data-file-url");
+        logger.log("e621: image-container url", url, downloadLink);
 
         if (!url) {
             // If that didn't work, look for the image itself
-            let image = document.getElementById("image");
-            logger.log("e621: second try image", image);
+            let image = document.getElementById("image") as HTMLImageElement | HTMLVideoElement;
 
             // Get the URL from the image
-            url = image && image.getAttribute("src");
-            logger.log("e621: second try url", url);
+            url = image && image.src;
+            logger.log("e621: image source url", url, image);
+
+            // Check to see if there are any source tags before giving up
+            if (!url) {
+                const sources = querySelectorAll<HTMLSourceElement>('source', image);
+                // Filter out sources with "_alt." in the filename as these are files transcoded by e621 and may have generational losses
+                const filteredSources = sources.filter(source => !source.src.includes('_alt.'));
+                url = filteredSources.length > 0 ? filteredSources[0].src : sources[0].src;
+                logger.log('e621: source tag url', url, sources)
+            }
         }
 
         if (!url) {
