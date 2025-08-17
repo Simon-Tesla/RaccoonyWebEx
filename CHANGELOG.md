@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.2 (2025-17-09)
+
+-   E621: fix video URL scraping (fixes #208) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/209
+
 ## 1.5.1 (2025-08-09)
 
 -   Fix for e621 tag and description parsing (contributed by Eupeptic) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/207
