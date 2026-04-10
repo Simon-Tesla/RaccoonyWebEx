@@ -114,7 +114,7 @@ ${JSON.stringify(media, null, '  ')}
 
 function sanitizePath(pathPart: string) {
     // Replace any spaces with underscores
-    pathPart = pathPart.replace(/ /g, "_");
+    pathPart = pathPart.replace(/\s/g, "_");
     // Replace any consecutive dots (e.g. "..") with a single dot.
     pathPart = pathPart.replace(/\.+/g, ".");
     // Replace any trailing dots
