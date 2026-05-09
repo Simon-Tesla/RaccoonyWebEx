@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.3 (2026-05-09)
+* Update FurAffinity parser to handle 2026-05 site update by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/212
+* Fix SubscribeStar parsing by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/213
+
 ## 1.5.2 (2025-17-09)
 
 -   E621: fix video URL scraping (fixes #208) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/209
