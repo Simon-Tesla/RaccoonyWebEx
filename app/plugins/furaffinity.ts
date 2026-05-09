@@ -26,8 +26,8 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
-        let { url, previewUrl, hasContentWarning, uiAndType } = getMediaUrls();
+    getMedia(): Promise<I.Media | null | undefined> {
+        let { url, previewUrl, hasContentWarning, uiAndType } = getMediaUrls() ?? {};
 
         if (!url) {
             // Didn't find a URL on the page, so let's give up.
@@ -99,15 +99,15 @@ export class FuraffinityPlugin extends BaseSitePlugin {
 
         // The username is on the same spot for all types in the new UI
         // and artwork/images on the old UI...
-        if( (uiAndType == FAUiAndType.NewAll)   ||
-            (uiAndType == FAUiAndType.OldImage)    ) {
+        if ((uiAndType == FAUiAndType.NewAll) ||
+            (uiAndType == FAUiAndType.OldImage)) {
             // 0      1      2                 3   4
             // https: (null) d.furaffinity.net art [username]
             username = urlParts[4];
         }
 
         // ...but in a different place for everything else on the old UI.
-        if(uiAndType == FAUiAndType.OldOther) {
+        if (uiAndType == FAUiAndType.OldOther) {
             // 0      1      2                 3        4   5
             // https: (null) d.furaffinity.net download art [username]
             username = urlParts[5];
@@ -118,7 +118,7 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         // Strip off the ID from the filename, so that it doesn't get repeated when saved.
         filename = getOriginalFilename(filename, username);
 
-        if (!ext) {
+        if (!ext && previewUrl) {
             // In rare cases, we don't even end up with an extension.
             // We'll use the preview image extension and default to jpg
             // if all else fails.
@@ -166,7 +166,7 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         let links: HTMLAnchorElement[] = getPageLinkElements();
 
         list = getPageLinksFromHtmlLinks(links, (href, elt) => {
-            const blockedThumb = elt.closest('figure').querySelector('img.blocked-content');
+            const blockedThumb = elt.closest('figure')?.querySelector('img.blocked-content');
             return {
                 submissionId: getIdFromSubmissionUrl(href),
                 hasContentWarning: !!blockedThumb
@@ -191,37 +191,42 @@ function getPageLinkElements(): HTMLAnchorElement[] {
     return querySelectorAll("figure figcaption a[href*='/view/']");
 }
 
-function getMediaUrls(): Pick<I.Media, 'url' | 'previewUrl' | 'hasContentWarning'> & {uiAndType: FAUiAndType} {
+function getMediaUrls(): Pick<I.Media, 'url' | 'previewUrl' | 'hasContentWarning'> & { uiAndType: FAUiAndType } | undefined {
     // Get the download button, if it exists.  As of 2021-08, there are
     // three cases; check them all.  Note which case we have, because it
     // matters for later parsing elsewhere.
 
-    let button: HTMLAnchorElement;
+    let button: HTMLAnchorElement | undefined = undefined;
     let uiAndType: FAUiAndType = FAUiAndType.Unknown;
 
     // Old UI image
-    let oldUiImage: HTMLAnchorElement = querySelector(".actions a[href^='//d.furaffinity.net/art/']");
+    let oldUiImage = querySelector<HTMLAnchorElement>(".actions a[href^='//d.furaffinity.net/art/']");
     logger.log("fa: old UI image ", oldUiImage);
 
     // Old UI non-image
-    let oldUiOther: HTMLAnchorElement = querySelector(".actions a[href^='//d.furaffinity.net/download/art/']");
+    let oldUiOther = querySelector<HTMLAnchorElement>(".actions a[href^='//d.furaffinity.net/download/art/']");
     logger.log("fa: old UI other ", oldUiOther);
 
     // New UI all types
-    let newUiAll:   HTMLAnchorElement = querySelector('.submission-sidebar .buttons .download a');
+    let newUiAll = querySelector<HTMLAnchorElement>([
+        ".submission-sidebar .buttons .download a", 
+        // 2026-05-09 UI refresh
+        ".submission-controls-upper a[href^='//d.furaffinity.net/art/']", 
+        "#submission-options a[href^='//d.furaffinity.net/art/']"
+    ]);
     logger.log("fa: new UI ", newUiAll);
 
-    if(oldUiImage != null) {
+    if (oldUiImage != null) {
         button = oldUiImage;
         uiAndType = FAUiAndType.OldImage;
     }
 
-    if(oldUiOther != null) {
+    if (oldUiOther != null) {
         button = oldUiOther;
         uiAndType = FAUiAndType.OldOther;
     }
 
-    if(newUiAll != null) {
+    if (newUiAll != null) {
         button = newUiAll;
         uiAndType = FAUiAndType.NewAll;
     }
@@ -248,16 +253,18 @@ function getMediaUrls(): Pick<I.Media, 'url' | 'previewUrl' | 'hasContentWarning
         if (url.indexOf('http:') !== 0 || url.indexOf('https:') !== 0) {
             // Add the protocol scheme to the URL if it's missing
             url = window.location.protocol + url;
-        logger.log("fa: constructed URL ", url);
+            logger.log("fa: constructed URL ", url);
         }
     }
 
-    return {
-        url,
-        previewUrl,
-        hasContentWarning,
-        uiAndType
-    };
+    if (url && previewUrl) {
+        return {
+            url,
+            previewUrl,
+            hasContentWarning,
+            uiAndType
+        };
+    }
 }
 
 function getIdFromSubmissionUrl(url: string) {
@@ -280,10 +287,10 @@ function getIdFromSubmissionUrl(url: string) {
     let match = url.match(/\/view\/(\d+)/);
 
     // If we found a match, return it; if not, return "unknown".
-    if(match) {
-        return(match[1]);
+    if (match) {
+        return (match[1]);
     } else {
-        return("unknown");
+        return ("unknown");
     }
 }
 
@@ -310,20 +317,18 @@ function getTitle(): string {
     let title = '';
 
     // Try it for both UIs
-    let titleEltNew = querySelector("div.submission-title h2 p");
+    let titleEltNew = querySelector("div.submission-title h2");
     let titleEltOld = querySelector("div.classic-submission-title h2");
     logger.log("fa: getTitle elements: ", titleEltNew, titleEltOld);
 
-    if(titleEltNew) {
+    if (titleEltNew) {
         title = titleEltNew.textContent;
     } else {
-        title = titleEltOld.textContent;
+        title = titleEltOld?.textContent ?? '';
     }
     logger.log("fa: getTitle title: ", title);
 
     return title
-        ? title
-        : '';
 }
 
 function getDescription(): string {
@@ -335,7 +340,9 @@ function getDescription(): string {
     }
     else {
         // New UI
-        let elt = querySelector('.p20') || querySelector('.submission-description')
+        let elt = querySelector('.p20') || 
+            querySelector('.submission-description-text') || 
+            querySelector('.submission-description')
         description = elt ? elt.textContent : '';
     }
     return description.trim();
@@ -346,7 +353,10 @@ function getTags(): string[] {
     let tagElts = querySelectorAll("#keywords a");
     // New UI
     if (!tagElts || tagElts.length === 0) {
-        tagElts = querySelectorAll(".submission-sidebar .tags-row .tags a");
+        tagElts = querySelectorAll([
+            ".submission-sidebar .tags-row .tags a", 
+            ".submission-tags .tags a[href^='/search'], .submission-tags .tags .tag-invalid"
+        ]);
     }
 
     return tagElts.map((el) => el.textContent.trim());

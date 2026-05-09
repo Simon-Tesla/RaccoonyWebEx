@@ -64,13 +64,13 @@ export interface PageLinkList {
 
 export interface SitePlugin {
     readonly siteName: string;
-    getMedia(): Promise<Media>;
-    getPageLinkList(): Promise<PageLinkList>;
+    getMedia(): Promise<Media | null | undefined>;
+    getPageLinkList(): Promise<PageLinkList | null | undefined>;
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
-    getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media>;
-    checkFileDownload(): Promise<Media>;
+    getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media | null | undefined>;
+    checkFileDownload(): Promise<Media | null | undefined>;
 
     //TODO: implement support for these
     // previous

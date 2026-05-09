@@ -1,12 +1,14 @@
 import { PageLink } from "../definitions";
 
-export function querySelectorAll<T extends HTMLElement>(selector: string, scope?: HTMLElement): T[] {
-    let list = <NodeListOf<T>>((scope || document).querySelectorAll(selector));
+export function querySelectorAll<T extends HTMLElement>(selector: string | string[], scope?: HTMLElement): T[] {
+    const selectorStr = Array.isArray(selector) ? selector.join(', ') : selector;
+    let list = <NodeListOf<T>>((scope || document).querySelectorAll(selectorStr));
     return Array.from(list);
 }
 
-export function querySelector<T extends HTMLElement>(selector: string, scope?: HTMLElement): T | null {
-    return <T>((scope || document).querySelector(selector));
+export function querySelector<T extends HTMLElement>(selector: string | string[], scope?: HTMLElement): T | null {
+    const selectorStr = Array.isArray(selector) ? selector.join(', ') : selector;
+    return <T>((scope || document).querySelector(selectorStr));
 }
 
 export function isElementVisible(el: HTMLElement) {
@@ -29,7 +31,7 @@ export function getLargestImageElement(thresholdPx: number = MinimumImageElement
     else {
         candidates = Array.from(selector.getElementsByTagName('img'));
     }
-    let largestImg = null;
+    let largestImg: HTMLImageElement | undefined = undefined;
     let imgSize = thresholdPx;
     candidates.forEach((img) => {
         const currSize = img.naturalWidth * img.naturalHeight;
@@ -41,10 +43,10 @@ export function getLargestImageElement(thresholdPx: number = MinimumImageElement
     return largestImg;
 }
 
-type DomLinkSubmissionIdExtractor = (href: string, linkElt: HTMLAnchorElement) => string;
+type DomLinkSubmissionIdExtractor = (href: string, linkElt: HTMLAnchorElement) => string | undefined;
 
 /** @deprecated use @see getPageLinksFromHtmlLinks */
-export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => null): PageLink[] {
+export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => undefined): PageLink[] {
     return getPageLinksFromHtmlLinks(links, (href, elt) => ({submissionId: getIdFromSubmissionUrl(href, elt)}));
 }
 
@@ -63,7 +65,7 @@ export function getPageLinksFromHtmlLinks(links: HTMLAnchorElement[], detailsExt
     });
 }
 
-export function getPageLinksFromSelector(selector: string, getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => null): PageLink[] {
+export function getPageLinksFromSelector(selector: string, getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => undefined): PageLink[] {
     const links: HTMLAnchorElement[] = querySelectorAll(selector);
     const list = getPageLinksFromAnchors(links, getIdFromSubmissionUrl);
     return list;
@@ -73,7 +75,7 @@ export function getFirstNonBodyAncestorElement(element: Element) {
     if (element === document.body) {
         return undefined;
     }
-    while (element.parentElement != document.body) {
+    while (element.parentElement && element.parentElement != document.body) {
         element = element.parentElement;
     }
     return element;
