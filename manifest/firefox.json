@@ -2,7 +2,10 @@
   "applications": {
     "gecko": {
       "id": "raccoony@thornvalley.com",
-      "update_url": "https://raw.github.com/Simon-Tesla/RaccoonyWebEx/master/updates.json"
+      "update_url": "https://raw.github.com/Simon-Tesla/RaccoonyWebEx/master/updates.json",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   },
   "background": {
