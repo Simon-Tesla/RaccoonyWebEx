@@ -8,7 +8,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
 
     private _pageChangeHandler: () => void = () => { };
 
-    private _observer: MutationObserver;
+    private _observer: MutationObserver | undefined;
     private _observedElements = new Set<Element>();
 
     constructor(siteName: string, mutationSelector?: string) {
@@ -30,30 +30,30 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         }
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | null | undefined> {
         return Promise.resolve(null);
     }
 
-    checkFileDownload(): Promise<I.Media> {
+    checkFileDownload(): Promise<I.Media | null | undefined> {
         return this.getMedia();
     }
 
-    getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {
+    getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media | null | undefined> {
         return Promise.resolve(null);
     }
 
-    getPageLinkList(): Promise<I.PageLinkList> {
+    getPageLinkList(): Promise<I.PageLinkList | null | undefined> {
         return Promise.resolve(null);
     }
 
-    hasMedia(): Promise<boolean> {
-        return this.getMedia()
-            .then(media => media && !!media.url);
+    async hasMedia(): Promise<boolean> {
+        const media = await this.getMedia()
+        return !!media?.url
     }
 
-    hasPageLinkList(): Promise<boolean> {
-        return this.getPageLinkList()
-            .then(list => list && list.list.length > 0);
+    async hasPageLinkList(): Promise<boolean> {
+        const list = await this.getPageLinkList();
+        return (list?.list?.length ?? 0) > 0
     }
 
     registerPageChangeHandler(handler: () => void): void {
@@ -77,7 +77,7 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         if (!this._observedElements.has(element)) {
             logger.log('observing new element', element);
             this._observedElements.add(element);
-            this._observer.observe(element, { childList: true, subtree: true });
+            this._observer!.observe(element, { childList: true, subtree: true });
         }
     }
 }
