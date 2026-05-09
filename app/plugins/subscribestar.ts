@@ -28,16 +28,21 @@ export class SubscribeStarPlugin extends BaseSitePlugin {
         super(serviceName, "#root");
     }
 
-    async getMedia(): Promise<I.Media> {        
-        // Image submissions contain JSON of an array of items in the 'div.uploads-images' element under data-gallery       
-        const imageRollElt = querySelector('.uploads-images');
-        const mediaInfos: SubstarMediaInfo[] = JSON.parse(imageRollElt.dataset.gallery);
+    async getMedia(): Promise<I.Media | undefined> {        
+        // Image submissions contain JSON of an array of items, either in the gallery lightbox itself under the data-items property
+        // or in the 'div.uploads-images' element under data-gallery       
+        const imageRollElt = querySelector('.gallery[data-items]') ?? querySelector('.uploads-images');
+        const itemsJson = imageRollElt && (imageRollElt.dataset.items ?? imageRollElt.dataset.gallery)
+        const mediaInfos: SubstarMediaInfo[] = (itemsJson && JSON.parse(itemsJson)) ?? [];
+        if (!mediaInfos.length) {
+            return;
+        }
 
         // Default to the first mediaInfo if the gallery isn't open
         let mediaInfo = mediaInfos[0];
 
         // Use mediaInfo corresponding to the image shown in the gallery when using the carousel viewer
-        const downloadLink = querySelector<HTMLAnchorElement>('a.gallery-image_original_link');
+        const downloadLink = querySelector<HTMLAnchorElement>(['a.gallery-image_original_link', "a.gallery-download_icon"]);
         if (downloadLink) {
             // Handle cases with both relative and absolute URLs
             const downloadUrl = downloadLink.href;
@@ -47,6 +52,10 @@ export class SubscribeStarPlugin extends BaseSitePlugin {
                 downloadUrl === new URL(info.url, window.location.href).href
             ) ?? mediaInfo;
         }
+
+        // TODO: this logic is incorrect when attempting to download from a page with a list of multiple posts
+        // rather than the individual post.
+        // Also we should figure out context menu downloading while we're at it, so that we don't have to have the lightbox up to behave correctly.
 
         // Title may or may not exist
         const titleElt = querySelector('h1');
@@ -76,6 +85,23 @@ export class SubscribeStarPlugin extends BaseSitePlugin {
     async getPageLinkList(): Promise<I.PageLinkList> {
         let itemLinks: HTMLAnchorElement[] = querySelectorAll('.posts .post .post-date a');
         let list = getPageLinksFromAnchors(itemLinks, href => href.split('/').pop());
+
+        if (!itemLinks.length) {
+            // Substar doesn't believe in making individual pages linkable in their post listings anymore
+            // but they do at least have the post IDs in the DOM metadata.
+            const posts = querySelectorAll('.posts .post');
+            const postList = posts.map(postElt => {
+                const submissionId = postElt.dataset.id;
+                if (submissionId) {
+                    const url = new URL(`/posts/${submissionId}`, window.location.href).href;
+                    return {
+                        url: url,
+                        submissionId
+                    } as I.PageLink
+                }
+            });
+            list = postList.filter(item => !!item);
+        }
 
         let pageList: I.PageLinkList = {
             list: list,
