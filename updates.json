@@ -93,6 +93,10 @@
         {
           "version": "1.5.2",
           "update_link": "https://github.com/Simon-Tesla/RaccoonyWebEx/releases/download/v1.5.2/raccoony_webextension-1.5.2.xpi"
+        },
+        {
+          "version": "1.5.3",
+          "update_link": "https://github.com/Simon-Tesla/RaccoonyWebEx/releases/download/v1.5.3/raccoony_webextension-1.5.3.xpi"
         }
       ]
     }
