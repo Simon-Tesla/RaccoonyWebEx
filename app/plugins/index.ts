@@ -5,7 +5,6 @@ import './furaffinity';
 import './furrynetwork';
 import './gfx'
 import './hentaifoundry';
-import './hiccears';
 import './inkbunny';
 import './itaku';
 // TODO: readd when this is stable
