@@ -16,21 +16,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
 interface OptionsPageState {
     ready: boolean;
-    extensionSettings: I.ExtensionSettings;
-    defaultSettings: I.SiteSettings;
+    extensionSettings: I.ExtensionSettings | undefined;
+    defaultSettings: I.SiteSettings | undefined;
     showReset: boolean;
 }
 
 class OptionsPage extends React.Component<{}, OptionsPageState> {
     private settings: CachedSettings;
-    private fileInput: HTMLInputElement;
+    private fileInput: HTMLInputElement | undefined;
 
     constructor(props) {
         super(props);
         this.state = {
             ready: false,
-            extensionSettings: null,
-            defaultSettings: null,
+            extensionSettings: undefined,
+            defaultSettings: undefined,
             showReset: false
         };
 
@@ -50,8 +50,10 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
     }
 
     saveExtensionSettings(state: OptionsPageState) {
-        saveExtensionSettings(state.extensionSettings)
-            .catch(this.onSettingsStoreUpdate);
+        if (state.extensionSettings) {
+            saveExtensionSettings(state.extensionSettings)
+                .catch(this.onSettingsStoreUpdate);
+        }
     }
 
     onUpdateSettings = (settings: I.SiteSettings) => {
@@ -67,27 +69,45 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
     onClickShowContextMenu = (event: React.MouseEvent<HTMLInputElement>) => {
         const value = event.currentTarget.checked;
         this.setState(state => {
-            state.extensionSettings.showContextMenu = value;
-            this.saveExtensionSettings(state);
-            return state;
+            const newState: OptionsPageState = { 
+                ...state,
+                extensionSettings: {
+                    ...state.extensionSettings,
+                    showContextMenu: value
+                }
+            }
+            this.saveExtensionSettings(newState);
+            return newState;
         });
     }
 
     onClickSwitchToNewTab = (event: React.MouseEvent<HTMLInputElement>) => {
         const value = event.currentTarget.checked;
         this.setState(state => {
-            state.extensionSettings.switchToNewTab = value;
-            this.saveExtensionSettings(state);
-            return state;
+            const newState: OptionsPageState = { 
+                ...state,
+                extensionSettings: {
+                    ...state.extensionSettings!,
+                    switchToNewTab: value
+                }
+            }
+            this.saveExtensionSettings(newState);
+            return newState;
         })
     }
 
     onChangePageLogo = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const value = event.currentTarget.value as PageOverlayIcon;
         this.setState(state => {
-            state.extensionSettings.pageOverlayIcon = value;
-            this.saveExtensionSettings(state);
-            return state;
+            const newState: OptionsPageState = { 
+                ...state,
+                extensionSettings: {
+                    ...state.extensionSettings!,
+                    pageOverlayIcon: value
+                }
+            }
+            this.saveExtensionSettings(newState);
+            return newState;
         });
     }
 
@@ -104,7 +124,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
     }
 
     onClickImport = () => {
-        this.fileInput.click();
+        this.fileInput?.click();
     }
 
     onImportFile = (event: React.FormEvent<HTMLInputElement>) => {
@@ -116,7 +136,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                 console.log("Importing settings:", importedSettings);
                 clearAllSettings()
                     .then(() => saveAllSettings(importedSettings));
-                this.fileInput.value = null;
+                this.fileInput && (this.fileInput.value = null as unknown as string);
             }
         }
     }
@@ -144,6 +164,8 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
             return (<div>Please wait...</div>);
         }
 
+        const { showContextMenu, switchToNewTab, pageOverlayIcon } = this.state.extensionSettings || {}
+
         return (
             <div id={n('ui')}>
                 <fieldset>
@@ -163,7 +185,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                             <label>
                                 <input
                                     type="checkbox"
-                                    checked={this.state.extensionSettings.showContextMenu}
+                                    checked={showContextMenu}
                                     onClick={this.onClickShowContextMenu}
                                 />
                                 {" Show Raccoony in right-click menu"}
@@ -173,7 +195,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                             <label>
                                 <input
                                     type="checkbox"
-                                    checked={this.state.extensionSettings.switchToNewTab}
+                                    checked={switchToNewTab}
                                     onClick={this.onClickSwitchToNewTab}
                                 />
                                 {" Switch to new tab when opening all in tabs"}
@@ -182,7 +204,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                         <div>
                             <label>
                                 {"Page overlay icon: "}
-                                <select onChange={this.onChangePageLogo} value={this.state.extensionSettings.pageOverlayIcon}>
+                                <select onChange={this.onChangePageLogo} value={pageOverlayIcon}>
                                     <option value={PageOverlayIcon.Default}>Default icon</option>
                                     <option value={PageOverlayIcon.Scruff}>Legacy icon by ScruffKerfluff</option>
                                 </select>
@@ -223,7 +245,7 @@ class OptionsPage extends React.Component<{}, OptionsPageState> {
                     style={{ display: 'none' }}
                     accept="*.json"
                     multiple={false}
-                    ref={r => this.fileInput = r}
+                    ref={r => this.fileInput = r || undefined}
                     onChange={this.onImportFile}
                 />
             </div>

@@ -11,7 +11,7 @@ export class HentaiFoundryPlugin extends BaseSitePlugin {
         super(siteName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         const isStory = window.location.pathname.startsWith('/stories');
         logger.log("hf: isStory?", isStory);
 
@@ -19,7 +19,7 @@ export class HentaiFoundryPlugin extends BaseSitePlugin {
         logger.log("hf: author, id, filename, url", author, submissionId, siteFilename, url);
 
         if (!url) {
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         let { filename, ext } = getFilenameParts(siteFilename);
@@ -38,7 +38,7 @@ export class HentaiFoundryPlugin extends BaseSitePlugin {
         const tagsElt = querySelector('meta[name=keywords]');
         logger.log("hf: tag element", tagsElt);
         const tags = tagsElt
-            ? tagsElt.getAttribute('content').split(' ')
+            ? tagsElt.getAttribute('content')?.split(' ') ?? []
             : [];
         logger.log("hf: tags", tags);
 

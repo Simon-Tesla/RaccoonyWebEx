@@ -1,8 +1,7 @@
 import * as React from 'react';
 import * as I from '../../definitions';
 import * as E from '../../enums'
-import * as classnames from 'classnames';
-import * as logger from '../../logger';
+import classnames from 'classnames';
 import ActionButton, { ActionButtonProps } from './actionButton';
 import SettingsUi from './settingsUi';
 import { n } from './common'
@@ -45,7 +44,7 @@ const DownloadStatusMessage: { [state: number]: string } = {
 
 
 export default class PageOverlay extends React.Component<PageOverlayProps, PageOverlayState> {
-    private _mouseLeaveTimeout: number;
+    private _mouseLeaveTimeout: number | undefined;
 
     constructor(props: PageOverlayProps) {
         super(props);
@@ -123,7 +122,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
 
         let mainClassNames = classnames(n('overlay'), !showUi ? n('hide') : null, showDownloadStatus ? n('active') : null)
 
-        let alternateBalloonUi: JSX.Element = null;
+        let alternateBalloonUi: JSX.Element | null = null;
 
         // TODO: move the options into a modal dialog
         if (props.showOptions) {
@@ -166,7 +165,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                 <a id={n("imglink")} title="Raccoony - click for page options">
                     <img src={logoUrl} id={n("img")} width={64} height={64} />
                 </a>
-                <div id={n("ctr")} className={showBalloon ? null : n('inactive')}>
+                <div id={n("ctr")} className={showBalloon ? undefined : n('inactive')}>
                     {alternateBalloonUi ?
                         (
                             alternateBalloonUi

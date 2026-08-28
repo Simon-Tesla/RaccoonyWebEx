@@ -11,7 +11,7 @@ enum ContextMenuItems {
 
 const contextMenuApi: typeof browser.menus = browser["contextMenus"] || browser.menus;
 
-let contextMenuId: number | string = null;
+let contextMenuId: number | string | null = null;
 export async function initializeContextMenu(settingsProvider: CachedSettings) {
     await settingsProvider.ready;
     const extensionSettings = settingsProvider.getExtensionSettings();
@@ -38,7 +38,7 @@ export async function initializeContextMenu(settingsProvider: CachedSettings) {
 
     function contextMenuListener(info: browser.menus.OnClickData, tab: browser.tabs.Tab) {
         logger.log("handling context menu", info.menuItemId);
-        if (info.menuItemId === ContextMenuItems.download) {
+        if (info.menuItemId === ContextMenuItems.download && info.srcUrl) {
             return initiateContextDownload(tab, info.srcUrl, info.mediaType as MediaType)
         }
     }
@@ -53,7 +53,7 @@ export async function initializeContextMenu(settingsProvider: CachedSettings) {
                 mediaType
             },
         };
-        return browser.tabs.sendMessage(tab.id, message);
+        return browser.tabs.sendMessage(tab.id!, message);
     }
 
     function createMenu() {
@@ -77,7 +77,7 @@ async function loadContentScripts(tab: browser.tabs.Tab): Promise<void> {
     }
     let loaded = false;
     try {
-        let response = await browser.tabs.sendMessage(tab.id, message) as { loaded: boolean };
+        let response = await browser.tabs.sendMessage(tab.id!, message) as { loaded: boolean };
         loaded = response && response.loaded;
     } catch (e) { /*swallow errors*/ }
 

@@ -16,7 +16,7 @@ export class ItakuPlugin extends BaseSitePlugin {
         return window.location.pathname.startsWith('/images/');
     }
 
-    async getMedia(): Promise<I.Media> {
+    async getMedia(): Promise<I.Media | undefined> {
         // Preview link format: https://itaku.ee/api/media_2/gallery_imgs/[filename]_[hash?]/xl.[ext]
         // Note that the preview link is derived from the download link.
         const img = querySelector<HTMLImageElement>('.main-img');
@@ -24,15 +24,15 @@ export class ItakuPlugin extends BaseSitePlugin {
 
         // Download link format: https://itaku.ee/api/media_2/gallery_imgs/[filename]_[hash?].[ext]
         const downloadButton = querySelector<HTMLAnchorElement>('a.mat-primary[target="_blank"]');
-        const url = downloadButton.href ?? previewUrl; // Fall-back to displayed image.
+        const url = downloadButton?.href ?? previewUrl; // Fall-back to displayed image.
 
         if (!url) {
-            return null;
+            return undefined;
         }
 
         // Filename parsing
         const parsedUrl = new URL(url);
-        const siteFilename = parsedUrl.pathname.split('/').pop();
+        const siteFilename = parsedUrl.pathname.split('/').pop() ?? '';
         const filenameParts = getFilenameParts(siteFilename);
         const hashIdx = filenameParts.filename.lastIndexOf('_');
         const filename = hashIdx == -1 ? filenameParts.filename : filenameParts.filename.substring(0, hashIdx); // Remove the hash
@@ -40,17 +40,17 @@ export class ItakuPlugin extends BaseSitePlugin {
 
         // Submission ID parsing
         // Submission URL format: https://itaku.ee/images/[ID]
-        const submissionId = window.location.pathname.split('/').pop();
+        const submissionId = window.location.pathname.split('/').pop() ?? '';
 
         // Metadata parsing
         const authorLink = querySelector('a[data-cy="app-image-detail-owner"]');
-        const author = authorLink.textContent.trim();
+        const author = authorLink?.textContent.trim() ?? '';
 
         const titleElt = querySelector('.header-title');
-        const title = titleElt.textContent.trim();
+        const title = titleElt?.textContent.trim() ?? '';
 
         const descriptionElt = querySelector('.info-wrapper p.mat-body');
-        const description = descriptionElt.textContent.trim();
+        const description = descriptionElt?.textContent.trim() ?? '';
 
         const tagElts = querySelectorAll('a[data-cy="app-image-detail-tags"]');
         const tags = tagElts.map(t => t.textContent.trim());

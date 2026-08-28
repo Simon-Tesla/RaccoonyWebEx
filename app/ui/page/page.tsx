@@ -19,25 +19,25 @@ interface PageProps {
 interface PageState extends I.AppState {
     lightboxUrl: string;
     lightboxTitle: string;
-    siteSettings: I.SiteSettings;
-    settings: I.Settings;
-    extensionSettings: I.ExtensionSettings;
+    siteSettings: I.SiteSettings | undefined;
+    settings: I.Settings | undefined;
+    extensionSettings: I.ExtensionSettings | undefined;
     enableZoom: boolean;
 }
 
 export default class Page extends React.Component<PageProps, PageState> implements I.UserActions {
     private settingsProvider: CachedSettings;
 
-    private _hotkeysDisposer: () => void;
+    private _hotkeysDisposer: (() => void) | undefined = undefined;
 
     constructor(props: PageProps) {
         super(props);
         this.state = {
             lightboxUrl: '',
             lightboxTitle: '',
-            siteSettings: null,
-            settings: null,
-            extensionSettings: null,
+            siteSettings: undefined,
+            settings: undefined,
+            extensionSettings: undefined,
             enableZoom: true,
 
             hasMedia: false,
@@ -95,6 +95,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
 
     openPageLinksInTabs = (overrideNewTabBehavior = false) => {
         this.props.siteActions.getPageLinkList().then((list) => {
+            if (!list) { return; }
             list.overrideNewTabBehavior = overrideNewTabBehavior;
             sendMessage(E.MessageAction.OpenTabs, list);
         });
@@ -185,9 +186,11 @@ export default class Page extends React.Component<PageProps, PageState> implemen
             return null;
         }
         //TODO: add toolbar buttons for Raccoony actions in the lightbox?
-        let title = this.state.lightboxTitle && (
-            <span>{this.state.lightboxTitle}</span>
-        );
+        let title: JSX.Element = <span>{this.state.lightboxTitle}</span>
+
+        if (!this.state.settings || !this.state.extensionSettings) {
+            return null;
+        }
 
         return (
             <div>
@@ -263,7 +266,7 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         // somehow, but starting the auto-download isn't exactly time-critical either.
         // Also, I'd like to refactor all of this with hooks and context at some point anyway.
         await sleep(200);
-        if (this.state.siteSettings.autoDownload) {
+        if (this.state.siteSettings?.autoDownload) {
             this.downloadMedia();
         }
     }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as I from '../../definitions';
-import * as classnames from 'classnames';
+import classnames from 'classnames';
 import { IconGlyph } from '../../enums'
 import { n } from './common'
 

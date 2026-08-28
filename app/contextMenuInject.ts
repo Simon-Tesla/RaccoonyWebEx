@@ -6,7 +6,7 @@ import { initPageListeners } from "./ui/pageListeners";
 // Only need to set up the message listeners when handling context menu actions,
 // no need to show the overlay UI.
 const sitePlugin = getSitePlugin(window.location.hostname);
-let actions: SiteActions = null;
+let actions: SiteActions | undefined = undefined;
 if (sitePlugin) {
     actions = new SiteActions(sitePlugin);
 }

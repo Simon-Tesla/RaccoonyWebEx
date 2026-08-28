@@ -1,12 +1,12 @@
 import { PageLink } from "../definitions";
 
-export function querySelectorAll<T extends HTMLElement>(selector: string | string[], scope?: HTMLElement): T[] {
+export function querySelectorAll<T extends HTMLElement>(selector: string | string[], scope?: HTMLElement | null): T[] {
     const selectorStr = Array.isArray(selector) ? selector.join(', ') : selector;
     let list = <NodeListOf<T>>((scope || document).querySelectorAll(selectorStr));
     return Array.from(list);
 }
 
-export function querySelector<T extends HTMLElement>(selector: string | string[], scope?: HTMLElement): T | null {
+export function querySelector<T extends HTMLElement>(selector: string | string[], scope?: HTMLElement | null): T | null {
     const selectorStr = Array.isArray(selector) ? selector.join(', ') : selector;
     return <T>((scope || document).querySelector(selectorStr));
 }
@@ -43,11 +43,13 @@ export function getLargestImageElement(thresholdPx: number = MinimumImageElement
     return largestImg;
 }
 
-type DomLinkSubmissionIdExtractor = (href: string, linkElt: HTMLAnchorElement) => string | undefined;
+type DomLinkSubmissionIdExtractor = (href: string, linkElt: HTMLAnchorElement) => string | null | undefined;
 
 /** @deprecated use @see getPageLinksFromHtmlLinks */
 export function getPageLinksFromAnchors(links: HTMLAnchorElement[], getIdFromSubmissionUrl: DomLinkSubmissionIdExtractor = () => undefined): PageLink[] {
-    return getPageLinksFromHtmlLinks(links, (href, elt) => ({submissionId: getIdFromSubmissionUrl(href, elt)}));
+    return getPageLinksFromHtmlLinks(links, (href, elt) => ({
+        submissionId: getIdFromSubmissionUrl(href, elt) ?? undefined
+    }));
 }
 
 type PageLinkDetailsExtractor = (href: string, linkElt: HTMLAnchorElement) => Partial<Pick<PageLink, 'submissionId' | 'hasContentWarning'>>;

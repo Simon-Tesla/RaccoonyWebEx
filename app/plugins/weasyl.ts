@@ -11,7 +11,7 @@ export class WeasylPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         // Get the "canonical" link from the page header if available,
         // or bail out if not found.
         //
@@ -21,9 +21,9 @@ export class WeasylPlugin extends BaseSitePlugin {
         // without a canonical link, such as the "recently popular"
         // page.  Detect that situation and bail out, so Raccoony can
         // go on and call getPageLinkList().
-        let canonical = document.querySelector("link[rel=canonical]");
+        let canonical = document.querySelector<HTMLLinkElement>("link[rel=canonical]");
         if (!canonical) {
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // Get the native "download" button, or bail out if not found.
@@ -34,7 +34,7 @@ export class WeasylPlugin extends BaseSitePlugin {
         // be there.
         let buttonSpan = document.querySelector("#detail-actions .icon-arrowDown");
         if (!buttonSpan) {
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
         let button = buttonSpan.parentElement;
 
@@ -46,7 +46,7 @@ export class WeasylPlugin extends BaseSitePlugin {
         // https://www.weasyl.com/%7E[user]/submissions/[id]/[title]
         // "character" submissions:
         // https://www.weasyl.com/character/[id]/[title]
-        let canonicalLink = canonical.getAttribute("href");
+        let canonicalLink = canonical.getAttribute("href") ?? '';
         logger.log("weasyl: canonical href ", canonicalLink);
 
         // Split on slashes
@@ -78,7 +78,7 @@ export class WeasylPlugin extends BaseSitePlugin {
             // <h1 id="detail-title" class="pad-left pad-right">CoolGuy <i>by</i>
             //   <a class="username" href="/~exampleartist">ExampleArtist</a></h1>
             let usernameLink = document.querySelector('#detail-title a.username');
-            username = usernameLink.getAttribute("href");
+            username = usernameLink?.getAttribute("href") ?? '';
 
             // Record locations of these pieces for later
             submissionId = pathParts[2];
@@ -86,7 +86,7 @@ export class WeasylPlugin extends BaseSitePlugin {
         }
         else {
             // something weird - bail out
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // Strip off any leading tilde or path characters from the username
@@ -109,7 +109,10 @@ export class WeasylPlugin extends BaseSitePlugin {
 
         // Get the image URL from the download button, find the last '.' in it,
         // and take everything after that as the extension
-        let url = button.getAttribute("href");
+        let url = button?.getAttribute("href");
+        if (!url) {
+            return Promise.resolve(undefined);
+        }
         let lastdot = url.lastIndexOf('.');
         let ext = url.slice(lastdot + 1);
         logger.log("weasyl: extension ", ext);
@@ -123,13 +126,13 @@ export class WeasylPlugin extends BaseSitePlugin {
         // Get the link to the preview/thumbnail image
         // If there is no thumbnail, previewURL ends up set to the URL of
         // the main file (FIXME: why?)
-        let previewImg: HTMLImageElement = querySelector('#detail-art img');
-        let previewUrl = (previewImg && previewImg.src) || null;
+        let previewImg = querySelector<HTMLImageElement>('#detail-art img');
+        let previewUrl = (previewImg && previewImg.src) || undefined;
 
         let titleElt = document.getElementById("detail-title")
-        let title = titleElt && titleElt.textContent.trim();
+        let title = (titleElt && titleElt.textContent.trim()) || '';
         let descriptionElt = querySelectorAll("#detail-description .formatted-content").pop();
-        let description = descriptionElt && descriptionElt.textContent.trim();
+        let description = (descriptionElt && descriptionElt.textContent.trim()) || '';
         let tags = querySelectorAll(".di-tags .tags a")
             .map(el => el.textContent.trim());
 

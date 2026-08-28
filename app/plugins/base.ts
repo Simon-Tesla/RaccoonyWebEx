@@ -1,5 +1,5 @@
 import * as I from '../definitions';
-import { MediaType, TabLoadOrder } from '../enums';
+import { MediaType } from '../enums';
 import * as logger from '../logger';
 import { querySelectorAll } from '../utils/dom';
 
@@ -30,20 +30,20 @@ export default abstract class BaseSitePlugin implements I.SitePlugin {
         }
     }
 
-    getMedia(): Promise<I.Media | null | undefined> {
-        return Promise.resolve(null);
+    getMedia(): Promise<I.Media | undefined> {
+        return Promise.resolve(undefined);
     }
 
-    checkFileDownload(): Promise<I.Media | null | undefined> {
+    checkFileDownload(): Promise<I.Media | undefined> {
         return this.getMedia();
     }
 
-    getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media | null | undefined> {
-        return Promise.resolve(null);
+    getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media | undefined> {
+        return Promise.resolve(undefined);
     }
 
-    getPageLinkList(): Promise<I.PageLinkList | null | undefined> {
-        return Promise.resolve(null);
+    getPageLinkList(): Promise<I.PageLinkList | undefined> {
+        return Promise.resolve(undefined);
     }
 
     async hasMedia(): Promise<boolean> {

@@ -25,11 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
     rootElt.id = "raccoonyExtensionRoot";
     document.body.appendChild(rootElt);
 
-    let ref: Page = null;
+    let ref: Page | null = null;
     ReactDOM.render(<Page siteActions={actions} ref={r => ref = r} />, rootElt);
     console.log("finished page_inject");
 
-    initPageListeners(actions, onContextDownloadHandlerFactory(ref));
+    initPageListeners(actions, onContextDownloadHandlerFactory(ref!));
 })
 
 

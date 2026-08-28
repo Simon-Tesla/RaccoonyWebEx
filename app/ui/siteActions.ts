@@ -22,17 +22,17 @@ export default class SiteActions {
         return `${this.siteName}_settings`;
     }
 
-    async checkFileDownload(): Promise<I.Media> {
+    async checkFileDownload(): Promise<I.Media | undefined> {
         let media = await this.plugin.checkFileDownload();
         return this.postProcessMediaData(media);
     }
 
-    async getMedia(): Promise<I.Media> {
+    async getMedia(): Promise<I.Media | undefined> {
         let media = await this.plugin.getMedia();
         return this.postProcessMediaData(media);
     }
 
-    async postProcessMediaData(media: I.Media): Promise<I.Media> {
+    async postProcessMediaData(media: I.Media | undefined): Promise<I.Media | undefined> {
         // TODO: this should probably be moved into the base plugin?
         if (media) {
             const hasSiteFilename = !!media.siteFilename;
@@ -57,7 +57,6 @@ export default class SiteActions {
             media.author = media.author || "unknown";
             return media;
         }
-        return null;
     }
 
     async getMediaForSrcUrl(srcUrl: string, mediaType: MediaType): Promise<I.Media> {
@@ -67,15 +66,15 @@ export default class SiteActions {
             siteName: this.siteName,
             sourceUrl: window.location.href,
             downloadDestination: DownloadDestination.ContextMenuDefault,
-            author: null,
-            filename: null,
-            extension: null,
-            title: null,
-            description: null,
-            tags: null,
-            submissionId: null,
+            author: '',
+            filename: '',
+            extension: '',
+            title: '',
+            description: '',
+            tags: [],
+            submissionId: '',
         };
-        let media = Object.assign({}, defaultMedia);
+        let media: I.Media | undefined = undefined;
 
         try {
             media = await this.plugin.getMediaForSrcUrl(srcUrl, mediaType);
@@ -83,7 +82,7 @@ export default class SiteActions {
                 // If we didn't get anything when specifying an explicit source URL,
                 // try the normal getMedia call and use it if its url matches srcUrl.
                 media = await this.plugin.getMedia();
-                media = media && media.url === srcUrl ? media : null;
+                media = media && media.url === srcUrl ? media : undefined;
                 if (media) {
                     media.downloadDestination = DownloadDestination.Default;
                 }
@@ -93,11 +92,12 @@ export default class SiteActions {
         catch (err) {
             // Swallow the error and attempt to go on with what we have so far.
             logger.error("[getMediaForSrcUrl] error:", err, media);
+            media = defaultMedia;
         }
         return await ensureMediaHasFilenameAndExtension(media);
     }
 
-    async getPageLinkList(): Promise<I.PageLinkList> {
+    async getPageLinkList(): Promise<I.PageLinkList | undefined> {
         const list = await this.plugin.getPageLinkList();
         if (list) {
             list.siteName = this.siteName;
@@ -160,7 +160,7 @@ async function ensureMediaHasFilenameAndExtension(media: Media) {
         media.siteFilename = itemUrl.pathname.split('/').pop();
     }
 
-    const { filename, ext } = getFilenameParts(media.siteFilename);
+    const { filename, ext } = getFilenameParts(media.siteFilename ?? '');
     if (!media.filename) {
         // Set the filename if needed
         media.filename = filename;
@@ -176,7 +176,7 @@ async function ensureMediaHasFilenameAndExtension(media: Media) {
             try {
                 // Failing that, try to get the mime-type of the file by looking at the request headers
                 const response = await fetch(media.url)
-                const mimeType = response.headers.get('Content-Type');
+                const mimeType = response.headers.get('Content-Type') ?? 'unknown/unknown';
                 logger.log('fetching file to determine extension', mimeType, response);
                 if (response.ok) {
                     media.extension = getExtensionFromMimeType(mimeType);

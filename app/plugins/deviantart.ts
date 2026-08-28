@@ -10,21 +10,21 @@ export class DeviantArtPlugin extends BaseSitePlugin {
         super(serviceName, 'main, #root, header + div');
     }
 
-    async getMedia(): Promise<I.Media> {
+    async getMedia(): Promise<I.Media | undefined> {
         // As of early 2024, dA has started using class munging which makes support much more difficult.
         // We'll do best effort support for downloads, but it's likely that support will end up going away if this becomes too brittle
-        const img: HTMLImageElement = querySelector('img[fetchpriority=high]') // 'img[sizes]' also appears to be a decent selector
+        const img = querySelector<HTMLImageElement>('img[fetchpriority=high]') // 'img[sizes]' also appears to be a decent selector
         if (!img) {
             // There's no way to recover from a missing image element, so just return null.
-            return null;
+            return undefined;
         }
         let url = img.src;
         // dA image URLs look like this: https://images-wixmp-####.wixmp.com/f/[GUID1]/####-[GUID2].png/v1/fill/w_1280,h_915,q_80,strp/filename_by_username_####-fullview.jpg?token=[JWT]
         const { serviceFilename, filename, ext } = extractMetadataFromDAFilename(url);
 
         // Get submission ID
-        const canonicalLink: HTMLLinkElement = querySelector("link[rel=canonical]");
-        const submissionId = getDASubmissionIdFromLink(canonicalLink.href);
+        const canonicalLink = querySelector<HTMLLinkElement>("link[rel=canonical]");
+        const submissionId = getDASubmissionIdFromLink(canonicalLink!.href);
         
         // Get title and username
         const { title, userName } = getDASubmissionTitleAndUser();
@@ -32,7 +32,7 @@ export class DeviantArtPlugin extends BaseSitePlugin {
         // Get description
         // Amazingly, this one got easier to find. :P
         const descriptionElt = querySelector("#description .legacy-journal");
-        const description = descriptionElt?.textContent;
+        const description = descriptionElt?.textContent ?? '';
 
         // Get tags
         // Unfortunately DA didn't provide a handy class for tags, so we look for links containing "/tag/" in the URL.
@@ -96,9 +96,9 @@ function getDASubmissionTitleAndUser() {
 
 function extractMetadataFromDAFilename(previewUrl: string) {
     const previewUrlObj = new URL(previewUrl);
-    let filename = previewUrlObj.pathname.split("/").pop();
-    const serviceFilename = filename
-    const ext = filename.split(".").pop();
+    let filename = previewUrlObj.pathname.split("/").pop() ?? '';
+    const serviceFilename = filename;
+    const ext = filename.split(".").pop() ?? '';
     // And then to "[filename]"
     const byIdx = filename.lastIndexOf("_by_");
     //console.log("submission filename 1", filename, byIdx);

@@ -22,7 +22,7 @@ export class PatreonPlugin extends BaseSitePlugin {
         }
     }
 
-    async getMedia(): Promise<I.Media> {
+    async getMedia(): Promise<I.Media | undefined> {
         // TODO: Patreon currently hides a wealth of data in a JSON blob in script#__NEXT_DATA__
         // This may be a very useful source of data to scrape, depending on how stable the schema is
         // Most of the interesting data exists in props.pageProps.bootstrapEnvelope.bootstrap.post
@@ -31,11 +31,11 @@ export class PatreonPlugin extends BaseSitePlugin {
         // image URLs appear to be represented here and are referenced by an ID number.
         try {
             // Check to see if the patreon lightbox is open and use that image first, when possible.
-            let mediaElt: HTMLImageElement | HTMLAudioElement = querySelector('img[data-tag=lightboxImage]');
+            let mediaElt = querySelector<HTMLImageElement | HTMLAudioElement>('img[data-tag=lightboxImage]');
             if (mediaElt) {
                 // Register the lightbox for change handling
                 const parent = getFirstNonBodyAncestorElement(mediaElt);
-                this.observeElementForChanges(parent);                
+                parent && this.observeElementForChanges(parent);                
             } else {
                 // Get the post image
                 mediaElt = 
@@ -50,12 +50,12 @@ export class PatreonPlugin extends BaseSitePlugin {
                 if (!mediaElt && window.location.pathname.startsWith('/posts/')) {
                     // Since Patreon uses some CSS module library that munges things like class names,
                     // this can be hard to scrape. In the worst case, fall back to the largest image on the page.
-                    mediaElt = getLargestImageElement();
+                    mediaElt = getLargestImageElement() || null;
                 }
             }
 
             if (!mediaElt) {
-                return null;
+                return undefined;
             }
             const mediaUrl = mediaElt.src;
 
@@ -67,7 +67,7 @@ export class PatreonPlugin extends BaseSitePlugin {
                 ...this.getGlobalPostMetadata(),
             }
         } catch (e) {
-            logger.error("patreon", e.message, e);
+            logger.error("patreon", (e as Error).message, e);
             throw e;
         }
     }
@@ -140,7 +140,7 @@ export class PatreonPlugin extends BaseSitePlugin {
         else {
             // Fall back to Open Graph tags if we couldn't find the metadata
             // Format: "[Title] | [Creator]"
-            const ogTitle = querySelector('meta[property="og:title"]')?.getAttribute('content');
+            const ogTitle = querySelector('meta[property="og:title"]')?.getAttribute('content') ?? '';
             const titleParts = ogTitle.split('|');
             return {
                 author: titleParts[1].trim(),
@@ -159,7 +159,7 @@ export class PatreonPlugin extends BaseSitePlugin {
         let extension = url.pathname.substring(extIndex + 1);
         // Some newer patreon URLs don't contain extensions in them; leave it null if it doesn't
         if (extension && (extIndex > -1 || !isValidExtension(extension))) {
-            extension = null;
+            extension = '';
         }
 
         const pathParts = url.pathname.split('/');
@@ -167,7 +167,7 @@ export class PatreonPlugin extends BaseSitePlugin {
 
         // Patreon page URLs look like so:
         // https://www.patreon.com/posts/[filename]-[id]
-        let pageUrlSlug = window.location.pathname.split('/').pop();
+        let pageUrlSlug = window.location.pathname.split('/').pop() ?? '';
         let slugParts = pageUrlSlug.split('-');
         let submissionId = slugParts.length > 0 ? slugParts.pop() : pageUrlSlug;
         let filename = slugParts.length > 0 ? slugParts.join('-') : pageUrlSlug;

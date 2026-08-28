@@ -81,8 +81,12 @@ export function getCurrentSettings(siteKey: string): Promise<I.SiteSettings> {
         });
 }
 
-export function saveSettings(settings: I.Settings): Promise<void> {
+export async function saveSettings(settings: I.Settings): Promise<void> {
     const { defaultSettings, currentSettings, siteKey } = settings;
+    if (!siteKey) {
+        logger.warn('Cannot save undefined siteKey');
+        return;
+    }
     let settingsToSave: Partial<I.AllSettings> = {
         default_settings: defaultSettings
     };
@@ -90,9 +94,9 @@ export function saveSettings(settings: I.Settings): Promise<void> {
     return saveAllSettings(settingsToSave);
 }
 
-export function saveDefaultSettings(defaultSettings: I.SiteSettings): Promise<void> {
+export function saveDefaultSettings(defaultSettings: I.SiteSettings | null): Promise<void> {
     const settings: Partial<I.AllSettings> = {
-        default_settings: defaultSettings
+        default_settings: defaultSettings || undefined
     }
     return saveAllSettings(settings);
 }
@@ -168,10 +172,10 @@ function upgradeSettingsToV4(settings: I.AllSettings) {
 type SettingsListener = (settings: CachedSettings) => void;
 
 export class CachedSettings {
-    settings: I.AllSettings;
+    settings: I.AllSettings | undefined;
     listeners: Array<SettingsListener> = []
 
-    private settingsPromise: Promise<void>;
+    private settingsPromise!: Promise<void>;
 
     constructor() {
         this.onSettingsChange();
@@ -183,7 +187,7 @@ export class CachedSettings {
     }
 
     getExtensionSettings(): I.ExtensionSettings {
-        return Object.assign({}, DefaultExtensionSettings, this.settings.extension);
+        return Object.assign({}, DefaultExtensionSettings, this.settings?.extension);
     }
 
     getSettings(siteKey: string) {
@@ -191,7 +195,7 @@ export class CachedSettings {
         const settings: I.Settings = {
             siteKey,
             defaultSettings: this.getDefaultSettings(),
-            currentSettings: Object.assign({}, this.settings[siteKey]) || {}
+            currentSettings: Object.assign({}, this.settings?.[siteKey]) || {}
         };
         return settings;
     }
@@ -203,7 +207,7 @@ export class CachedSettings {
     }
 
     getDefaultSettings() {
-        return Object.assign({}, DefaultSiteSettings, this.settings.default_settings);
+        return Object.assign({}, DefaultSiteSettings, this.settings?.default_settings);
     }
 
     addListener(listener: SettingsListener) {

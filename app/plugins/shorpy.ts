@@ -23,11 +23,11 @@ export class ShorpyPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         // Are we on a submission page?  If not, bail out.
         if (!isSubmissionPage()) {
             logger.log("shorpy: not a submission page");
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // Some parsing depends on whether we are on a full-size image
@@ -47,7 +47,7 @@ export class ShorpyPlugin extends BaseSitePlugin {
 
         let current = window.location.href;
         let urlparts = current.split('/');
-        let idplusjunk = urlparts.pop();
+        let idplusjunk = urlparts.pop() ?? '';
         let id = idplusjunk.replace("?size=_original#caption", "");
         logger.log("shorpy: id", id);
 
@@ -188,7 +188,7 @@ export class ShorpyPlugin extends BaseSitePlugin {
         if (!filename || !ext) {
             // If we've gotten to the point that we don't have a filename,
             // then this must not be a regular submission page.
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         //
@@ -256,7 +256,7 @@ export class ShorpyPlugin extends BaseSitePlugin {
         // Try the meta tag first
         let metaElt = querySelector("meta[property='og:description']");
         if (metaElt) {
-            description = metaElt.getAttribute('content');
+            description = metaElt.getAttribute('content') ?? '';
             logger.log("shorpy: meta tag description:", description);
         } else {
             // If meta tag didn't work, try the div
@@ -361,7 +361,7 @@ export class ShorpyPlugin extends BaseSitePlugin {
         let list: I.PageLink[] = getPageLinksFromAnchors(links, (href) => {
             // Pull the ID out of the modified links.
             let urlparts = href.split('/');
-            let idplusjunk = urlparts.pop();
+            let idplusjunk = urlparts.pop() ?? '';
             let id = idplusjunk.replace("?size=_original#caption", "");
             return id;
         });

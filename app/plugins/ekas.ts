@@ -30,11 +30,11 @@ export class EkasPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         // Are we on a submission page?  If not, bail out.
         if (!isSubmissionPage()) {
             logger.log("ekas: not a submission page");
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         //
@@ -113,7 +113,7 @@ export class EkasPlugin extends BaseSitePlugin {
         if (metaElt) {
             // Try the meta tag first
             let fileUrl = metaElt.getAttribute('content') || '';
-            filenameext = fileUrl.split('/').pop();
+            filenameext = fileUrl.split('/').pop() ?? '';
         }
 
         if (!filenameext) {
@@ -138,7 +138,7 @@ export class EkasPlugin extends BaseSitePlugin {
         if (!filenameext) {
             // If we've gotten to the point that we don't have a filename,
             // then this must not be a regular submission page.
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // Last . should be where extension starts;
@@ -236,7 +236,7 @@ export class EkasPlugin extends BaseSitePlugin {
         // If we get here and haven't found any <p>, give up.
         if(plist.length == 0)  {
             logger.log("ekas: couldn't find description");
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // If we get here, there should be at least one <p> in plist.

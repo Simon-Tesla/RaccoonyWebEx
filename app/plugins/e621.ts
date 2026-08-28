@@ -24,7 +24,7 @@ export class E621Plugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         // Look for the "download" link first
         // Note: the download link no longer has an easy-to-locate selector, so we're getting this from some metadata on #image-container now
         let downloadLink = querySelector('#image-container');
@@ -51,7 +51,7 @@ export class E621Plugin extends BaseSitePlugin {
 
         if (!url) {
             // Couldn't find anything, bail out.
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // Get the artist's name
@@ -90,15 +90,17 @@ export class E621Plugin extends BaseSitePlugin {
         // and leave it as "unknown artist".  That way, posts with the
         // "unknown artist" e621 tag, *and* posts with no e621 artist tag at
         // all, *both* end up in the "unknown_artist" folder if downloaded.
-        if (usernameElt && usernameElt.getAttribute('content').includes("created by ")) {
+        if (usernameElt && usernameElt.getAttribute('content')?.includes("created by ")) {
             let usernameplusjunk = usernameElt.getAttribute('content');
             logger.log("e621: username content", usernameplusjunk);
 
-            let usernameStart = usernameplusjunk.lastIndexOf("created by ") + 11;
-            let usernameEnd = usernameplusjunk.lastIndexOf(" - e621");
-            logger.log("e621: name start and end", usernameStart, usernameEnd);
+            if (usernameplusjunk) {
+                let usernameStart = usernameplusjunk.lastIndexOf("created by ") + 11;
+                let usernameEnd = usernameplusjunk.lastIndexOf(" - e621");
+                logger.log("e621: name start and end", usernameStart, usernameEnd);
 
-            username = usernameplusjunk.substring(usernameStart, usernameEnd);
+                username = usernameplusjunk.substring(usernameStart, usernameEnd);
+            }
         }
         logger.log("e621: username", username);
 
@@ -221,7 +223,7 @@ export class E621Plugin extends BaseSitePlugin {
             extension: ext,
             submissionId: id,
             siteName: serviceName,
-            title: null,
+            title: '',
             description: description,
             tags: tags,
             sourceUrl: srcUrl

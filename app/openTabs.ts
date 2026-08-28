@@ -10,7 +10,7 @@ type OpenInTabsOptions = {
 }
 
 
-const TabOpenQueue = new TaskQueue({ delayBetweenItemsMs: 0 });
+const TabOpenQueue = new TaskQueue<browser.tabs.Tab>({ delayBetweenItemsMs: 0 });
 
 export default function openInTabs(pageList: I.PageLinkList, siteSettings: I.SiteSettings, options: OpenInTabsOptions) {
     // Filter out duplicates early so that the system has the correct list from the beginning
@@ -23,7 +23,7 @@ export default function openInTabs(pageList: I.PageLinkList, siteSettings: I.Sit
     const switchToNewTab = !TabOpenQueue.isRunning && options.switchToNewTab;
 
     if (pageList.sortable && siteSettings.tabLoadSortBy === E.TabLoadOrder.Date) {
-        list.sort((a, b) => parseInt(a.submissionId) - parseInt(b.submissionId));
+        list.sort((a, b) => parseInt(a.submissionId!) - parseInt(b.submissionId!));
     }
     if (!siteSettings.tabLoadSortAsc) {
         list.reverse();

@@ -10,16 +10,16 @@ export class InkbunnyPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         // Check to see if we're on a submission page.
         if (!isSubmissionPage()) {
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
-        let previewUrl = getPreviewImageUrl();
+        let previewUrl = getPreviewImageUrl() || '';
         let url = getImageUrl() || previewUrl;
         
-        let serviceFilename = url.split('/').pop();
+        let serviceFilename = url.split('/').pop() ?? '';
         let { filename, ext, id } = getOriginalFilenameParts(serviceFilename);
         let author = getAuthor();
 
@@ -30,7 +30,7 @@ export class InkbunnyPlugin extends BaseSitePlugin {
         if (!filename) {
             // Occasionally, IB will strip out everything that made up the original filename.
             // In this case, we'll use the title or ID instead.
-            filename = title || id;
+            filename = title || id || '';
         }
 
         let media: I.Media = {
@@ -39,7 +39,7 @@ export class InkbunnyPlugin extends BaseSitePlugin {
             author: author,
             filename: filename,
             siteFilename: serviceFilename,
-            submissionId: id,
+            submissionId: id ?? '',
             extension: ext,
             siteName: serviceName,
             title: title,
@@ -110,19 +110,19 @@ function getIdFromSubmissionUrl(href: string) {
 function getPreviewImageUrl() {
     // Get the URL for the image currently on the page.
     // https://us.ib.metapix.net/files/screen/XX/[ID]_[username]_[filename].[ext]
-    let image: HTMLImageElement = querySelector("#magicbox");
+    let image = querySelector<HTMLImageElement>("#magicbox");
     if (!image) {
         // Inkbunny seems to display images in a couple of different modes, so fallback to this if
         // #magicbox doesn't exist.
         image = querySelector(".magicboxParent .widget_imageFromSubmission img");
     }
-    return (image && image.src) || null;
+    return (image && image.src) || undefined;
 }
 
 function getImageUrl() {
     // Get the max preview button, if it exists
     let url: string = '';
-    let button: HTMLAnchorElement = querySelector("#size_container a[target=_blank]");
+    let button = querySelector<HTMLAnchorElement>("#size_container a[target=_blank]");
     if (button) {
         // Get the url off of the button.
         // https://us.ib.metapix.net/files/full/XX/[ID]_[username]_[filename].[ext]
@@ -173,7 +173,7 @@ function getTags() {
     let tags: string[] = [];
     let tagElt = querySelector("meta[name=keywords]");
     if (tagElt) {
-        tags = tagElt.getAttribute('content')
+        tags = (tagElt.getAttribute('content') ?? '')
             .split(',')
             .map(s => s.trim());
     }

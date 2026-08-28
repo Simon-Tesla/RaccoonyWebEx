@@ -1,15 +1,16 @@
-import { isContextDownloadRequest, MessageRequest, Media } from "../definitions";
+import { isContextDownloadRequest, MessageRequest, Media, ContextDownloadRequest } from "../definitions";
 import SiteActions from "./siteActions";
 import * as logger from '../logger'
-import { MessageAction, DownloadDestination } from "../enums";
-import { sendMessage, sendDownloadMediaMessage } from "../utils/messaging";
+import { MessageAction } from "../enums";
+import { sendDownloadMediaMessage } from "../utils/messaging";
 
-export function initPageListeners(actions: SiteActions, onContextDownloadRequest?: (media: Media) => void) {
+export function initPageListeners(actions: SiteActions | undefined, onContextDownloadRequest?: (media: Media) => void) {
     onContextDownloadRequest = onContextDownloadRequest || sendDownloadMediaMessage;
     
-    browser.runtime.onMessage.addListener(async (request: MessageRequest<any>, sender: browser.runtime.MessageSender) => {
+    browser.runtime.onMessage.addListener(async (req, _sender) => {
+        const request: ContextDownloadRequest | MessageRequest<unknown> = req;
         if (isContextDownloadRequest(request)) {
-            if (actions) {
+            if (actions && request.data) {
                 const { srcUrl, mediaType } = request.data;
                 let media = await actions.getMediaForSrcUrl(srcUrl, mediaType);
                 logger.log('got media', media);

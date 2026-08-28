@@ -26,12 +26,12 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media | null | undefined> {
+    getMedia(): Promise<I.Media | undefined> {
         let { url, previewUrl, hasContentWarning, uiAndType } = getMediaUrls() ?? {};
 
         if (!url) {
             // Didn't find a URL on the page, so let's give up.
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // FA download URLs vary a bit depending on the submission type

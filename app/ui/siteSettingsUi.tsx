@@ -13,7 +13,7 @@ interface SettingsUiProps {
 
 export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps> {
     setDefault = <K extends keyof I.SiteSettings>(key: K, useDefault: boolean) => {
-        let newSetting: I.SiteSettings[K] = null;
+        let newSetting: I.SiteSettings[K] = undefined;
         if (!useDefault) {
             // Copy the default value over to the settings object
             if (newSetting && typeof newSetting === 'object' || typeof newSetting === 'function') {
@@ -27,7 +27,7 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
 
     setSetting = <K extends keyof I.SiteSettings>(key: K, value: I.SiteSettings[K]) => {
         const settings = Object.assign({}, this.props.settings, { [key]: value });
-        if (value == null) {
+        if (value === null || value === undefined) {
             // If a setting is unset, delete it.
             delete settings[key];
         }
@@ -105,7 +105,7 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                         </SettingsRow>
                         <SettingsRow {...getRowProps('tabLoadDelay', "Delay between tab loads") }>
                             <TabDelay
-                                value={this.getSettingOrDefault('tabLoadDelay')}
+                                value={this.getSettingOrDefault('tabLoadDelay')!}
                                 onChanged={(val) => this.setSetting('tabLoadDelay', val)}
                                 enabled={this.isEnabled('tabLoadDelay')}
                             />
@@ -115,7 +115,7 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                             onDefaultChanged={this.setDefaultForTabOrder}
                         >
                             <LoadOrder
-                                order={this.getSettingOrDefault('tabLoadSortBy')}
+                                order={this.getSettingOrDefault('tabLoadSortBy')!}
                                 isReversed={!this.getSettingOrDefault('tabLoadSortAsc')}
                                 onChangeOrder={order => this.setSetting('tabLoadSortBy', order)}
                                 onChangeReversed={reversed => this.setSetting('tabLoadSortAsc', !reversed)}
@@ -131,14 +131,14 @@ export default class SiteSettingsUi extends React.PureComponent<SettingsUiProps>
                         </SettingsRow>
                         <SettingsRow  {...getRowProps('downloadPath', "Download path") }>
                             <DownloadPath
-                                value={this.getSettingOrDefault('downloadPath')}
+                                value={this.getSettingOrDefault('downloadPath')!}
                                 onChanged={(value) => this.setSetting('downloadPath', value)}
                                 enabled={this.isEnabled('downloadPath')}
                             />
                         </SettingsRow>
                         <SettingsRow  {...getRowProps('contextDownloadPath', "Right-click menu download path")}>
                             <DownloadPath
-                                value={this.getSettingOrDefault('contextDownloadPath')}
+                                value={this.getSettingOrDefault('contextDownloadPath')!}
                                 onChanged={(value) => this.setSetting('contextDownloadPath', value)}
                                 enabled={this.isEnabled('contextDownloadPath')}
                             />

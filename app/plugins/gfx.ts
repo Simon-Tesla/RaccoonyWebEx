@@ -24,11 +24,11 @@ export class GfxPlugin extends BaseSitePlugin {
         super(serviceName);
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         // Are we on a submission page?  If not, bail out.
         if (!isSubmissionPage()) {
             logger.log("gfx: not a submission page");
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         //
@@ -144,7 +144,7 @@ export class GfxPlugin extends BaseSitePlugin {
         logger.log("gfx: filtered user links", userLinks);
 
         // FIXME hopefully it's the first one
-        let username = userLinks[0].href.split('/').pop();
+        let username = userLinks[0].href.split('/').pop() ?? '';
         logger.log("gfx: user", username);
 
         //
@@ -160,7 +160,7 @@ export class GfxPlugin extends BaseSitePlugin {
         if (!filenameext) {
             // If we've gotten to the point that we don't have a filename,
             // then this must not be a regular submission page.
-            return Promise.resolve(null);
+            return Promise.resolve(undefined);
         }
 
         // Last . should be where extension starts;
@@ -221,7 +221,7 @@ export class GfxPlugin extends BaseSitePlugin {
         if (metaElt) {
             logger.log("gfx: metadata:", metaElt);
 
-            let tagParts = metaElt.getAttribute('content').split(",");
+            let tagParts = metaElt.getAttribute('content')?.split(",") ?? [];
 
             for (let ii = 0; ii < tagParts.length; ii++) {
                 tags.push(tagParts[ii]);
@@ -256,7 +256,7 @@ export class GfxPlugin extends BaseSitePlugin {
         if (metaElt) {
             logger.log("gfx: metadata:", metaElt[0]);
 
-            description = metaElt.getAttribute('content');
+            description = metaElt.getAttribute('content') || '';
         }
 
         // It's OK for description to be empty here.

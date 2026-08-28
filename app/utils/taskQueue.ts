@@ -5,9 +5,9 @@ type TaskFn<TRes> = (task: Readonly<ITask<TRes>>) => Promise<TRes>;
 export interface ITask<TRes> {
     id: number;
     run: TaskFn<TRes>;
-    promise: Promise<TRes>;
+    promise: Promise<TRes> | undefined;
     state: TaskState;
-    result: TRes;
+    result: TRes | undefined;
     error: unknown;
     delayMs: number;
 }
@@ -26,10 +26,10 @@ let lastTaskId = 0;
  */
 export class Task<T = unknown> implements ITask<T> {
     id = lastTaskId++;
-    run: TaskFn<T> = null;
-    promise: Promise<T> = null;
+    run: TaskFn<T>;
+    promise: Promise<T> | undefined = undefined;
     state: TaskState = TaskState.ready
-    result: T = null;
+    result: T | undefined = undefined;
     error: unknown = null;
     delayMs = 0;
 
@@ -49,13 +49,12 @@ export interface TaskQueueOptions {
 export class TaskQueue<T = unknown> {
     private options: TaskQueueOptions;
     private queue: ITask<T>[] = [];
-    private currentTask: ITask<T> = null;
+    private currentTask: ITask<T> | undefined = undefined;
     private isStopped = false;
-    private currentTimeout: ReturnType<typeof setTimeout> = null;
+    private currentTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
     constructor(options: TaskQueueOptions) {
         this.options = {
-            delayBetweenItemsMs: 0,
             ...options
         };
     }
@@ -71,8 +70,8 @@ export class TaskQueue<T = unknown> {
             clearTimeout(this.currentTimeout);
             this.queue.unshift(this.currentTask);
         }
-        this.currentTask = null;
-        this.currentTimeout = null;
+        this.currentTask = undefined;
+        this.currentTimeout = undefined;
         this.isStopped = true;
     }
 
@@ -83,8 +82,8 @@ export class TaskQueue<T = unknown> {
 
     clear() {
         clearTimeout(this.currentTimeout);
-        this.currentTask = null;
-        this.currentTimeout = null;
+        this.currentTask = undefined;
+        this.currentTimeout = undefined;
         this.queue = [];
     }
 
@@ -134,8 +133,9 @@ export class TaskQueue<T = unknown> {
         currTask.promise.finally(() => {
             logger.debug("Finished processing item", {state: currTask.state, task: currTask, queueLen: this.queue.length, queue: this});
             if (this.queue.length === 0) {
-                this.currentTask = null;
-                this.currentTimeout = null;
+                this.currentTask = undefined;
+                clearTimeout(this.currentTimeout);
+                this.currentTimeout = undefined;
             }
             this.processQueue();
         });

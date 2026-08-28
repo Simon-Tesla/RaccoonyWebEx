@@ -10,24 +10,27 @@ logger.log("[background] setting up listeners");
 
 var settingsProvider = new CachedSettings();
 
-browser.runtime.onMessage.addListener((request: I.MessageRequest<any>, sender: chrome.runtime.MessageSender, _sendResponse) => {
+type MessageRequestTypes = I.MediaMessageRequest | I.TabMessageRequest | I.OptionsMessageRequest | { action: 'never' }
+
+browser.runtime.onMessage.addListener((req, sender, _sendResponse) => {
+    const request: MessageRequestTypes = req;
     logger.log("[background] received request", request.action, request);
-    return settingsProvider.ready
+    return settingsProvider.ready!
         .then(() => {
             switch (request.action) {
                 case MessageAction.OpenTabs:
-                    const list: I.PageLinkList = request.data;
+                    const list = request.data;
                     let switchToNewTab = settingsProvider.getExtensionSettings().switchToNewTab;
                     if (list.overrideNewTabBehavior) {
                         switchToNewTab = !switchToNewTab;
                     }
                     return openInTabs(
                         list, 
-                        settingsProvider.getCurrentSettings(list.siteName),
+                        settingsProvider.getCurrentSettings(list.siteName!),
                         { windowId: sender.tab.windowId, switchToNewTab: switchToNewTab }
                     );
                 case MessageAction.Download:
-                    const media: I.Media = request.data;
+                    const media = request.data;
                     return download.downloadFile(media, settingsProvider.getCurrentSettings(media.siteName));
                 case MessageAction.OpenFile:
                     return download.openFile(request.data);

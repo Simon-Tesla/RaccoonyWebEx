@@ -10,15 +10,15 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
         super(serviceName, "#app");
     }
 
-    getMedia(): Promise<I.Media> {
+    getMedia(): Promise<I.Media | undefined> {
         return new Promise(function (resolve, reject) {
             setTimeout(function () {
                 try {
                     // Get the max preview button, if it exists
-                    let button: HTMLAnchorElement = querySelector(".submission-actions a[target=_blank]");
+                    let button = querySelector<HTMLAnchorElement>(".submission-actions a[target=_blank]");
                     if (!button) {
                         // Can't proceed without the download URL.
-                        resolve(null);
+                        resolve(undefined);
                         return;
                     }
                     let url = button.href;
@@ -28,7 +28,7 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
                     // FN download URLs look like so:
                     // https://furrynetwork-beta.s3.amazonaws.com/[us]/[username]/submission/[year]/[month]/[hexstring].[ext]
                     let urlParts = url.split("/");
-                    let dlFilename = urlParts.pop();
+                    let dlFilename = urlParts.pop() ?? '';
                     urlParts.pop() // month
                     urlParts.pop() // year
                     urlParts.pop() // submission
@@ -67,12 +67,12 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
                     logger.log("fn: id", id);
 
                     // previewUrl
-                    let previewImg: HTMLImageElement = querySelector('.submission__image img');
+                    let previewImg = querySelector<HTMLImageElement>('.submission__image img');
                     let previewUrl = (previewImg && previewImg.src) || null;
 
                     // title and filename
                     let titleElt = querySelector('.submission-description__title');
-                    let title = titleElt && titleElt.textContent.trim();
+                    let title = titleElt ? titleElt.textContent.trim() : '';
                     let filename = title;
 
                     // description
@@ -86,7 +86,7 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
                     let media: I.Media = {
                         url: url,
                         previewUrl: url,
-                        author: username,
+                        author: username ?? '',
                         siteFilename: dlFilename,
                         filename: filename,
                         extension: ext,
@@ -99,7 +99,7 @@ export class FurryNetworkPlugin extends BaseSitePlugin {
 
                     resolve(media);
                 } catch (e) {
-                    logger.error(serviceName, e.message, e);
+                    logger.error(serviceName, (e as Error).message, e);
                     reject(e);
                 }
             }, 500);

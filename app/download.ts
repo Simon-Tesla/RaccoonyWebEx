@@ -3,6 +3,7 @@ import * as logger from './logger';
 import IntlMessageFormat from 'intl-messageformat';
 import { DownloadDestination } from './enums';
 import { DateTime } from 'luxon';
+import chrome = browser;
 
 const downloadRootFolder = 'raccoony';
 const isFirefox = window.location.protocol === 'moz-extension:';
@@ -52,21 +53,21 @@ function makeDownloadFilePath(media: I.Media, settings: I.SiteSettings) {
     return pathStr;
 }
 
-function getDownloadedFile(media: I.Media): Promise<browser.downloads.DownloadItem> {
+function getDownloadedFile(media: I.Media): Promise<browser.downloads.DownloadItem | undefined> {
     return browser.downloads.search({ url: media.url, orderBy: (["-startTime"] as any) })
         .then((downloads) => {
             return (downloads || []).find(item => item.exists);
         })
         .catch((err) => {
             logger.error("Error while searching downloads", err);
-            return null;
+            return undefined;
         });
 }
 
 export function isDownloaded(media: I.Media): Promise<boolean> {
     return getDownloadedFile(media).then(item => {
         logger.log('got download item', item);
-        return item && item.exists
+        return !!(item && item.exists)
     });
 }
 
@@ -85,10 +86,12 @@ export function showFile(media: I.Media): Promise<void> {
     });
 }
 
-export function openFile(media: I.Media) {
-    return getDownloadedFile(media).then(download => {
+export async function openFile(media: I.Media) {
+    const download = await getDownloadedFile(media)
+    if (download && download.id) {
         return browser.downloads.open(download.id);
-    });
+    }
+    
 }
 
 export function createMetadataFile(media: I.Media, mediaFilePath: string) {
@@ -127,8 +130,8 @@ function sanitizePath(pathPart: string) {
     return pathPart.replace(/[*"\\\/:|?%<>]/g, "_");
 }
 
-let cachedMsg: IntlMessageFormat = null;
-let cachedPath: string = null;
+let cachedMsg: IntlMessageFormat;
+let cachedPath: string;
 
 function replacePathPlaceholders(path: string, media: I.Media) {
     // Replace any backslashes with forward slashes, since that's likely the intent on Windows
@@ -142,7 +145,7 @@ function replacePathPlaceholders(path: string, media: I.Media) {
 
     let url = new URL(media.url);
 
-    const siteFilenameExt = (!media.extension || media.siteFilename.endsWith(media.extension))
+    const siteFilenameExt = (!media.extension || media.siteFilename?.endsWith(media.extension))
         ? media.siteFilename
         : `${media.siteFilename}.${media.extension}`
 

@@ -1,12 +1,32 @@
 import * as E from './enums';
-import { MediaType } from './enums';
+import { MediaType, MessageAction } from './enums';
 
 export interface MessageRequest<T> {
     action: E.MessageAction;
     data?: T;
 }
 
-export interface ContextDownloadRequest extends MessageRequest<ContextDownloadData> {}
+export interface MediaMessageRequest extends MessageRequest<Media> {
+    action: MessageAction.Download 
+    | MessageAction.OpenFile 
+    | MessageAction.ShowFile 
+    | MessageAction.CheckDownload
+    data: Media
+}
+
+export interface TabMessageRequest extends MessageRequest<PageLinkList> {
+    action: MessageAction.OpenTabs
+    data: PageLinkList
+}
+
+export interface OptionsMessageRequest extends MessageRequest<never> {
+    action: MessageAction.ShowGlobalOptions
+}
+
+export interface ContextDownloadRequest extends MessageRequest<ContextDownloadData> {
+    action: MessageAction.PageContextDownload
+    data: ContextDownloadData
+}
 
 export interface ContextDownloadData {
     srcUrl: string,
@@ -64,13 +84,13 @@ export interface PageLinkList {
 
 export interface SitePlugin {
     readonly siteName: string;
-    getMedia(): Promise<Media | null | undefined>;
-    getPageLinkList(): Promise<PageLinkList | null | undefined>;
+    getMedia(): Promise<Media | undefined>;
+    getPageLinkList(): Promise<PageLinkList | undefined>;
     hasMedia(): Promise<boolean>;
     hasPageLinkList(): Promise<boolean>;
     registerPageChangeHandler(handler: () => void): void;
-    getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media | null | undefined>;
-    checkFileDownload(): Promise<Media | null | undefined>;
+    getMediaForSrcUrl(srcUrl: string, mediaType: E.MediaType): Promise<Media | undefined>;
+    checkFileDownload(): Promise<Media | undefined>;
 
     //TODO: implement support for these
     // previous
