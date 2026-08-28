@@ -97,17 +97,26 @@ export class FuraffinityPlugin extends BaseSitePlugin {
         logger.log("fa: urlParts and length ", urlParts, urlParts.length);
         let username = "";
 
+        // Always attempt to get the username from the user link first, 
+        // since that is less likely to rely on implementation details for the download URLs.
+        // User links are of the format "/user/[username]/"
+        const userLink = querySelector<HTMLAnchorElement>(".submission-description-artist a[href^='/user/']");
+        if (userLink) {
+            const userUrl = new URL(userLink?.href);
+            const pathParts = userUrl.pathname.split('/');
+            username = pathParts[2];
+        }
+
         // The username is on the same spot for all types in the new UI
         // and artwork/images on the old UI...
-        if ((uiAndType == FAUiAndType.NewAll) ||
-            (uiAndType == FAUiAndType.OldImage)) {
+        if (!username && urlParts[3] === 'art') {
             // 0      1      2                 3   4
             // https: (null) d.furaffinity.net art [username]
             username = urlParts[4];
         }
 
         // ...but in a different place for everything else on the old UI.
-        if (uiAndType == FAUiAndType.OldOther) {
+        if (!username && urlParts[3] === 'download' && urlParts[4] === 'art') {
             // 0      1      2                 3        4   5
             // https: (null) d.furaffinity.net download art [username]
             username = urlParts[5];
@@ -211,8 +220,9 @@ function getMediaUrls(): Pick<I.Media, 'url' | 'previewUrl' | 'hasContentWarning
     let newUiAll = querySelector<HTMLAnchorElement>([
         ".submission-sidebar .buttons .download a", 
         // 2026-05-09 UI refresh
+        ".submission-controls-upper a[href^='//d.furaffinity.net/download/art/']", 
         ".submission-controls-upper a[href^='//d.furaffinity.net/art/']", 
-        "#submission-options a[href^='//d.furaffinity.net/art/']"
+        "#submission-options a[href^='//d.furaffinity.net/art/']",
     ]);
     logger.log("fa: new UI ", newUiAll);
 
@@ -326,6 +336,7 @@ function getTitle(): string {
     } else {
         title = titleEltOld?.textContent ?? '';
     }
+    title = title.trim();
     logger.log("fa: getTitle title: ", title);
 
     return title
