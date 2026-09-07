@@ -1,6 +1,12 @@
 # Changelog
 
+## 1.5.4 (2025-09-07)
+
+* [Furaffinity] Fix story downloads and metadata parsing #214 by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/215
+* Add Mousepad support by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/217
+
 ## 1.5.3 (2026-05-09)
+
 * Update FurAffinity parser to handle 2026-05 site update by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/212
 * Fix SubscribeStar parsing by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/213
 
