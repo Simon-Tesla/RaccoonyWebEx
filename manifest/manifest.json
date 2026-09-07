@@ -38,7 +38,8 @@
         "*://*.newgrounds.com/*",
         "*://*.itaku.ee/*",
         "*://*.subscribestar.com/*",
-        "*://*.subscribestar.adult/*"
+        "*://*.subscribestar.adult/*",
+        "*://*.mousepad.art/*"
       ],
       "js": [
         "browser-polyfill.js",
