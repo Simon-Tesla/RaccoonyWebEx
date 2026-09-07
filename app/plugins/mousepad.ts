@@ -7,7 +7,7 @@ const serviceName = 'mousepad'
 
 export class MousepadPlugin extends BaseSitePlugin {
   constructor() {
-    super(serviceName)
+    super(serviceName, '#submission-page-container')
   }
 
   async getMedia(): Promise<Media> {
@@ -61,6 +61,9 @@ export class MousepadPlugin extends BaseSitePlugin {
         list
       }
     }
+
+    // There are multi-image submissions in Mousepad, but it's not currently possible to construct direct links to a given image.
+    // The pagination control just changes the image directly in the DOM.
 
     // Everything else pretty much looks like this. This doesn't get links from profile pages or the main page, 
     // but works everywhere else (e.g. galleries, pools, search, favorites).
