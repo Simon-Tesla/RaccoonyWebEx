@@ -122,7 +122,7 @@ function getPreviewImageUrl() {
 function getImageUrl() {
     // Get the max preview button, if it exists
     let url: string = '';
-    let button: HTMLAnchorElement = querySelector("#size_container a[target=_blank]");
+    let button: HTMLAnchorElement = querySelector("#size_container a[target=_blank], #size_container a[download]");
     if (button) {
         // Get the url off of the button.
         // https://us.ib.metapix.net/files/full/XX/[ID]_[username]_[filename].[ext]

@@ -26,6 +26,9 @@ export function downloadFile(media: I.Media, settings: I.SiteSettings): Promise<
         filename: filePath,
         saveAs: false,
         conflictAction,
+        // Setting the referer header to fix downloads for some sites that require it.
+        // The web-ext-types are incorrect for this
+        headers: ([{ name: 'Referer', value: media.sourceUrl }] as any)
     }));
 
     return Promise.all(promises)
@@ -120,7 +123,7 @@ function sanitizePath(pathPart: string) {
     // Replace any trailing dots
     pathPart = pathPart.replace(/\.$/g, '_');
     // Chrome bans tildes in file and directory names, so remove them
-    if(!isFirefox) {
+    if (!isFirefox) {
         pathPart = pathPart.replace(/~/g, '_');
     }
     // Replace any significant OS characters with underscores.
