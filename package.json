@@ -12,7 +12,7 @@
     "sign": "gulp sign"
   },
   "author": "Simon-Tesla <simon.tesla@thornvalley.com>",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "private": true,
   "dependencies": {
     "@ungap/promise-all-settled": "^1.1.2",

@@ -38,10 +38,14 @@ See the [changelog](https://github.com/Simon-Tesla/RaccoonyWebEx/blob/master/CHA
 
 See the [CONTRIBUTING](https://github.com/Simon-Tesla/RaccoonyWebEx/blob/master/CONTRIBUTING.md) document. This is a free-time project for me, and I have no need for monetary donations, so I'm looking for coding help more than anything else. 
 
+## License
+
+GNU GPL v3.0 or later, see [LICENSE](./LICENSE) for details
+
 ## Credits
 - The Raccoony icon ![Raccoony logo][logo] is a slightly modified version of the raccoon emoji distributed in [Google Noto Emoji](https://github.com/googlefonts/noto-emoji), licenced under the [Apache 2.0 License](https://github.com/googlefonts/noto-emoji/blob/main/LICENSE).
 - The old Raccoony icon ![ScruffKerfluff's Raccoony logo][oldlogo] is ©[ScruffKerfluff][logoauthor], and is only licenced to be distributed as-is with unmodified Raccoony source code or binary distributions. It **MAY NOT** be distributed or modified under any other circumstances or used for profit.
-- Eupeptic for contributing the Eka's Portal and Shorpy plugins.
+- Eupeptic for contributing the Eka's Portal and Shorpy plugins among many other contributions to date.
 - AndrewNeo for his excellent [FurAffinity Extender](https://andrewneo.github.io/faextender-chrome/) extension. Some code in Raccoony is based on his work, and I consulted his code for some of the WebExtension API handling and for setting up the gulp build framework.
 - UI Icons from [CSS.gg](https://css.gg/) and [Ionicons](https://ionic.io/ionicons), both licenced under the MIT license.
 
