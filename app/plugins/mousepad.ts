@@ -67,7 +67,7 @@ export class MousepadPlugin extends BaseSitePlugin {
 
     // Everything else pretty much looks like this. This doesn't get links from profile pages or the main page, 
     // but works everywhere else (e.g. galleries, pools, search, favorites).
-    const list = getPageLinksFromSelector('#gallery-content-container .title a.formattable-gallery-link');
+    const list = getPageLinksFromSelector('#gallery-content-container .title a');
 
     return {
       sortable: false,
