@@ -197,7 +197,14 @@ export class FuraffinityPlugin extends BaseSitePlugin {
 registerPlugin(FuraffinityPlugin, 'furaffinity.net');
 
 function getPageLinkElements(): HTMLAnchorElement[] {
-    return querySelectorAll("figure figcaption a[href*='/view/']");
+    let submissions:        HTMLAnchorElement[] = querySelectorAll("figure figcaption a[href*='/view/']")                                                               as HTMLAnchorElement[];
+    let commentsJournal:    HTMLAnchorElement[] = querySelectorAll("div.comment_container comment-container div.comment-content comment-username a[href*='/journal/']") as HTMLAnchorElement[];
+    let commentsSubmission: HTMLAnchorElement[] = querySelectorAll("div.comment_container comment-container div.comment-content comment-username a[href*='/view/']")    as HTMLAnchorElement[];
+       
+    logger.log("fa: journal comments ", commentsJournal);
+    logger.log("fa: submission comments ", commentsSubmission);
+
+    return [...submissions, ...commentsJournal, ...commentsSubmission];
 }
 
 function getMediaUrls(): Pick<I.Media, 'url' | 'previewUrl' | 'hasContentWarning'> & { uiAndType: FAUiAndType } | undefined {
