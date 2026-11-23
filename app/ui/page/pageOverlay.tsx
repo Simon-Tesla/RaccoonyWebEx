@@ -109,6 +109,11 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
         this.setState({ showUi: false });
     }
 
+    private onClickLogo = () => {
+        // For debugging purposes, send the results of scraping the page to the console
+        this.props.userActions.onLogDebugDataToConsole();
+    }
+
     render() {
         let props = this.props;
         let state = this.state;
@@ -163,7 +168,7 @@ export default class PageOverlay extends React.Component<PageOverlayProps, PageO
                         style={{ visibility: props.hasMedia && canDownload ? 'visible' : 'hidden' }}
                     >{IconDownload}</a>
                 </div>
-                <a id={n("imglink")} title="Raccoony - click for page options">
+                <a id={n("imglink")} title="Raccoony - click for page options" onClick={this.onClickLogo}>
                     <img src={logoUrl} id={n("img")} width={64} height={64} />
                 </a>
                 <div id={n("ctr")} className={showBalloon ? null : n('inactive')}>

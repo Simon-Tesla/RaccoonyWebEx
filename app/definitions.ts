@@ -86,6 +86,7 @@ export interface UserActions {
     openOptions(): void;
     dismissOptions(): void;
     showGlobalOptions(): void;
+    onLogDebugDataToConsole(): void;
 }
 
 // TypeScript doesn't allow mixing string indexes with normal properties of different types in a single interface

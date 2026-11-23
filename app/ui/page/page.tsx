@@ -179,6 +179,17 @@ export default class Page extends React.Component<PageProps, PageState> implemen
         this.props.siteActions.saveSettings(settingsToSave);
     }
 
+    onLogDebugDataToConsole = async () => {
+        try {
+            const pageLinks = await this.props.siteActions.getPageLinkList();
+            logger.log("Page links found:", pageLinks);
+        } catch {}
+        try {
+            const media = await this.props.siteActions.getMedia();
+            logger.log("Media found:", media);
+        } catch {}
+    }
+
     render() {
         if (!this.state.siteSettings) {
             // Wait for settings to load before showing the UI
