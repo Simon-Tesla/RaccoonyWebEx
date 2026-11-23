@@ -14,7 +14,7 @@ export function getFilenameParts(filename: string) {
 }
 
 let fileTypes: [MediaType, string[]][] = [
-    [MediaType.Image, ['jpg', 'jpeg', 'png', 'gif']],
+    [MediaType.Image, ['jpg', 'jpeg', 'png', 'apng', 'gif', 'webp', 'jpe', 'jif', 'jfif', 'jfi', 'jxl']],
     [MediaType.Text, ['txt', 'rtf', 'doc', 'docx', 'odf', 'pdf']],
     [MediaType.Flash, ['swf']],
     [MediaType.Video, ['mpeg', 'mpg', 'mp4', 'avi', 'divx', 'mkv', 'flv', 'mov', 'wmv']],
@@ -37,10 +37,13 @@ export function getFileTypeByExt(ext: string): MediaType {
     return extensionToTypeMap[ext] || MediaType.Unknown;
 }
 
+// TODO: can we use this for generating the extensionToTypeMap? The only reason this can't be used as is is tha there isn't 1:1 mappings from extension to type
 const ValidExtensions: { [type: string]: string[] } = {
     [MediaType.Image]: [
         // JPEG
-        'jpg', 'jpeg', 'jpe', 'jif', 'jfif', '.jfi',
+        'jpg', 'jpeg', 'jpe', 'jif', 'jfif', 'jfi',
+        // JPEG XL
+        'jxl',
         // WebP
         'webp',
         // GIF
