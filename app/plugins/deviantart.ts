@@ -64,6 +64,9 @@ export class DeviantArtPlugin extends BaseSitePlugin {
         // The 'aria-label' check eliminates unnecessary duplicates.
         let links: HTMLAnchorElement[] = querySelectorAll("a[href*='/art/'][aria-label]");        
         let list: I.PageLink[] = getPageLinksFromAnchors(links, getDASubmissionIdFromLink);
+        
+        // Filter out comment links - these are duplicates
+        list = list.filter(item => !item.url.endsWith('#comments'))
 
         let res: I.PageLinkList = {
             list: list,
