@@ -9,7 +9,7 @@ const serviceName = "patreon";
 
 export class PatreonPlugin extends BaseSitePlugin {
     constructor() {
-        super(serviceName, '#__next, [data-reactroot]');
+        super(serviceName, '#__next, [data-reactroot], #main-content');
     }
 
     async getMediaForSrcUrl(mediaUrl: string, mediaType: MediaType): Promise<I.Media> {
@@ -79,6 +79,10 @@ export class PatreonPlugin extends BaseSitePlugin {
         }
         if (itemLinks.length === 0) {
             itemLinks = querySelectorAll('a[href^="/posts/]');
+        }
+        if (itemLinks.length === 0) {
+            // Try to find a collections list; for whatever reason these have full URLs
+            itemLinks = querySelectorAll('a[href^="https://www.patreon.com/posts/"');
         }
 
         // Filter any extraneous links.
