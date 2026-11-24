@@ -22,6 +22,7 @@ import * as I from '../definitions';
 import { default as BaseSitePlugin, registerPlugin } from './base';
 import { querySelectorAll, querySelector, getPageLinksFromAnchors } from '../utils/dom';
 import * as logger from '../logger';
+import { getFilenameParts } from '../utils/file';
 
 const serviceName = "ekas";
 
@@ -95,70 +96,18 @@ export class EkasPlugin extends BaseSitePlugin {
         //
 
         // The normal download link goes to a PHP script as
-        // noted under "URL and ID".  However, there are direct
-        // links in two other places...
-        // ...an OpenGraph meta tag:
-        // <meta property="og:image:secure_url" \
-        //        content="https://aryion.com/g4/data/[id]-[?].[ext]/[user]-[id]-[file].[ext]"/>
-        // ...and a noscript tag with a direct <img> link, of the
-        // same form:
+        // noted under "URL and ID".  However, there is a direct link in the main image element, 
+        // under its 'data-full-src' attribute, and Raccoony falls back to the 'src' attribute if that isn't found.
+        // This URL is of the form
         // https://aryion.com/g4/data/[id]-[?].[ext]/[user]-[id]-[file].[ext]
-        // where [?] is a 3-digit number that I don't know the
-        // source of, and [file] *might* be the original filename
-        // the user provided when uploading.  Let's go for the end
-        // bit, the [user]-[id]-[file].[ext] part, from the noscript
-        // tag.
+        // where [?] is string of digits that appear unrelated to the submission metadata, 
+        // and [file] *might* be the original filename the user provided when uploading. 
         let filenameext = '';
-        let metaElt = querySelector("meta[property='og:secure_url']");
-        if (metaElt) {
-            // Try the meta tag first
-            let fileUrl = metaElt.getAttribute('content') || '';
-            filenameext = fileUrl.split('/').pop();
-        }
+        const imgElt = querySelector<HTMLImageElement>('#item-itself');
+        const srcUrl = imgElt.dataset['fullSrc'] || imgElt.src;
+        filenameext = new URL(srcUrl, window.location.href).pathname.split('/').pop();
 
-        if (!filenameext) {
-            // Try the noscript element next
-            let noscr = document.getElementsByTagName("noscript");
-            if (noscr && noscr.length > 0) {
-                let noscrtext = noscr[0].textContent;
-                logger.log("ekas: noscript", noscrtext);
-
-                // Kill everything after <img> closing quote, to get rid
-                // of the / in the closing tag
-                let endjunk = noscrtext.lastIndexOf("' alt='Item' />");
-                let noscrtext2 = noscrtext.slice(0, endjunk);
-                logger.log("ekas: noscript 2", noscrtext2);
-
-                // Find last / and skip it, to get filename with extension
-                let filestart = noscrtext2.lastIndexOf('/') + 1;
-                filenameext = noscrtext2.slice(filestart);
-            }
-        }
-        logger.log("ekas: filename+ext", filenameext);
-        if (!filenameext) {
-            // If we've gotten to the point that we don't have a filename,
-            // then this must not be a regular submission page.
-            return Promise.resolve(null);
-        }
-
-        // Last . should be where extension starts;
-        // split based on where that is
-        let extensionstart = filenameext.lastIndexOf('.');
-        let filename = filenameext.slice(0, extensionstart);
-        logger.log("ekas: filename", filename);
-
-        let ext = filenameext.slice(extensionstart + 1);
-
-        // In case that didn't work, punt.
-        // There is a preview URL that we might be able to get an
-        // extension from, but it's inside a script on the page.
-        // We also get a MIME type in the user-visible metadata
-        // (why?); we could also guess based on that.
-        if (!ext) {
-            ext = 'jpg';
-        }
-
-        logger.log("ekas: extension", ext);
+        const {filename, ext} = getFilenameParts(filenameext);
 
         // FIXME: also handle the case of filename being blank?
 
@@ -203,46 +152,9 @@ export class EkasPlugin extends BaseSitePlugin {
         //
 
         // Lives inside otherwise unnamed <p></p> tags, insde a
-        // <div class="g-box-contents">.  However, there are multiple
-        // divs of that class.  The first one always has id="sized-note".
-        //
-        // If the page *has* the thumbnail box under the main image, the
-        // second div, with no id, will be for the thumbnail box, and the
-        // third div, with no id, will be the one we want.  Both the
-        // second and third divs may have <p> tags in them.
-        //
-        // If the page *does not have* the thumbnail box, the second div,
-        // with no id, will be the one we want.
-        //
-        // There may be additional divs of that class below that,
-        // depending on if there are any comments on the submission.
-        //
-        // Grab the second div of that class.  Get all the <p>s, but
-        // also check for an <ol> in it.
-        let gbox = document.getElementsByClassName('g-box-contents')[1];
-        let plist = gbox.querySelectorAll("p");
-        let ollist = gbox.querySelectorAll("ol");
-        logger.log("ekas: trying first gbox");
-
-        // If there is an <ol>, this is the thumbnail box, move on to
-        // the third div.  (This assumes that the description can't ever
-        // have an <ol> in it.)
-        if(ollist.length > 0) {
-            gbox = document.getElementsByClassName('g-box-contents')[2];
-            plist = gbox.querySelectorAll("p");
-            logger.log("ekas: trying second gbox");
-        }
-
-        // If we get here and haven't found any <p>, give up.
-        if(plist.length == 0)  {
-            logger.log("ekas: couldn't find description");
-            return Promise.resolve(null);
-        }
-
-        // If we get here, there should be at least one <p> in plist.
-        // The description "should" always be the very last <p> in
-        // the div, so take the last one.
-        let description = plist[plist.length - 1].textContent;
+        // <div class="item-main-column"> element.  
+        const descriptionElt = querySelector('.item-main-column main p');
+        const description = descriptionElt?.innerText.trim();
         logger.log("ekas: description:", description);
 
         let media: I.Media = {
@@ -251,7 +163,7 @@ export class EkasPlugin extends BaseSitePlugin {
             author: username,
             filename: cleanfilename,
             siteFilename: filenameext,
-            extension: ext,
+            extension: ext || 'jpg',
             submissionId: id,
             siteName: serviceName,
             title: title,
