@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.6 (2026-11-23)
+
+* Updated the license to GPLv3 and added AI contribution section to CONTRIBUTING
+* [FurAffinity] Add support for viewing submissions and journals from comments manager (contrib by Eupeptic) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/220
+* [Mousepad] Fix open in tabs support for gallery pages
+* Add support for WebP and JPEG XL images in the 'fullscreen' view
+* Clicking logo on page logs scraped data to console for debugging purposes
+* [DeviantArt] Fix duplicate open in tabs bug (#219)
+* Fix Eka's portal download error & description scraping (#206)
+* [Patreon] Fix typo in extension scraping code
+* Add Patreon collection support (#203)
+
 ## 1.5.5 (2026-09-21)
 
 * Fix Inkbunny downloads (fixes #216) by @Simon-Tesla in https://github.com/Simon-Tesla/RaccoonyWebEx/pull/218
