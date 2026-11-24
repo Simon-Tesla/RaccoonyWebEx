@@ -158,7 +158,7 @@ export class PatreonPlugin extends BaseSitePlugin {
         let extIndex = url.pathname.lastIndexOf(".");
         let extension = url.pathname.substring(extIndex + 1);
         // Some newer patreon URLs don't contain extensions in them; leave it null if it doesn't
-        if (extension && (extIndex > -1 || !isValidExtension(extension))) {
+        if (extension && (extIndex === -1 || !isValidExtension(extension))) {
             extension = null;
         }
 
